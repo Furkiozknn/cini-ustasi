@@ -1,0 +1,1911 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>Çini Ustası</title>
+<meta name="description" content="Çini Ustası - an Iznik tile edge-matching puzzle in a cosy 3D workshop.">
+<meta property="og:title" content="Çini Ustası · Iznik Tile Puzzle">
+<meta property="og:description" content="Rotate, swap and flip hand-painted Iznik tiles until every motif connects, then fire the panel in the kiln. 30 levels, free in your browser.">
+<meta property="og:image" content="https://furkiozknn.github.io/cini-ustasi/docs/chapter3-level22-wall.png">
+<meta property="og:url" content="https://furkiozknn.github.io/cini-ustasi/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#2b2a3d; --ink-soft:#5b5a70; --cobalt:#1f4e9c; --cobalt-deep:#16356d; --turq:#1fa3a3; --coral:#d9452b; --emerald:#2e8b57; --gold:#d9a441; --cream:#fbf7ee;
+  --glass:rgba(253,249,240,0.66); --glass-strong:rgba(253,249,240,0.86); --glass-border:rgba(255,255,255,0.7);
+  --shadow:0 10px 32px rgba(70,40,15,0.20), 0 1px 0 rgba(255,255,255,0.6) inset;
+  --radius:18px; --font:'Nunito', 'Segoe UI', system-ui, sans-serif;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0; height:100%; overflow:hidden; background:#2a1d14; font-family:var(--font); color:var(--ink);}
+body{touch-action:none; user-select:none; -webkit-user-select:none;}
+#gl{position:fixed; inset:0; display:block; width:100%; height:100%; outline:none;}
+#hud{position:fixed; inset:0; pointer-events:none; z-index:5;}
+#hud > *{pointer-events:auto;}
+button{font-family:var(--font); cursor:pointer;}
+.glass{background:var(--glass); backdrop-filter:blur(16px) saturate(1.25); -webkit-backdrop-filter:blur(16px) saturate(1.25); border:1px solid var(--glass-border); border-radius:var(--radius); box-shadow:var(--shadow);}
+.hidden{display:none !important;}
+
+/* ---------- top bar ---------- */
+#topbar{position:absolute; top:10px; left:10px; right:10px; display:flex; align-items:center; gap:10px; padding:8px 12px; flex-wrap:wrap;}
+#topbar .logo{display:flex; align-items:center; gap:8px; font-weight:800; font-size:17px; color:var(--cobalt-deep); letter-spacing:.2px; white-space:nowrap;}
+#topbar .logo canvas{width:30px; height:30px; border-radius:6px; box-shadow:0 1px 3px rgba(0,0,0,.2);}
+#topbar .mid{display:flex; align-items:center; gap:14px; flex:1 1 auto; justify-content:center; min-width:0;}
+#lvlName{font-weight:800; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:38vw;}
+#lvlSub{font-size:12px; color:var(--ink-soft); white-space:nowrap;}
+.stat{display:flex; flex-direction:column; align-items:center; line-height:1.1;}
+.stat b{font-size:17px; font-weight:800; color:var(--cobalt-deep);}
+.stat span{font-size:11px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.6px;}
+#starsLive{font-size:17px; letter-spacing:2px; color:var(--gold); text-shadow:0 1px 0 rgba(255,255,255,.7);}
+#starsLive .off{color:rgba(90,80,70,.28); text-shadow:none;}
+#topbar .right{display:flex; align-items:center; gap:6px; margin-left:auto; flex-wrap:nowrap;}
+.ibtn{position:relative; width:40px; height:40px; border-radius:12px; border:1px solid rgba(255,255,255,.65); background:rgba(255,255,255,.55); color:var(--cobalt-deep); display:inline-flex; align-items:center; justify-content:center; transition:transform .12s, background .12s; padding:0;}
+.ibtn:hover{background:rgba(255,255,255,.9); transform:translateY(-1px);}
+.ibtn:active{transform:translateY(0) scale(.96);}
+.ibtn svg{width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
+.ibtn.off{color:#9a9aa8;}
+.ibtn.off::after{content:""; position:absolute; left:9px; right:9px; top:50%; height:2px; background:#c1444a; transform:rotate(-35deg); border-radius:2px;}
+.ibtn .badge{position:absolute; top:-6px; right:-6px; min-width:18px; height:18px; padding:0 5px; border-radius:9px; background:var(--coral); color:#fff; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; box-shadow:0 1px 3px rgba(0,0,0,.25);}
+.ibtn.txt{width:auto; padding:0 10px; font-weight:800; font-size:13px; letter-spacing:.5px;}
+
+/* ---------- overlays ---------- */
+.overlay{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:16px; background:radial-gradient(ellipse at center, rgba(40,25,10,.18), rgba(40,25,10,.46)); animation:fadeIn .35s ease;}
+.overlay.clear{background:none;}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.card{background:rgba(253,249,240,0.82); padding:26px 28px; max-width:520px; width:100%; text-align:center; animation:popIn .4s cubic-bezier(.2,.9,.3,1.2);}
+@keyframes popIn{from{transform:translateY(16px) scale(.96); opacity:0}to{transform:none; opacity:1}}
+.card h1{margin:0 0 4px; font-size:44px; font-weight:800; color:var(--cobalt-deep); letter-spacing:-.5px; line-height:1.05;}
+.card h2{margin:0 0 10px; font-size:26px; font-weight:800; color:var(--cobalt-deep);}
+.card p{margin:6px 0 14px; color:var(--ink-soft); font-size:15px; line-height:1.45;}
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; min-width:140px; padding:12px 22px; margin:5px; border-radius:14px; border:0; font-size:16px; font-weight:800; color:#fff; background:linear-gradient(180deg, #2a62bd, var(--cobalt)); box-shadow:0 6px 16px rgba(31,78,156,.35), 0 1px 0 rgba(255,255,255,.3) inset; transition:transform .12s, box-shadow .12s;}
+.btn:hover{transform:translateY(-2px); box-shadow:0 10px 22px rgba(31,78,156,.4);}
+.btn:active{transform:translateY(0);}
+.btn.alt{background:linear-gradient(180deg, #ffffff, #f1ebdd); color:var(--cobalt-deep); box-shadow:0 4px 12px rgba(60,40,10,.15);}
+.btn.turq{background:linear-gradient(180deg, #2bb8b8, var(--turq)); box-shadow:0 6px 16px rgba(31,163,163,.35);}
+.btn.coral{background:linear-gradient(180deg, #e8603f, var(--coral)); box-shadow:0 6px 16px rgba(217,69,43,.35);}
+.btn:disabled{opacity:.5; cursor:default; transform:none;}
+.btn.small{min-width:0; padding:8px 14px; font-size:14px;}
+.row{display:flex; flex-wrap:wrap; justify-content:center; gap:4px;}
+.logoBig{width:120px; height:120px; border-radius:20px; box-shadow:0 10px 24px rgba(40,20,0,.3); margin:0 auto 12px; display:block;}
+.titleDeco{display:flex; align-items:center; justify-content:center; gap:10px; margin:2px 0 14px; color:var(--turq); font-size:13px; letter-spacing:3px; text-transform:uppercase; font-weight:700;}
+.titleDeco::before,.titleDeco::after{content:""; width:46px; height:2px; background:linear-gradient(90deg, transparent, var(--turq)); border-radius:2px;}
+.titleDeco::after{background:linear-gradient(90deg, var(--turq), transparent);}
+.foot{margin-top:12px; display:flex; justify-content:center; gap:8px; flex-wrap:wrap;}
+.tiny{font-size:12px; color:var(--ink-soft);}
+
+/* ---------- level select ---------- */
+.panel{padding:20px 22px; max-width:920px; width:100%; max-height:calc(100% - 20px); overflow:auto; text-align:left; animation:popIn .35s ease;}
+.panel header{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px;}
+.panel header h2{margin:0; font-size:26px; color:var(--cobalt-deep);}
+.chapter{margin:10px 0 16px;}
+.chapter h3{margin:0 0 2px; font-size:17px; color:var(--cobalt-deep); display:flex; gap:10px; align-items:baseline;}
+.chapter h3 small{font-weight:600; color:var(--ink-soft); font-size:13px;}
+.chapter .desc{margin:0 0 10px; font-size:13px; color:var(--ink-soft);}
+.lgrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(78px, 1fr)); gap:10px;}
+.lcard{position:relative; aspect-ratio:1; border-radius:14px; border:1px solid rgba(255,255,255,.75); background:linear-gradient(180deg, rgba(255,255,255,.85), rgba(255,255,255,.55)); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; font-weight:800; color:var(--cobalt-deep); font-size:20px; box-shadow:0 3px 10px rgba(60,40,10,.12); transition:transform .12s, box-shadow .12s; padding:4px;}
+.lcard:hover:not(.locked){transform:translateY(-3px); box-shadow:0 10px 18px rgba(60,40,10,.18);}
+.lcard .st{font-size:13px; color:var(--gold); letter-spacing:1px;}
+.lcard .st .off{color:rgba(90,80,70,.25);}
+.lcard .nm{font-size:10px; font-weight:600; color:var(--ink-soft); text-align:center; line-height:1.1; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.lcard.locked{opacity:.55; cursor:default; color:#8a8a98;}
+.lcard.locked .nm{visibility:hidden;}
+.lcard.cur{outline:3px solid var(--turq); outline-offset:1px;}
+.lcard.daily{grid-column:span 2; aspect-ratio:auto; min-height:78px; background:linear-gradient(180deg, #d7f3f1, #bfe7e3);}
+.lcard .lock{width:22px; height:22px; stroke:currentColor; fill:none; stroke-width:2;}
+
+/* ---------- collection ---------- */
+.cgrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(130px, 1fr)); gap:14px;}
+.piece{display:flex; flex-direction:column; align-items:center; gap:6px;}
+.piece .fr{padding:7px; background:linear-gradient(135deg, #8a5a2b, #c9995a 50%, #8a5a2b); border-radius:6px; box-shadow:0 6px 14px rgba(40,20,0,.3), 0 0 0 1px rgba(255,255,255,.4) inset;}
+.piece canvas{display:block; width:112px; height:112px; border-radius:2px;}
+.piece .cap{font-size:12px; font-weight:700; color:var(--ink); text-align:center;}
+.piece .cap small{display:block; color:var(--gold); letter-spacing:1px;}
+.empty{padding:30px; text-align:center; color:var(--ink-soft);}
+
+/* ---------- complete card ---------- */
+.starsBig{font-size:56px; letter-spacing:6px; color:var(--gold); text-shadow:0 2px 0 rgba(255,255,255,.8), 0 6px 18px rgba(217,164,65,.45); margin:4px 0 2px; min-height:70px;}
+.starsBig span{display:inline-block; opacity:0; transform:scale(.3) rotate(-20deg); animation:starPop .5s cubic-bezier(.2,1,.3,1.3) forwards;}
+.starsBig span:nth-child(2){animation-delay:.18s}
+.starsBig span:nth-child(3){animation-delay:.36s}
+.starsBig span.off{color:rgba(90,80,70,.22); text-shadow:none;}
+@keyframes starPop{to{opacity:1; transform:none}}
+.scoreRow{display:flex; justify-content:center; gap:28px; margin:6px 0 10px;}
+.scoreRow .stat b{font-size:24px;}
+#completeCard canvas.preview{width:150px; height:150px; border-radius:4px; box-shadow:0 0 0 7px #a4742f, 0 0 0 9px #e2bd7e, 0 12px 24px rgba(0,0,0,.35); margin:14px auto 18px; display:block;}
+
+/* ---------- howto ---------- */
+.howto ul{list-style:none; padding:0; margin:0 0 10px; text-align:left;}
+.howto li{display:flex; gap:12px; align-items:center; padding:8px 0; border-bottom:1px dashed rgba(31,78,156,.15); font-size:15px; line-height:1.4;}
+.howto li:last-child{border-bottom:0;}
+.howto li .ic{flex:0 0 42px; height:42px; border-radius:12px; background:rgba(31,78,156,.09); display:flex; align-items:center; justify-content:center; color:var(--cobalt);}
+.howto li .ic svg{width:26px; height:26px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
+kbd{font-family:var(--font); background:#fff; border:1px solid #cfc9bb; border-bottom-width:2px; border-radius:6px; padding:0 6px; font-size:12px; font-weight:800; color:var(--cobalt-deep);}
+
+/* ---------- toasts ---------- */
+#toasts{position:absolute; bottom:22px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:6px; pointer-events:none;}
+.toast{padding:9px 16px; border-radius:999px; font-weight:700; font-size:14px; color:var(--cobalt-deep); animation:toastIn .3s ease, toastOut .4s ease 2.2s forwards; white-space:nowrap; max-width:92vw; overflow:hidden; text-overflow:ellipsis;}
+@keyframes toastIn{from{opacity:0; transform:translateY(10px)}to{opacity:1; transform:none}}
+@keyframes toastOut{to{opacity:0; transform:translateY(-6px)}}
+
+/* ---------- debug ---------- */
+#debug{position:absolute; left:10px; bottom:10px; max-width:min(520px, 92vw); padding:8px 10px; font:12px/1.4 Consolas, monospace; color:#fff; background:rgba(20,10,0,.72); border-radius:10px; white-space:pre-wrap; pointer-events:none;}
+#debug .err{color:#ff8a7a;}
+#loading{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:14px; background:radial-gradient(ellipse at center, #5a3b26, #2a1d14); color:#f3e7cf; font-size:18px; font-weight:700; z-index:4;}
+#loading .spin{width:46px; height:46px; border-radius:12px; background:conic-gradient(var(--cobalt) 0 25%, var(--turq) 0 50%, var(--coral) 0 75%, var(--emerald) 0); animation:spin 1.6s linear infinite; box-shadow:0 6px 18px rgba(0,0,0,.4);}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.noanim *{animation:none !important; transition:none !important;}
+.noanim .starsBig span{opacity:1; transform:none;}
+@media (max-width:640px){
+  #topbar{padding:6px 8px; gap:6px;}
+  #topbar .logo span{display:none;}
+  #topbar .mid{order:3; flex:1 0 100%; justify-content:space-between; padding:4px 2px 0;}
+  #lvlName{max-width:46vw; font-size:14px;}
+  .ibtn{width:36px; height:36px; border-radius:10px;}
+  .ibtn svg{width:20px; height:20px;}
+  .card{padding:20px 16px;}
+  .card h1{font-size:34px;}
+  .btn{min-width:120px; padding:11px 16px; font-size:15px;}
+  .lgrid{grid-template-columns:repeat(5, 1fr); gap:7px;}
+  .lcard{font-size:16px; border-radius:11px;}
+  .lcard .nm{display:none;}
+  .cgrid{grid-template-columns:repeat(2, 1fr);}
+  .scoreRow{gap:18px;}
+  .starsBig{font-size:46px;}
+}
+@media (max-height:520px){
+  .card h1{font-size:30px;} .logoBig{width:70px; height:70px;}
+}
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<div id="loading"><div class="spin"></div><div data-i18n="loading">Atölye hazırlanıyor…</div></div>
+<div id="hud">
+  <div id="topbar" class="glass hidden">
+    <div class="logo"><canvas id="logoSmall" width="64" height="64"></canvas><span>Çini Ustası</span></div>
+    <div class="mid">
+      <div class="stat" style="align-items:flex-start"><b id="lvlName">—</b><span id="lvlSub" style="text-transform:none;letter-spacing:0"></span></div>
+      <div class="stat"><b id="movesVal">0</b><span data-i18n="moves">Hamle</span></div>
+      <div class="stat"><b id="parVal">0</b><span data-i18n="par">Par</span></div>
+      <div class="stat"><b id="starsLive">★★★</b><span data-i18n="stars">Yıldız</span></div>
+    </div>
+    <div class="right">
+      <button class="ibtn" id="btnHint" data-tip="hint" title="İpucu (H)"><svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 17l.7 1.8 1.8.7-1.8.7L19 22l-.7-1.8-1.8-.7 1.8-.7z"/></svg><span class="badge" id="hintBadge">3</span></button>
+      <button class="ibtn" id="btnUndo" title="Geri al (Z)"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg></button>
+      <button class="ibtn" id="btnRestart" title="Yeniden (R)"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button>
+      <button class="ibtn" id="btnHelp" title="Nasıl oynanır?"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.8.4-1 .9-1 1.7"/><path d="M12 17h.01"/></svg></button>
+      <button class="ibtn" id="btnSound" title="Ses"><svg viewBox="0 0 24 24"><path d="M4 10v4h3l4 3V7L7 10z"/><path d="M15 9.5a4 4 0 0 1 0 5"/><path d="M17.5 7a7 7 0 0 1 0 10"/></svg></button>
+      <button class="ibtn" id="btnMusic" title="Müzik"><svg viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg></button>
+      <button class="ibtn txt" id="btnLang" title="Language">EN</button>
+      <button class="ibtn" id="btnMenu" title="Menü (Esc)"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    </div>
+  </div>
+
+  <div id="titleScreen" class="overlay hidden">
+    <div class="card glass">
+      <canvas id="logoBig" class="logoBig" width="256" height="256"></canvas>
+      <h1 data-i18n="title">Çini Ustası</h1>
+      <div class="titleDeco" data-i18n="subtitle">İznik çini bulmacası</div>
+      <p data-i18n="intro">Kenarlardaki motifleri eşleştir, panoyu fırınla, duvarını doldur.</p>
+      <div class="row">
+        <button class="btn" id="btnPlay" data-i18n="play">Oyna</button>
+        <button class="btn alt" id="btnLevels" data-i18n="levels">Bölümler</button>
+      </div>
+      <div class="row">
+        <button class="btn alt" id="btnCollection" data-i18n="collection">Koleksiyon</button>
+        <button class="btn turq" id="btnDaily" data-i18n="daily">Günün Çinisi</button>
+      </div>
+      <div class="foot">
+        <button class="ibtn" id="btnSound2" title="Ses"><svg viewBox="0 0 24 24"><path d="M4 10v4h3l4 3V7L7 10z"/><path d="M15 9.5a4 4 0 0 1 0 5"/><path d="M17.5 7a7 7 0 0 1 0 10"/></svg></button>
+        <button class="ibtn" id="btnMusic2" title="Müzik"><svg viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg></button>
+        <button class="ibtn txt" id="btnLang2">EN</button>
+      </div>
+      <div class="tiny" id="progressLine" style="margin-top:10px"></div>
+    </div>
+  </div>
+
+  <div id="levelScreen" class="overlay hidden">
+    <div class="panel glass">
+      <header><h2 data-i18n="levels">Bölümler</h2><button class="ibtn" id="btnLevelsClose" title="Kapat"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
+      <div id="chapters"></div>
+    </div>
+  </div>
+
+  <div id="collectionScreen" class="overlay hidden">
+    <div class="panel glass">
+      <header><h2 data-i18n="collection">Koleksiyon</h2><button class="ibtn" id="btnCollectionClose" title="Kapat"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
+      <div id="collectionGrid" class="cgrid"></div>
+    </div>
+  </div>
+
+  <div id="howtoScreen" class="overlay hidden">
+    <div class="card glass howto">
+      <h2 id="howtoTitle"></h2>
+      <ul id="howtoList"></ul>
+      <button class="btn" id="btnHowtoOk" data-i18n="start">Başla</button>
+    </div>
+  </div>
+
+  <div id="menuScreen" class="overlay hidden">
+    <div class="card glass">
+      <h2 data-i18n="paused">Mola</h2>
+      <div class="row"><button class="btn" id="btnResume" data-i18n="resume">Devam</button></div>
+      <div class="row"><button class="btn alt" id="btnMenuRestart" data-i18n="restart">Yeniden</button><button class="btn alt" id="btnMenuLevels" data-i18n="levels">Bölümler</button></div>
+      <div class="row"><button class="btn alt" id="btnMenuCollection" data-i18n="collection">Koleksiyon</button><button class="btn alt" id="btnMenuTitle" data-i18n="backToTitle">Ana ekran</button></div>
+    </div>
+  </div>
+
+  <div id="completeScreen" class="overlay clear hidden">
+    <div class="card glass" id="completeCard">
+      <h2 data-i18n="complete">Çini tamamlandı!</h2>
+      <div class="starsBig" id="starsBig"></div>
+      <canvas class="preview" id="completePreview" width="256" height="256"></canvas>
+      <div class="scoreRow">
+        <div class="stat"><b id="cMoves">0</b><span data-i18n="moves">Hamle</span></div>
+        <div class="stat"><b id="cPar">0</b><span data-i18n="par">Par</span></div>
+        <div class="stat"><b id="cBest">—</b><span data-i18n="best">En iyi</span></div>
+      </div>
+      <p id="cNote" data-i18n="fired">Fırından çıktı ve duvara asıldı.</p>
+      <div class="row">
+        <button class="btn" id="btnNext" data-i18n="next">Sonraki</button>
+        <button class="btn alt" id="btnReplay" data-i18n="replay">Tekrar</button>
+        <button class="btn alt" id="btnCompleteLevels" data-i18n="levels">Bölümler</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toasts"></div>
+  <div id="debug" class="hidden"></div>
+</div>
+
+
+<script>
+// Early error capture (before the module loads) so ?debug can show anything that went wrong.
+window.__ciniErrors = [];
+window.addEventListener('error', e => { window.__ciniErrors.push(String(e.message || e)); if (window.__ciniShowErr) window.__ciniShowErr(); });
+window.addEventListener('unhandledrejection', e => { window.__ciniErrors.push('Promise: ' + String(e.reason && (e.reason.stack || e.reason.message) || e.reason)); if (window.__ciniShowErr) window.__ciniShowErr(); });
+// If the module (three.js from the CDN) has not started within 20 s, say so instead of spinning forever.
+setTimeout(() => { if (!window.cini) { const l = document.getElementById('loading'); if (l) l.innerHTML = '<div style="padding:20px;max-width:560px;text-align:center;line-height:1.5">Three.js yüklenemedi. İnternet bağlantısı gerekir.<br><small>Three.js could not be loaded. An internet connection is required.</small>' + (window.__ciniErrors.length ? '<br><small style="color:#ffb3a6">' + window.__ciniErrors.join('<br>') + '</small>' : '') + '</div>'; } }, 20000);
+</script>
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+
+// ============================================================================
+//  Utilities
+// ============================================================================
+const PARAMS = new URLSearchParams(location.search);
+const FLAG = k => PARAMS.has(k);
+const LOW = FLAG('low');
+const DEBUG = FLAG('debug');
+const AUTO = FLAG('auto');
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+const lerp = (a, b, t) => a + (b - a) * t;
+const easeOut = t => 1 - Math.pow(1 - t, 3);
+const easeInOut = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const $ = id => document.getElementById(id);
+
+// ==== CORE BEGIN ====
+// Pure puzzle logic: no DOM, no three.js. (Also extracted and run under Node for the solver tests.)
+function mulberry32(seed) {
+  let a = seed >>> 0;
+  return function () {
+    a = (a + 0x6D2B79F5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function hashStr(s) { let h = 2166136261 >>> 0; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; } return h >>> 0; }
+function shuffle(arr, rng) { for (let i = arr.length - 1; i > 0; i--) { const j = (rng() * (i + 1)) | 0; const t = arr[i]; arr[i] = arr[j]; arr[j] = t; } return arr; }
+
+const SHAPES = ['tulip', 'carnation', 'saz', 'rumi', 'rosette'];
+const COLORS = ['cobalt', 'turquoise', 'coral', 'emerald'];
+// motif id 0 = border band (frame). Inner motif id = 1 + shape*4 + colour.
+const motifShape = id => SHAPES[((id - 1) / 4) | 0];
+const motifColor = id => COLORS[(id - 1) % 4];
+
+// n: board size, m: motif count, shuf: fraction of movable tiles permuted, fix: fixed tiles, flip: double-sided tiles
+const LEVEL_DEFS = [
+  // Chapter 1 - rotate only
+  { n: 3, m: 3 }, { n: 3, m: 3 }, { n: 3, m: 4 }, { n: 4, m: 4 }, { n: 4, m: 4 },
+  { n: 4, m: 5 }, { n: 4, m: 5 }, { n: 5, m: 5 }, { n: 5, m: 6 }, { n: 5, m: 6 },
+  // Chapter 2 - rotate + swap
+  { n: 3, m: 4, shuf: 0.5 }, { n: 3, m: 4, shuf: 1 }, { n: 4, m: 5, shuf: 0.5 }, { n: 4, m: 5, shuf: 0.75 }, { n: 4, m: 6, shuf: 1 },
+  { n: 4, m: 6, shuf: 1 }, { n: 5, m: 6, shuf: 0.6 }, { n: 5, m: 7, shuf: 0.8 }, { n: 5, m: 7, shuf: 1 }, { n: 5, m: 8, shuf: 1 },
+  // Chapter 3 - fixed tiles, double-sided tiles, 6x6
+  { n: 4, m: 5, shuf: 0.75, fix: 2, flip: 2 }, { n: 4, m: 6, shuf: 1, fix: 2, flip: 3 }, { n: 5, m: 6, shuf: 0.8, fix: 3, flip: 3 },
+  { n: 5, m: 7, shuf: 1, fix: 3, flip: 4 }, { n: 5, m: 7, shuf: 1, fix: 2, flip: 5 }, { n: 6, m: 7, shuf: 0.7, fix: 5, flip: 4 },
+  { n: 6, m: 8, shuf: 0.85, fix: 4, flip: 5 }, { n: 6, m: 8, shuf: 1, fix: 4, flip: 6 }, { n: 6, m: 9, shuf: 1, fix: 3, flip: 7 },
+  { n: 6, m: 10, shuf: 1, fix: 2, flip: 8 },
+];
+const DAILY_DEF = { n: 4, m: 5, shuf: 1, daily: true };
+const LEVEL_NAMES = [
+  ['İlk Fırça', 'First Brush'], ['Lale Tomurcuğu', 'Tulip Bud'], ['Karanfil Bahçesi', 'Carnation Garden'], ['Saz Yaprakları', 'Saz Leaves'], ['Rumi Kıvrımı', 'Rumi Scroll'],
+  ['Turkuaz Şafak', 'Turquoise Dawn'], ['Kobalt Göl', 'Cobalt Lake'], ['Mercan Kıyısı', 'Coral Shore'], ['Zümrüt Orman', 'Emerald Forest'], ['Çırak Sınavı', "Apprentice's Trial"],
+  ['Yer Değişimi', 'Changing Places'], ['Dört Köşe', 'Four Corners'], ['Bahar Panosu', 'Spring Panel'], ['Çeşme Başı', 'By the Fountain'], ['Sultanın Odası', "Sultan's Chamber"],
+  ['Hamam Duvarı', 'Bath House Wall'], ['Şadırvan', 'Ablution Fountain'], ['Çini Yolu', 'Tile Road'], ['Gece Bahçesi', 'Night Garden'], ['Kalfa Sınavı', "Journeyman's Trial"],
+  ['Pirinç Çivi', 'Brass Nail'], ['Ters Yüz', 'Flip Side'], ['Cami Mihrabı', 'Mosque Mihrab'], ['Saray Eyvanı', 'Palace Iwan'], ['Rüstem Paşa', 'Rüstem Pasha'],
+  ['Kubbe Kuşağı', 'Dome Band'], ['Mavi Pano', 'Blue Panel'], ['Yıldızlı Gök', 'Starry Sky'], ['Ustanın Mührü', "Master's Seal"], ['Büyük Pano', 'The Grand Panel'],
+];
+
+function rotEdges(base, rot) { const e = [0, 0, 0, 0]; for (let k = 0; k < 4; k++) e[k] = base[(k - rot + 4) % 4]; return e; }
+function canonKey(edges) { let best = null; for (let r = 0; r < 4; r++) { const k = rotEdges(edges, r).join(','); if (best === null || k < best) best = k; } return best; }
+
+// Pick m motif ids: colours spread round-robin so that small palettes have one shape per colour.
+function pickPalette(rng, m) {
+  const colors = shuffle([0, 1, 2, 3], rng);
+  const perColor = colors.map(() => shuffle([0, 1, 2, 3, 4], rng));
+  const pal = [];
+  for (let i = 0; i < m; i++) { const c = colors[i % 4]; const s = perColor[i % 4][(i / 4) | 0]; pal.push(1 + s * 4 + c); }
+  return pal;
+}
+
+// Build a level: solved board first, then scramble. Deterministic for a given seed.
+function generateLevel(def, seed) {
+  const rng = mulberry32(seed);
+  const n = def.n, N = n * n;
+  const palette = pickPalette(rng, def.m);
+  const pick = () => palette[(rng() * palette.length) | 0];
+  let tiles = null;
+  for (let attempt = 0; attempt < 400; attempt++) {
+    const H = [], V = [];
+    for (let r = 0; r <= n; r++) { H.push([]); for (let c = 0; c < n; c++) H[r].push(r === 0 || r === n ? 0 : pick()); }
+    for (let r = 0; r < n; r++) { V.push([]); for (let c = 0; c <= n; c++) V[r].push(c === 0 || c === n ? 0 : pick()); }
+    const t = [];
+    const keys = new Set();
+    let ok = true;
+    for (let r = 0; r < n && ok; r++) for (let c = 0; c < n; c++) {
+      const e = [H[r][c], V[r][c + 1], H[r + 1][c], V[r][c]];
+      if (e[0] === e[2] && e[1] === e[3]) { ok = false; break; } // 180° symmetric: ambiguous rotation
+      const k = canonKey(e);
+      if (keys.has(k)) { ok = false; break; } // duplicate tile up to rotation
+      keys.add(k);
+      t.push({ id: r * n + c, home: r * n + c, faces: [e], fixed: false });
+    }
+    if (ok) { tiles = t; break; }
+    if (attempt === 399) { tiles = t; }
+  }
+  const mech = { swap: !!def.shuf, flip: !!def.flip, fixed: !!def.fix };
+  const slots = tiles.map((t, i) => ({ t: i, rot: 0, face: 0 }));
+  // fixed tiles
+  if (def.fix) {
+    const order = shuffle(tiles.map(t => t.id), rng);
+    for (let i = 0; i < def.fix; i++) tiles[order[i]].fixed = true;
+  }
+  const movable = tiles.filter(t => !t.fixed).map(t => t.id);
+  // double-sided tiles: decoy back face (not a rotation of the front, not symmetric)
+  if (def.flip) {
+    const order = shuffle(movable.slice(), rng);
+    for (let i = 0; i < Math.min(def.flip, order.length); i++) {
+      const t = tiles[order[i]];
+      let back;
+      for (let k = 0; k < 50; k++) {
+        back = [pick(), pick(), pick(), pick()];
+        // 0..2 border edges allowed on the decoy so it can look plausible
+        const nb = (rng() * 3) | 0; for (let b = 0; b < nb; b++) back[(rng() * 4) | 0] = 0;
+        if (canonKey(back) !== canonKey(t.faces[0]) && !(back[0] === back[2] && back[1] === back[3])) break;
+      }
+      t.faces.push(back);
+    }
+  }
+  // scramble: permutation
+  if (def.shuf) {
+    const k = Math.max(2, Math.round(def.shuf * movable.length));
+    const chosen = shuffle(movable.slice(), rng).slice(0, k);
+    const perm = shuffle(chosen.slice(), rng);
+    const copy = slots.map(s => ({ ...s }));
+    for (let i = 0; i < k; i++) slots[chosen[i]] = copy[perm[i]];
+  }
+  // scramble: rotations and flips
+  for (let p = 0; p < N; p++) {
+    const s = slots[p]; const t = tiles[s.t];
+    if (t.fixed) continue;
+    if (rng() < 0.88) s.rot = 1 + ((rng() * 3) | 0);
+    if (t.faces.length > 1 && rng() < 0.8) s.face = 1;
+  }
+  const pz = { n, tiles, mech, palette, seed, def };
+  // make sure at least one thing is wrong, and that every double-sided tile has a wrong face if nothing else differs
+  if (isSolved(pz, slots)) { const p = movable[0]; slots.findIndex(s => s.t === p); const s = slots.find(s => s.t === p); s.rot = (s.rot + 1) % 4; }
+  const solution = tiles.map((t, i) => ({ t: i, rot: 0, face: 0 }));
+  pz.par = planMoves(pz, slots, solution).length;
+  pz.start = slots.map(s => ({ ...s }));
+  return pz;
+}
+
+function edgesAt(pz, s) { return rotEdges(pz.tiles[s.t].faces[s.face], s.rot); }
+
+// Returns list of matched edges for the glow and whether everything matches.
+function evaluate(pz, slots) {
+  const n = pz.n; const E = slots.map(s => edgesAt(pz, s));
+  const matched = []; let all = true;
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
+    const p = r * n + c, e = E[p];
+    // top
+    if (r === 0) { if (e[0] === 0) matched.push({ p, k: 0 }); else all = false; }
+    else { const u = E[p - n]; if (e[0] !== 0 && u[2] === e[0]) matched.push({ p, k: 0 }); else all = false; }
+    // left
+    if (c === 0) { if (e[3] === 0) matched.push({ p, k: 3 }); else all = false; }
+    else { const l = E[p - 1]; if (e[3] !== 0 && l[1] === e[3]) matched.push({ p, k: 3 }); else all = false; }
+    if (c === n - 1) { if (e[1] === 0) matched.push({ p, k: 1 }); else all = false; }
+    if (r === n - 1) { if (e[2] === 0) matched.push({ p, k: 2 }); else all = false; }
+  }
+  return { matched, solved: all };
+}
+function isSolved(pz, slots) { return evaluate(pz, slots).solved; }
+
+// Backtracking solver over the live state. Returns slots array (solution) or null.
+function solvePuzzle(pz, slots, nodeLimit) {
+  nodeLimit = nodeLimit || 6e6;
+  const n = pz.n, N = n * n, tiles = pz.tiles;
+  const orients = tiles.map(t => { const list = []; for (let f = 0; f < t.faces.length; f++) for (let r = 0; r < 4; r++) list.push({ face: f, rot: r, e: rotEdges(t.faces[f], r) }); return list; });
+  const assign = new Array(N).fill(null);
+  const used = new Uint8Array(tiles.length);
+  const posLocked = !pz.mech.swap;
+  for (let p = 0; p < N; p++) { const s = slots[p]; if (tiles[s.t].fixed) { assign[p] = { t: s.t, face: s.face, rot: s.rot, e: edgesAt(pz, s) }; used[s.t] = 1; } }
+  let nodes = 0, aborted = false;
+  const fits = (p, e) => {
+    const r = (p / n) | 0, c = p % n;
+    if (r === 0) { if (e[0] !== 0) return false; } else { const u = assign[p - n]; if (e[0] === 0 || (u && u.e[2] !== e[0])) return false; }
+    if (c === 0) { if (e[3] !== 0) return false; } else { const l = assign[p - 1]; if (e[3] === 0 || (l && l.e[1] !== e[3])) return false; }
+    if (c === n - 1) { if (e[1] !== 0) return false; } else { const rt = assign[p + 1]; if (e[1] === 0 || (rt && rt.e[3] !== e[1])) return false; }
+    if (r === n - 1) { if (e[2] !== 0) return false; } else { const d = assign[p + n]; if (e[2] === 0 || (d && d.e[0] !== e[2])) return false; }
+    return true;
+  };
+  // candidate tile order: current tile at this slot first (keeps hints close to the player's state)
+  const candidates = p => {
+    if (posLocked) return [slots[p].t];
+    const cur = slots[p].t; const list = [];
+    if (!used[cur] && !tiles[cur].fixed) list.push(cur);
+    for (let t = 0; t < tiles.length; t++) if (t !== cur && !used[t] && !tiles[t].fixed) list.push(t);
+    return list;
+  };
+  function rec(p) {
+    if (p === N) return true;
+    if (assign[p]) return rec(p + 1);
+    const cands = candidates(p);
+    for (let i = 0; i < cands.length; i++) {
+      const t = cands[i]; const ol = orients[t];
+      // orientation order: the current orientation first when it is the tile already here
+      let startIdx = 0;
+      if (t === slots[p].t) { const s = slots[p]; startIdx = ol.findIndex(o => o.face === s.face && o.rot === s.rot); if (startIdx < 0) startIdx = 0; }
+      for (let j = 0; j < ol.length; j++) {
+        const o = ol[(startIdx + j) % ol.length];
+        if (++nodes > nodeLimit) { aborted = true; return false; }
+        if (!fits(p, o.e)) continue;
+        assign[p] = { t, face: o.face, rot: o.rot, e: o.e }; used[t] = 1;
+        if (rec(p + 1)) return true;
+        assign[p] = null; used[t] = 0;
+        if (aborted) return false;
+      }
+    }
+    return false;
+  }
+  const ok = rec(0);
+  if (!ok) return null;
+  const sol = assign.map(a => ({ t: a.t, rot: a.rot, face: a.face }));
+  sol.nodes = nodes;
+  return sol;
+}
+
+// Moves to transform `slots` into `sol`: swaps (whole slot records travel), flips and single 90° clicks.
+function planMoves(pz, slots, sol) {
+  const cur = slots.map(s => ({ ...s })); const moves = [];
+  for (let p = 0; p < cur.length; p++) {
+    if (cur[p].t !== sol[p].t) {
+      const q = cur.findIndex(s => s.t === sol[p].t);
+      const tmp = cur[p]; cur[p] = cur[q]; cur[q] = tmp;
+      moves.push({ type: 'swap', a: p, b: q });
+    }
+  }
+  for (let p = 0; p < cur.length; p++) {
+    if (cur[p].face !== sol[p].face) moves.push({ type: 'flip', p });
+    const k = (sol[p].rot - cur[p].rot + 4) % 4;
+    for (let i = 0; i < k; i++) moves.push({ type: 'rot', p });
+  }
+  return moves;
+}
+function starsFor(moves, par) { return moves <= par ? 3 : moves <= Math.ceil(par * 1.6) + 2 ? 2 : 1; }
+function levelSeed(i) { return hashStr('cini-level-' + (i + 1) + '-v1'); }
+function dailyKey(d) { d = d || new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+function dailySeed(key) { return hashStr('cini-daily-' + key); }
+// ==== CORE END ====
+
+// ============================================================================
+//  i18n
+// ============================================================================
+const I18N = {
+  tr: {
+    loading: 'Atölye hazırlanıyor…', title: 'Çini Ustası', subtitle: 'İznik çini bulmacası', intro: 'Kenarlardaki motifleri eşleştir, panoyu fırınla, duvarını doldur.',
+    play: 'Oyna', continue: 'Devam et', levels: 'Bölümler', collection: 'Koleksiyon', daily: 'Günün Çinisi', dailyLocked: '1. bölüm bitince açılır',
+    chapter: 'Bölüm', level: 'Seviye', moves: 'Hamle', par: 'Par', stars: 'Yıldız', hint: 'İpucu', undo: 'Geri al', restart: 'Yeniden', menu: 'Menü', paused: 'Mola', resume: 'Devam',
+    backToTitle: 'Ana ekran', start: 'Başla', next: 'Sonraki', replay: 'Tekrar', best: 'En iyi', complete: 'Çini tamamlandı!', fired: 'Fırından çıktı ve duvara asıldı.',
+    noHints: 'İpucu kalmadı', hintUsed: 'Bir çini yerine oturdu', hintNone: 'Pano zaten doğru görünüyor', undone: 'Geri alındı', nothingToUndo: 'Geri alınacak hamle yok',
+    fixedTile: 'Bu çini sabit, oynamaz', notTwoSided: 'Bu çini tek yüzlü', noSwapHere: 'Bu bölümde çiniler yer değiştirmez', restarted: 'Pano yeniden karıştırıldı',
+    dailyUnlocked: 'Günün Çinisi açıldı!', allDone: 'Tüm panolar tamamlandı. Tebrikler, usta!', emptyCollection: 'Duvar henüz boş. İlk panoyu bitir, fırından çıksın!',
+    errorLoad: 'Three.js yüklenemedi. İnternet bağlantısı gerekir.', lowMode: 'Düşük grafik modu', locked: 'Kilitli', newPiece: 'Yeni parça koleksiyona eklendi',
+    chapterNames: ['Çırak', 'Kalfa', 'Usta'], chapterDesc: ['Çinileri döndür', 'Döndür ve yer değiştir', 'Sabit çiniler, çift yüzlü çiniler, 6×6 panolar'],
+    dailyName: 'Günün Çinisi', dailyBest: 'Bugünkü en iyi', closeTip: 'Kapat', soundTip: 'Ses', musicTip: 'Müzik', hintTip: 'İpucu (H)', undoTip: 'Geri al (Z)', restartTip: 'Yeniden (R)', helpTip: 'Nasıl oynanır?', menuTip: 'Menü (Esc)',
+    howto: [
+      { title: 'Kenarları eşleştir', lines: ['Bir çiniye dokun: 90° döner.', 'Komşu kenarlardaki motifler aynı olmalı: aynı şekil, aynı renk.', 'Kenar şeridi yalnızca dış çerçeveye bakar.', 'Eşleşen kenarlar altın gibi parlar. <kbd>Z</kbd> geri al, <kbd>H</kbd> ipucu, <kbd>R</kbd> yeniden.'] },
+      { title: 'Yer değiştir', lines: ['Bir çiniyi sürükleyip başka bir çininin üstüne bırak: yer değişirler.', 'Dokunmak yine döndürür. Doğru çiniyi doğru yere koy, sonra çevir.', 'Masaya sürükleyerek bakış açısını, tekerlekle yakınlığı ayarla.'] },
+      { title: 'Usta işi', lines: ['Pirinç çivili çiniler sabittir: yerinde durur, dönmez.', 'Ok işaretli çiniler çift yüzlüdür: sağ tık ya da uzun bas, ters yüz olur.', 'Panolar 6×6\'ya kadar büyür. Köşelerden başla, sabit çinileri rehber al.'] },
+      { title: 'Günün Çinisi', lines: ['Her gün yeni bir 4×4 pano. Döndür, yer değiştir, en az hamleyle bitir.', 'Bugünkü en iyi derecen kaydedilir.'] },
+    ],
+  },
+  en: {
+    loading: 'Preparing the workshop…', title: 'Çini Ustası', subtitle: 'Iznik tile puzzle', intro: 'Match the motifs on the edges, fire the panel, fill your wall.',
+    play: 'Play', continue: 'Continue', levels: 'Levels', collection: 'Collection', daily: 'Daily Tile', dailyLocked: 'Unlocks after chapter 1',
+    chapter: 'Chapter', level: 'Level', moves: 'Moves', par: 'Par', stars: 'Stars', hint: 'Hint', undo: 'Undo', restart: 'Restart', menu: 'Menu', paused: 'Paused', resume: 'Resume',
+    backToTitle: 'Title screen', start: 'Start', next: 'Next', replay: 'Replay', best: 'Best', complete: 'Panel complete!', fired: 'Fired in the kiln and hung on the wall.',
+    noHints: 'No hints left', hintUsed: 'One tile set right', hintNone: 'The board already looks right', undone: 'Undone', nothingToUndo: 'Nothing to undo',
+    fixedTile: 'This tile is fixed', notTwoSided: 'This tile has one side', noSwapHere: 'Tiles cannot be swapped in this chapter', restarted: 'Board reshuffled',
+    dailyUnlocked: 'Daily Tile unlocked!', allDone: 'All panels complete. Congratulations, master!', emptyCollection: 'The wall is empty. Finish your first panel and fire it!',
+    errorLoad: 'Three.js could not be loaded. An internet connection is required.', lowMode: 'Low graphics mode', locked: 'Locked', newPiece: 'New piece added to the collection',
+    chapterNames: ['Apprentice', 'Journeyman', 'Master'], chapterDesc: ['Rotate the tiles', 'Rotate and swap', 'Fixed tiles, double-sided tiles, 6×6 boards'],
+    dailyName: 'Daily Tile', dailyBest: "Today's best", closeTip: 'Close', soundTip: 'Sound', musicTip: 'Music', hintTip: 'Hint (H)', undoTip: 'Undo (Z)', restartTip: 'Restart (R)', helpTip: 'How to play', menuTip: 'Menu (Esc)',
+    howto: [
+      { title: 'Match the edges', lines: ['Tap a tile: it turns 90°.', 'Motifs on neighbouring edges must be the same: same shape, same colour.', 'The border band only faces the outer frame.', 'Matching edges glow gold. <kbd>Z</kbd> undo, <kbd>H</kbd> hint, <kbd>R</kbd> restart.'] },
+      { title: 'Swap places', lines: ['Drag a tile onto another tile: they swap places.', 'Tapping still rotates. Put the right tile in the right place, then turn it.', 'Drag on the table to tilt the view, scroll to zoom.'] },
+      { title: "Master's work", lines: ['Tiles with a brass nail are fixed: they stay put and do not turn.', 'Tiles with an arrow mark are double-sided: right-click or long-press to flip.', 'Boards grow up to 6×6. Start from the corners and use the fixed tiles as guides.'] },
+      { title: 'Daily Tile', lines: ['A new 4×4 board every day. Rotate, swap, finish in as few moves as you can.', "Today's best result is saved."] },
+    ],
+  },
+};
+let lang = 'tr';
+const t = k => (I18N[lang][k] !== undefined ? I18N[lang][k] : I18N.tr[k] !== undefined ? I18N.tr[k] : k);
+
+// ============================================================================
+//  Motif painter (canvas). Each edge shows one complete motif growing inward from the edge midpoint.
+//  Matching edges therefore show twin motifs meeting stem to stem across the gap.
+// ============================================================================
+const PAL = {
+  cobalt: { fill: '#1f4e9c', dark: '#143a78', light: '#5e86c8' },
+  turquoise: { fill: '#17a6b2', dark: '#107a84', light: '#7fd9dc' },
+  coral: { fill: '#d9452b', dark: '#a3301c', light: '#f08a6c' },
+  emerald: { fill: '#2f9a52', dark: '#1f6b38', light: '#8ad4a0' },
+};
+const INK = '#17315f';
+const TEX_SIZE = LOW ? 128 : 256;
+const STRIP = 16; // white strip below the motif area, used by the tile sides/bottom
+const textureCache = new Map();
+
+// Every motif is drawn in edge-local coordinates: x along the edge (-128..128), y inward (0 at the edge).
+// Shapes are widest at the edge and taper toward the tile centre, so four motifs never collide, and a
+// matched pair across the gap reads as one mirrored medallion.
+function setInk(ctx, u) { ctx.lineWidth = 4.5 * u; ctx.strokeStyle = INK; ctx.lineJoin = 'round'; ctx.lineCap = 'round'; }
+function drawTulip(ctx, S, col) {
+  const u = S / 256; setInk(ctx, u);
+  // two leaves lying along the edge
+  ctx.fillStyle = col.dark;
+  for (const s of [-1, 1]) { ctx.beginPath(); ctx.moveTo(s * 26 * u, 2 * u); ctx.quadraticCurveTo(s * 56 * u, -2 * u, s * 74 * u, 16 * u); ctx.quadraticCurveTo(s * 52 * u, 26 * u, s * 28 * u, 18 * u); ctx.closePath(); ctx.fill(); ctx.stroke(); }
+  // bud: cup on the edge, three petals toward the centre
+  ctx.fillStyle = col.fill;
+  ctx.beginPath();
+  ctx.moveTo(-32 * u, -2 * u);
+  ctx.quadraticCurveTo(-44 * u, 30 * u, -31 * u, 60 * u);
+  ctx.quadraticCurveTo(-31 * u, 74 * u, -29 * u, 86 * u);
+  ctx.quadraticCurveTo(-15 * u, 72 * u, -9 * u, 58 * u);
+  ctx.quadraticCurveTo(-4 * u, 90 * u, 0, 108 * u);
+  ctx.quadraticCurveTo(4 * u, 90 * u, 9 * u, 58 * u);
+  ctx.quadraticCurveTo(15 * u, 72 * u, 29 * u, 86 * u);
+  ctx.quadraticCurveTo(31 * u, 74 * u, 31 * u, 60 * u);
+  ctx.quadraticCurveTo(44 * u, 30 * u, 32 * u, -2 * u);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.beginPath(); ctx.ellipse(-15 * u, 30 * u, 5 * u, 15 * u, 0.12, 0, Math.PI * 2); ctx.fill();
+}
+function drawCarnation(ctx, S, col) {
+  const u = S / 256; setInk(ctx, u);
+  // serrated fan sitting on the edge; its twin on the neighbour completes a pompom
+  const cy = -14 * u, R = 62 * u, teeth = 11;
+  ctx.fillStyle = col.fill; ctx.beginPath();
+  for (let i = 0; i <= teeth; i++) {
+    const a = Math.PI - (i / teeth) * Math.PI; const rr = i % 2 ? R : R - 10 * u;
+    const x = Math.cos(a) * rr, y = cy + Math.sin(a) * rr;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  // radiating petal lines
+  ctx.strokeStyle = 'rgba(255,255,255,0.75)'; ctx.lineWidth = 3 * u;
+  for (const a of [-0.7, -0.35, 0, 0.35, 0.7]) { ctx.beginPath(); ctx.moveTo(Math.sin(a) * 10 * u, 2 * u); ctx.lineTo(Math.sin(a) * 46 * u, cy + Math.cos(a) * 54 * u); ctx.stroke(); }
+  // calyx and stem toward the centre
+  setInk(ctx, u); ctx.fillStyle = col.dark;
+  ctx.beginPath(); ctx.moveTo(-17 * u, 40 * u); ctx.lineTo(17 * u, 40 * u); ctx.lineTo(11 * u, 70 * u); ctx.lineTo(-11 * u, 70 * u); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = col.dark; ctx.lineWidth = 7 * u; ctx.beginPath(); ctx.moveTo(0, 70 * u); ctx.lineTo(0, 98 * u); ctx.stroke();
+}
+function drawSaz(ctx, S, col) {
+  const u = S / 256; setInk(ctx, u);
+  const W = y => 42 * Math.pow(Math.max(0, 1 - y / 104), 0.75);
+  ctx.fillStyle = col.fill; ctx.beginPath(); ctx.moveTo(-44 * u, -2 * u);
+  const segs = 6;
+  for (let i = 1; i <= segs; i++) { const y = i * 16, w = W(y); ctx.lineTo((-w - 9) * u, (y - 7) * u); ctx.lineTo(-w * u, y * u); }
+  ctx.lineTo(0, 106 * u);
+  for (let i = segs; i >= 1; i--) { const y = i * 16, w = W(y); ctx.lineTo(w * u, y * u); ctx.lineTo((w + 9) * u, (y - 7) * u); }
+  ctx.lineTo(44 * u, -2 * u); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,0.8)'; ctx.lineWidth = 3.5 * u; ctx.beginPath(); ctx.moveTo(0, 4 * u); ctx.lineTo(0, 88 * u); ctx.stroke();
+  ctx.lineWidth = 2.5 * u; for (let i = 1; i <= 4; i++) { const y = i * 18; const w = W(y) * 0.6; ctx.beginPath(); ctx.moveTo(-w * u, (y - 10) * u); ctx.lineTo(0, y * u); ctx.lineTo(w * u, (y - 10) * u); ctx.stroke(); }
+}
+function drawRumi(ctx, S, col) {
+  const u = S / 256; setInk(ctx, u);
+  // split palmette: two curls spreading along the edge
+  ctx.fillStyle = col.fill;
+  for (const s of [-1, 1]) {
+    ctx.beginPath(); ctx.moveTo(0, 4 * u);
+    ctx.bezierCurveTo(s * 30 * u, -4 * u, s * 66 * u, -2 * u, s * 70 * u, 22 * u);
+    ctx.bezierCurveTo(s * 72 * u, 40 * u, s * 54 * u, 48 * u, s * 48 * u, 36 * u);
+    ctx.bezierCurveTo(s * 46 * u, 28 * u, s * 56 * u, 24 * u, s * 58 * u, 30 * u);
+    ctx.bezierCurveTo(s * 54 * u, 14 * u, s * 30 * u, 14 * u, 0, 26 * u);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+  }
+  // central almond bud
+  ctx.beginPath(); ctx.moveTo(-19 * u, 8 * u); ctx.quadraticCurveTo(-26 * u, 52 * u, 0, 102 * u); ctx.quadraticCurveTo(26 * u, 52 * u, 19 * u, 8 * u); ctx.quadraticCurveTo(0, -2 * u, -19 * u, 8 * u); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.beginPath(); ctx.ellipse(-5 * u, 40 * u, 4 * u, 18 * u, 0.1, 0, Math.PI * 2); ctx.fill();
+}
+function drawRosette(ctx, S, col) {
+  const u = S / 256; setInk(ctx, u);
+  const cy = 34 * u, R = 30 * u, petals = 8;
+  // small pointed leaf toward the centre
+  ctx.fillStyle = col.dark; ctx.beginPath(); ctx.moveTo(-10 * u, 62 * u); ctx.quadraticCurveTo(-11 * u, 86 * u, 0, 100 * u); ctx.quadraticCurveTo(11 * u, 86 * u, 10 * u, 62 * u); ctx.closePath(); ctx.fill(); ctx.stroke();
+  // scalloped round flower on the edge
+  ctx.fillStyle = col.fill; ctx.beginPath();
+  for (let i = 0; i < petals; i++) {
+    const a0 = (i / petals) * Math.PI * 2, a1 = ((i + 0.5) / petals) * Math.PI * 2, a2 = ((i + 1) / petals) * Math.PI * 2;
+    if (i === 0) ctx.moveTo(Math.cos(a0) * R * 0.84, cy + Math.sin(a0) * R * 0.84);
+    ctx.quadraticCurveTo(Math.cos(a1) * R * 1.3, cy + Math.sin(a1) * R * 1.3, Math.cos(a2) * R * 0.84, cy + Math.sin(a2) * R * 0.84);
+  }
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.lineWidth = 3.5 * u; ctx.beginPath(); ctx.arc(0, cy, R * 0.52, 0, Math.PI * 2); ctx.stroke();
+  ctx.fillStyle = col.dark; ctx.beginPath(); ctx.arc(0, cy, R * 0.26, 0, Math.PI * 2); ctx.fill();
+}
+const SHAPE_FN = { tulip: drawTulip, carnation: drawCarnation, saz: drawSaz, rumi: drawRumi, rosette: drawRosette };
+
+function drawBorderBand(ctx, S) {
+  // band along the edge: cobalt strip with a white lozenge chain and a turquoise hairline (same pattern as the frame)
+  const u = S / 256;
+  ctx.fillStyle = PAL.cobalt.fill; ctx.fillRect(-S / 2, 0, S, 32 * u);
+  ctx.fillStyle = PAL.turquoise.fill; ctx.fillRect(-S / 2, 32 * u, S, 6 * u);
+  ctx.fillStyle = '#fbf7ee';
+  for (let x = -S / 2 + 18 * u; x < S / 2; x += 36 * u) {
+    ctx.beginPath(); ctx.moveTo(x, 5 * u); ctx.lineTo(x + 11 * u, 16 * u); ctx.lineTo(x, 27 * u); ctx.lineTo(x - 11 * u, 16 * u); ctx.closePath(); ctx.fill();
+  }
+  ctx.fillStyle = PAL.cobalt.light;
+  for (let x = -S / 2; x < S / 2; x += 36 * u) { ctx.beginPath(); ctx.arc(x, 16 * u, 3.5 * u, 0, Math.PI * 2); ctx.fill(); }
+}
+
+// Draw one edge motif in edge-local coordinates: x along the edge, y pointing into the tile.
+function drawEdgeMotif(ctx, S, k, id) {
+  ctx.save();
+  ctx.translate(S / 2, S / 2);
+  ctx.rotate(k * Math.PI / 2);
+  ctx.translate(0, -S / 2);
+  // clip to the tile interior (this half of the edge pair)
+  ctx.beginPath(); ctx.rect(-S / 2, 0, S, S / 2); ctx.clip();
+  if (id === 0) drawBorderBand(ctx, S);
+  else {
+    const col = PAL[motifColor(id)];
+    ctx.save(); ctx.scale(S / 256, S / 256); ctx.lineJoin = 'round';
+    SHAPE_FN[motifShape(id)](ctx, 256, col);
+    ctx.restore();
+  }
+  ctx.restore();
+}
+
+function glazeBackground(ctx, S, rng) {
+  const g = ctx.createRadialGradient(S * 0.45, S * 0.4, S * 0.1, S / 2, S / 2, S * 0.75);
+  g.addColorStop(0, '#fdfbf4'); g.addColorStop(1, '#efe9d8');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, S, S);
+  // speckles
+  ctx.fillStyle = 'rgba(80,70,50,0.07)';
+  for (let i = 0; i < 40; i++) { const x = rng() * S, y = rng() * S, r = rng() * 1.6 * (S / 256) + 0.4; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); }
+}
+function drawCenterOrnament(ctx, S, kind) {
+  const u = S / 256, cx = S / 2, cy = S / 2;
+  if (kind === 'fixed') {
+    // brass nail head
+    const g = ctx.createRadialGradient(cx - 4 * u, cy - 4 * u, 2 * u, cx, cy, 16 * u);
+    g.addColorStop(0, '#fff2c0'); g.addColorStop(0.5, '#d9a441'); g.addColorStop(1, '#7a5214');
+    ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.beginPath(); ctx.arc(cx + 2 * u, cy + 3 * u, 15 * u, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, 14 * u, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#5a3a0c'; ctx.lineWidth = 2 * u; ctx.beginPath(); ctx.moveTo(cx - 7 * u, cy); ctx.lineTo(cx + 7 * u, cy); ctx.stroke();
+    return;
+  }
+  if (kind === 'flip') {
+    // two curved arrows in a ring
+    ctx.strokeStyle = INK; ctx.lineWidth = 3.5 * u; ctx.lineCap = 'round'; ctx.fillStyle = INK;
+    const r = 13 * u;
+    for (const s of [0, Math.PI]) {
+      ctx.beginPath(); ctx.arc(cx, cy, r, s + 0.35, s + Math.PI - 0.5); ctx.stroke();
+      const a = s + Math.PI - 0.5, x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r;
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(a + 1.9) * 7 * u, y + Math.sin(a + 1.9) * 7 * u); ctx.lineTo(x + Math.cos(a + 0.6) * 8 * u, y + Math.sin(a + 0.6) * 8 * u); ctx.closePath(); ctx.fill();
+    }
+    return;
+  }
+  // small eight-point star
+  ctx.fillStyle = 'rgba(31,163,163,0.55)';
+  ctx.beginPath();
+  for (let i = 0; i < 16; i++) { const a = (i / 16) * Math.PI * 2; const r = (i % 2 ? 3 : 8) * u; ctx.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r); }
+  ctx.closePath(); ctx.fill();
+}
+
+// Paints a tile face into a canvas of TEX_SIZE x (TEX_SIZE + STRIP). kind: 'plain' | 'fixed' | 'flip'
+function paintTile(edges, kind, S, seed) {
+  S = S || TEX_SIZE;
+  const cv = document.createElement('canvas'); cv.width = S; cv.height = S + STRIP;
+  const ctx = cv.getContext('2d');
+  const rng = mulberry32(seed || 7);
+  ctx.fillStyle = '#f4f0e4'; ctx.fillRect(0, S, S, STRIP);
+  glazeBackground(ctx, S, rng);
+  for (let k = 0; k < 4; k++) drawEdgeMotif(ctx, S, k, edges[k]);
+  drawCenterOrnament(ctx, S, kind);
+  return cv;
+}
+function tileTexture(edges, kind, seed) {
+  const key = edges.join(',') + '|' + kind + '|' + TEX_SIZE;
+  let tex = textureCache.get(key);
+  if (!tex) {
+    tex = new THREE.CanvasTexture(paintTile(edges, kind, TEX_SIZE, seed));
+    tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = LOW ? 1 : 4;
+    tex.generateMipmaps = true; tex.minFilter = THREE.LinearMipmapLinearFilter;
+    textureCache.set(key, tex);
+  }
+  return tex;
+}
+// Composite picture of a solved board (used for the kiln output, the wall and the gallery).
+function paintBoardPicture(pz, size) {
+  const n = pz.n, cell = Math.floor(size / n), S = cell * n;
+  const cv = document.createElement('canvas'); cv.width = S; cv.height = S;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = '#1c2a44'; ctx.fillRect(0, 0, S, S);
+  const faceSize = Math.min(256, Math.max(64, Math.ceil(cell * 1.2)));
+  for (let p = 0; p < n * n; p++) {
+    const tl = pz.tiles[p];
+    const img = paintTile(tl.faces[0], tl.fixed ? 'fixed' : tl.faces.length > 1 ? 'flip' : 'plain', faceSize, 11 + p);
+    const r = (p / n) | 0, c = p % n; const gap = Math.max(1, cell * 0.03);
+    ctx.drawImage(img, 0, 0, faceSize, faceSize, c * cell + gap / 2, r * cell + gap / 2, cell - gap, cell - gap);
+  }
+  return cv;
+}
+function paintLogo(cv) {
+  const S = cv.width;
+  const img = paintTile([1 + 0 * 4 + 2, 1 + 1 * 4 + 1, 1 + 4 * 4 + 0, 1 + 3 * 4 + 3], 'plain', S, 3);
+  const ctx = cv.getContext('2d'); ctx.drawImage(img, 0, 0, S, S, 0, 0, S, S);
+}
+
+
+// ============================================================================
+//  Audio: generated music (oud-like plucks over a soft drone) and synthesised SFX
+// ============================================================================
+const Sound = (() => {
+  let ctx = null, master, musicBus, sfxBus, delay, delayGain, drone = null;
+  let soundOn = true, musicOn = true, musicTimer = null, nextNote = 0, degree = 0, noiseBuf = null;
+  const SCALE = [293.66, 311.13, 369.99, 392.0, 440.0, 466.16, 523.25, 587.33, 622.25, 739.99]; // Hicaz on D
+  function ensure() {
+    if (!ctx) {
+      try {
+        const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return false;
+        ctx = new AC();
+        master = ctx.createGain(); master.gain.value = 0.9; master.connect(ctx.destination);
+        musicBus = ctx.createGain(); musicBus.gain.value = musicOn ? 1 : 0; musicBus.connect(master);
+        sfxBus = ctx.createGain(); sfxBus.gain.value = soundOn ? 1 : 0; sfxBus.connect(master);
+        // simple feedback delay as a room
+        delay = ctx.createDelay(1.0); delay.delayTime.value = 0.27;
+        delayGain = ctx.createGain(); delayGain.gain.value = 0.32;
+        const dl = ctx.createBiquadFilter(); dl.type = 'lowpass'; dl.frequency.value = 1800;
+        delay.connect(dl); dl.connect(delayGain); delayGain.connect(delay); delayGain.connect(master);
+        noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 1, ctx.sampleRate);
+        const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      } catch (e) { return false; }
+    }
+    if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+    return true;
+  }
+  function noise(dur, type, freq, q, gain, when, bus, sweepTo) {
+    const src = ctx.createBufferSource(); src.buffer = noiseBuf;
+    const f = ctx.createBiquadFilter(); f.type = type; f.frequency.setValueAtTime(freq, when); if (sweepTo) f.frequency.exponentialRampToValueAtTime(sweepTo, when + dur); f.Q.value = q || 1;
+    const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, when); g.gain.exponentialRampToValueAtTime(gain, when + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, when + dur);
+    src.connect(f); f.connect(g); g.connect(bus || sfxBus); src.start(when); src.stop(when + dur + 0.05);
+  }
+  function tone(freq, when, dur, gain, type, bus, detune) {
+    const o = ctx.createOscillator(); o.type = type || 'sine'; o.frequency.value = freq; if (detune) o.detune.value = detune;
+    const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, when); g.gain.exponentialRampToValueAtTime(gain, when + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, when + dur);
+    o.connect(g); g.connect(bus || sfxBus); o.start(when); o.stop(when + dur + 0.05); return o;
+  }
+  // oud-ish pluck: two slightly detuned triangle strings through a lowpass, plus a tiny attack noise
+  function pluck(freq, when, vel, dur) {
+    const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.setValueAtTime(freq * 6, when); f.frequency.exponentialRampToValueAtTime(freq * 1.5, when + dur * 0.8); f.Q.value = 0.7;
+    const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, when); g.gain.exponentialRampToValueAtTime(vel, when + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, when + dur);
+    f.connect(g); g.connect(musicBus); g.connect(delay);
+    for (const dt of [-5, 6]) { const o = ctx.createOscillator(); o.type = 'triangle'; o.frequency.value = freq; o.detune.value = dt; o.connect(f); o.start(when); o.stop(when + dur + 0.05); }
+    const o2 = ctx.createOscillator(); o2.type = 'sine'; o2.frequency.value = freq * 2; const g2 = ctx.createGain(); g2.gain.setValueAtTime(vel * 0.25, when); g2.gain.exponentialRampToValueAtTime(0.0001, when + dur * 0.4); o2.connect(g2); g2.connect(musicBus); o2.start(when); o2.stop(when + dur);
+    noise(0.03, 'bandpass', freq * 3, 2, vel * 0.5, when, musicBus);
+  }
+  function startDrone() {
+    if (drone) return;
+    drone = ctx.createGain(); drone.gain.value = 0.0001; drone.connect(musicBus);
+    drone.gain.exponentialRampToValueAtTime(0.05, ctx.currentTime + 4);
+    for (const [fq, g] of [[73.42, 1], [110, 0.5], [146.83, 0.35]]) {
+      const o = ctx.createOscillator(); o.type = 'sine'; o.frequency.value = fq; const gg = ctx.createGain(); gg.gain.value = g; o.connect(gg); gg.connect(drone); o.start();
+      const lfo = ctx.createOscillator(); lfo.frequency.value = 0.08 + Math.random() * 0.06; const lg = ctx.createGain(); lg.gain.value = g * 0.3; lfo.connect(lg); lg.connect(gg.gain); lfo.start();
+    }
+  }
+  function schedule() {
+    if (!ctx || !musicOn) return;
+    const now = ctx.currentTime;
+    while (nextNote < now + 0.6) {
+      if (nextNote < now) nextNote = now + 0.1;
+      // melodic random walk with a pull toward the tonic and fifth
+      const step = Math.random() < 0.25 ? 0 : (Math.random() < 0.5 ? -1 : 1) * (Math.random() < 0.75 ? 1 : 2);
+      degree = clamp(degree + step, 0, SCALE.length - 1);
+      if (Math.random() < 0.12) degree = Math.random() < 0.5 ? 0 : 4;
+      const vel = 0.07 + Math.random() * 0.05;
+      pluck(SCALE[degree], nextNote, vel, 1.6 + Math.random() * 1.2);
+      if (Math.random() < 0.25) pluck(SCALE[clamp(degree + (Math.random() < 0.5 ? 2 : -2), 0, SCALE.length - 1)], nextNote + 0.18, vel * 0.5, 1.2);
+      if (Math.random() < 0.1) pluck(SCALE[0] / 2, nextNote + 0.02, vel * 0.8, 2.4);
+      nextNote += [0.8, 1.0, 1.2, 1.6, 2.0, 2.6][(Math.random() * 6) | 0];
+    }
+  }
+  const api = {
+    get soundOn() { return soundOn; }, get musicOn() { return musicOn; },
+    unlock() { if (ensure() && musicOn) api.startMusic(); },
+    setSound(v) { soundOn = v; if (ctx) sfxBus.gain.setTargetAtTime(v ? 1 : 0, ctx.currentTime, 0.02); },
+    setMusic(v) { musicOn = v; if (!ctx) return; if (v) { api.startMusic(); musicBus.gain.setTargetAtTime(1, ctx.currentTime, 0.3); } else musicBus.gain.setTargetAtTime(0, ctx.currentTime, 0.3); },
+    startMusic() { if (!ensure() || !musicOn) return; startDrone(); if (!musicTimer) { nextNote = ctx.currentTime + 0.5; musicTimer = setInterval(schedule, 250); schedule(); } },
+    pause() { if (ctx && ctx.state === 'running') ctx.suspend().catch(() => {}); },
+    resume() { if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {}); },
+    // ---- SFX ----
+    click() { if (!ensure() || !soundOn) return; const n = ctx.currentTime; noise(0.04, 'bandpass', 2600, 1.5, 0.25, n); tone(1900, n, 0.05, 0.08, 'sine'); },
+    rotate() { if (!ensure() || !soundOn) return; const n = ctx.currentTime; noise(0.16, 'bandpass', 900, 1.2, 0.18, n, null, 2400); tone(660, n + 0.02, 0.12, 0.05, 'triangle'); },
+    swap() { if (!ensure() || !soundOn) return; const n = ctx.currentTime; noise(0.22, 'bandpass', 500, 1, 0.2, n, null, 1600); tone(440, n, 0.1, 0.05, 'triangle'); tone(550, n + 0.12, 0.1, 0.05, 'triangle'); },
+    flip() { if (!ensure() || !soundOn) return; const n = ctx.currentTime; noise(0.12, 'bandpass', 1400, 1.5, 0.2, n, null, 500); tone(880, n + 0.1, 0.08, 0.06, 'sine'); },
+    lift() { if (!ensure() || !soundOn) return; const n = ctx.currentTime; noise(0.08, 'highpass', 3000, 1, 0.12, n); },
+    match(count) { if (!ensure() || !soundOn) return; const n = ctx.currentTime; const base = [523.25, 659.25, 783.99, 1046.5]; for (let i = 0; i < Math.min(3, count); i++) { tone(base[i], n + i * 0.06, 0.5, 0.07, 'sine'); tone(base[i] * 2, n + i * 0.06, 0.25, 0.02, 'sine'); } },
+    deny() { if (!ensure() || !soundOn) return; const n = ctx.currentTime; tone(220, n, 0.12, 0.08, 'square'); tone(196, n + 0.1, 0.14, 0.08, 'square'); },
+    whoosh() { if (!ensure() || !soundOn) return; const n = ctx.currentTime; noise(1.4, 'lowpass', 300, 0.8, 0.5, n, null, 2800); noise(1.2, 'bandpass', 120, 2, 0.35, n + 0.2, null, 60); },
+    fire() { if (!ensure() || !soundOn) return; const n = ctx.currentTime; noise(1.8, 'lowpass', 900, 0.5, 0.3, n, null, 200); for (let i = 0; i < 8; i++) noise(0.05, 'highpass', 4000, 1, 0.12, n + 0.2 + Math.random() * 1.3); },
+    fanfare() { if (!ensure() || !soundOn) return; const n = ctx.currentTime; const notes = [587.33, 739.99, 880, 1174.66, 1479.98]; notes.forEach((f, i) => { tone(f, n + i * 0.11, 0.9, 0.09, 'triangle'); tone(f * 0.5, n + i * 0.11, 0.9, 0.05, 'sine'); }); tone(1174.66, n + 0.7, 1.6, 0.08, 'sine'); tone(1479.98, n + 0.7, 1.6, 0.06, 'sine'); tone(1760, n + 0.7, 1.6, 0.05, 'sine'); },
+    star() { if (!ensure() || !soundOn) return; const n = ctx.currentTime; tone(1567.98, n, 0.4, 0.06, 'sine'); tone(2093, n + 0.05, 0.5, 0.04, 'sine'); },
+    ui() { if (!ensure() || !soundOn) return; const n = ctx.currentTime; tone(1200, n, 0.06, 0.05, 'sine'); },
+  };
+  return api;
+})();
+
+// ============================================================================
+//  Scene
+// ============================================================================
+const TABLE_Y = 1.0;
+const BOARD_SIZE = 3.6;
+const WALL_Z = -4.2;
+const KILN_POS = new THREE.Vector3(4.8, 0, -3.0);
+const KILN_MOUTH = new THREE.Vector3(4.8, 0.95, -2.1);
+const GALLERY = { cols: 6, rows: 2, x0: -1.75, dx: 0.92, y: [2.08, 1.32], size: 0.62, z: WALL_Z + 0.03 };
+const MAX_WALL = GALLERY.cols * GALLERY.rows;
+
+const renderer = new THREE.WebGLRenderer({ canvas: $('gl'), antialias: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, LOW ? 1 : 1.5));
+renderer.shadowMap.enabled = !LOW;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#5a3b26');
+scene.fog = new THREE.Fog('#5a3b26', 16, 30);
+const camera = new THREE.PerspectiveCamera(46, 1, 0.1, 60);
+const CAM = { target: new THREE.Vector3(0, 1.25, -0.45), dist: 7.7, polar: 48 * Math.PI / 180, azim: 0, zoom: 1 };
+
+function updateCamera() {
+  const aspect = camera.aspect;
+  // in portrait the board must still fit horizontally
+  const hTan = Math.tan(camera.fov * Math.PI / 360) * aspect;
+  const need = 2.75 / hTan;
+  const dist = Math.max(CAM.dist, need) * CAM.zoom;
+  const sp = Math.sin(CAM.polar), cp = Math.cos(CAM.polar);
+  camera.position.set(CAM.target.x + dist * sp * Math.sin(CAM.azim), CAM.target.y + dist * cp, CAM.target.z + dist * sp * Math.cos(CAM.azim));
+  camera.lookAt(CAM.target);
+}
+function resize() {
+  const w = window.innerWidth, h = window.innerHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h; camera.updateProjectionMatrix();
+  updateCamera();
+}
+window.addEventListener('resize', resize);
+
+// ---- lights ----
+const hemi = new THREE.HemisphereLight('#ffe7c4', '#5a3a28', 0.9); scene.add(hemi);
+const sun = new THREE.DirectionalLight('#ffd9a6', 2.0);
+sun.position.set(-5.5, 8, -2.5); sun.target.position.set(0.5, 1, 0.5); scene.add(sun); scene.add(sun.target);
+sun.castShadow = !LOW;
+sun.shadow.mapSize.set(1024, 1024);
+sun.shadow.camera.left = -4.2; sun.shadow.camera.right = 4.2; sun.shadow.camera.top = 4.2; sun.shadow.camera.bottom = -4.2;
+sun.shadow.camera.near = 2; sun.shadow.camera.far = 22; sun.shadow.bias = -0.0006; sun.shadow.normalBias = 0.02;
+const kilnLight = new THREE.PointLight('#ff8a2a', 1.4, 7, 1.6); kilnLight.position.copy(KILN_MOUTH).add(new THREE.Vector3(0, 0.1, 0.5)); scene.add(kilnLight);
+
+
+// ---- geometry helpers (vertex coloured, merged) ----
+const _c = new THREE.Color();
+function colorize(geo, hex, jitter) {
+  const n = geo.attributes.position.count; const arr = new Float32Array(n * 3);
+  _c.set(hex);
+  for (let i = 0; i < n; i++) { const j = jitter ? 1 + (Math.random() - 0.5) * jitter : 1; arr[i * 3] = _c.r * j; arr[i * 3 + 1] = _c.g * j; arr[i * 3 + 2] = _c.b * j; }
+  geo.setAttribute('color', new THREE.BufferAttribute(arr, 3));
+  return geo;
+}
+function box(list, w, h, d, x, y, z, hex, opts) {
+  opts = typeof opts === 'number' ? { jitter: opts } : (opts || {});
+  const g = new THREE.BoxGeometry(w, h, d);
+  if (opts.ry) g.rotateY(opts.ry); if (opts.rx) g.rotateX(opts.rx); if (opts.rz) g.rotateZ(opts.rz);
+  g.translate(x, y, z); colorize(g, hex, opts.jitter); list.push(g); return g;
+}
+function cyl(list, rt, rb, h, x, y, z, hex, opts) {
+  opts = typeof opts === 'number' ? { jitter: opts } : (opts || {});
+  const g = new THREE.CylinderGeometry(rt, rb, h, opts.seg || 14, 1, !!opts.open);
+  if (opts.rx) g.rotateX(opts.rx); if (opts.rz) g.rotateZ(opts.rz); if (opts.ry) g.rotateY(opts.ry);
+  g.translate(x, y, z); colorize(g, hex, opts.jitter); list.push(g); return g;
+}
+function mergeToMesh(list, mat, opts) {
+  const geo = mergeGeometries(list, false);
+  const mesh = new THREE.Mesh(geo, mat);
+  if (opts && opts.shadow) { mesh.castShadow = true; mesh.receiveShadow = true; }
+  return mesh;
+}
+const lambertVC = new THREE.MeshLambertMaterial({ vertexColors: true });
+
+function buildRoom() {
+  const L = [];
+  // floor: terracotta tiles with slight variation
+  for (let x = -8; x < 8; x++) for (let z = -5; z < 7; z++) {
+    const g = new THREE.PlaneGeometry(1, 1); g.rotateX(-Math.PI / 2); g.translate(x + 0.5, 0, z + 0.5);
+    colorize(g, (x + z) % 2 ? '#a9603f' : '#b56b47', 0.1); L.push(g);
+  }
+  // grout lines (thin boxes) for a hand-laid look
+  for (let x = -8; x <= 8; x++) box(L, 0.03, 0.005, 12, x, 0.003, 1, '#7a4530');
+  for (let z = -5; z <= 7; z++) box(L, 16, 0.005, 0.03, 0, 0.003, z, '#7a4530');
+  // walls
+  box(L, 12.4, 5.2, 0.2, 0, 2.6, WALL_Z - 0.1, '#ecdfc3', 0.03);
+  box(L, 0.2, 5.2, 12, -6.1, 2.6, 1, '#dfd0b0', 0.03);
+  box(L, 0.2, 5.2, 12, 6.1, 2.6, 1, '#e4d5b6', 0.03);
+  // skirting
+  box(L, 12.4, 0.18, 0.06, 0, 0.09, WALL_Z + 0.03, '#6e4a2e');
+  box(L, 0.06, 0.18, 12, -5.97, 0.09, 1, '#6e4a2e');
+  box(L, 0.06, 0.18, 12, 5.97, 0.09, 1, '#6e4a2e');
+  // window on the back wall (left): frame + sill + mullions
+  const wx = -4.0, wy = 2.85, ww = 2.6, wh = 1.7, wz = WALL_Z + 0.02;
+  box(L, ww + 0.3, 0.14, 0.16, wx, wy + wh / 2 + 0.07, wz, '#f7f0e0');
+  box(L, ww + 0.3, 0.16, 0.26, wx, wy - wh / 2 - 0.08, wz + 0.06, '#f7f0e0');
+  box(L, 0.14, wh, 0.16, wx - ww / 2 - 0.07, wy, wz, '#f7f0e0');
+  box(L, 0.14, wh, 0.16, wx + ww / 2 + 0.07, wy, wz, '#f7f0e0');
+  box(L, 0.07, wh, 0.1, wx, wy, wz + 0.02, '#f7f0e0');
+  box(L, ww, 0.07, 0.1, wx, wy, wz + 0.02, '#f7f0e0');
+  // a small potted plant on the sill
+  cyl(L, 0.12, 0.09, 0.2, wx - 0.9, wy - wh / 2 + 0.1, wz + 0.1, '#b86a45');
+  for (let i = 0; i < 5; i++) { const a = i / 5 * Math.PI * 2; box(L, 0.16, 0.05, 0.08, wx - 0.9 + Math.cos(a) * 0.1, wy - wh / 2 + 0.26 + (i % 2) * 0.05, wz + 0.1 + Math.sin(a) * 0.08, '#4f8a4a', { ry: a }); }
+  // two wooden ledges on the back wall for the finished panels
+  for (const gy of GALLERY.y) { box(L, 5.9, 0.05, 0.14, 0.55, gy - GALLERY.size / 2 - 0.1, WALL_Z + 0.07, '#8a5a32', 0.05); for (const bx of [-2.1, 0.55, 3.2]) box(L, 0.08, 0.14, 0.1, bx, gy - GALLERY.size / 2 - 0.2, WALL_Z + 0.05, '#6e4526'); }
+  // kilim rug on the left wall
+  const rz = -3.1, ry0 = 1.5;
+  for (let i = 0; i < 9; i++) box(L, 0.04, 0.2, 1.6, -5.95, ry0 + i * 0.2, rz, ['#a33b2a', '#e0b85a', '#1f4e9c', '#a33b2a', '#f1e7d0'][i % 5]);
+  for (let i = 0; i < 4; i++) box(L, 0.05, 1.8, 0.05, -5.94, ry0 + 0.8, rz - 0.7 + i * 0.47, '#f1e7d0');
+  // shelves on the right wall with brackets
+  for (const sy of [2.55, 3.45]) {
+    box(L, 0.62, 0.06, 3.0, 5.69, sy, -2.5, '#8a5a32', 0.05);
+    for (const bz of [-3.7, -1.3]) box(L, 0.5, 0.06, 0.08, 5.72, sy - 0.2, bz, '#6e4526', { rz: 0.5 });
+  }
+  // plates standing on the shelves (white with coloured rims)
+  const plates = [[-3.6, 3.45, '#1f4e9c'], [-2.8, 3.45, '#1fa3a3'], [-2.0, 3.45, '#d9452b'], [-1.25, 3.45, '#2e8b57'], [-3.85, 2.55, '#2e8b57']];
+  for (const [pz, py, rim] of plates) {
+    cyl(L, 0.3, 0.3, 0.035, 5.55, py + 0.33, pz, '#f6f1e4', { rz: Math.PI / 2 - 0.22, seg: 24 });
+    const tr = new THREE.TorusGeometry(0.28, 0.025, 6, 24); tr.rotateY(Math.PI / 2 + 0.22); tr.translate(5.57, py + 0.33, pz); colorize(tr, rim); L.push(tr);
+    const tr2 = new THREE.TorusGeometry(0.14, 0.02, 6, 20); tr2.rotateY(Math.PI / 2 + 0.22); tr2.translate(5.567, py + 0.33, pz); colorize(tr2, rim); L.push(tr2);
+  }
+  // vases (lathe), banded colours
+  const vaseProfile = [[0, 0], [0.16, 0], [0.22, 0.08], [0.2, 0.3], [0.1, 0.42], [0.12, 0.52], [0, 0.53]];
+  const vases = [[-1.15, 2.55, '#1f4e9c', 1.0], [-1.6, 3.45, '#1fa3a3', 0.7], [-3.95, 3.45, '#d9452b', 0.75], [-0.95, 3.45, '#f6f1e4', 0.9]];
+  for (const [vz, vy, hex, sc] of vases) {
+    const pts = vaseProfile.map(p => new THREE.Vector2(p[0] * sc, p[1] * sc));
+    const g = new THREE.LatheGeometry(pts, 18); g.translate(5.6, vy + 0.03, vz);
+    const n = g.attributes.position.count; const arr = new Float32Array(n * 3); const c1 = new THREE.Color(hex), c2 = new THREE.Color('#f6f1e4');
+    for (let i = 0; i < n; i++) { const y = g.attributes.position.getY(i) - vy; const band = Math.floor(y / (0.09 * sc)) % 2 === 0; const c = band ? c1 : c2; arr[i * 3] = c.r; arr[i * 3 + 1] = c.g; arr[i * 3 + 2] = c.b; }
+    g.setAttribute('color', new THREE.BufferAttribute(arr, 3)); L.push(g);
+  }
+  // kiln: stone base, brick body, dome, chimney, mouth
+  const k = KILN_POS;
+  box(L, 2.1, 0.2, 2.1, k.x, 0.1, k.z, '#6f5a4c', 0.06);
+  box(L, 1.7, 1.9, 1.7, k.x, 1.15, k.z, '#a4583a', 0.08);
+  // brick lines
+  for (let i = 0; i < 6; i++) { box(L, 1.72, 0.02, 1.72, k.x, 0.45 + i * 0.28, k.z, '#7b3f28'); }
+  const dome = new THREE.SphereGeometry(0.86, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2); dome.translate(k.x, 2.1, k.z); colorize(dome, '#9a5234', 0.06); L.push(dome);
+  cyl(L, 0.16, 0.2, 1.3, k.x - 0.3, 3.1, k.z - 0.35, '#5c3a2a');
+  // mouth: dark recess with an arch of lighter stones
+  box(L, 0.9, 0.7, 0.3, k.x, 0.95, k.z + 0.75, '#1a0c06');
+  for (let i = 0; i < 7; i++) { const a = Math.PI * (i / 6); box(L, 0.16, 0.14, 0.12, k.x + Math.cos(a) * 0.52, 0.95 + Math.sin(a) * 0.42 + 0.05, k.z + 0.86, '#c98a62', { rz: a - Math.PI / 2 }); }
+  box(L, 1.2, 0.08, 0.5, k.x, 0.56, k.z + 1.0, '#6f5a4c');
+  // a log pile next to the kiln
+  for (let i = 0; i < 5; i++) cyl(L, 0.1, 0.1, 0.9, k.x - 1.35 + (i % 3) * 0.22, 0.1 + Math.floor(i / 3) * 0.19 + (i % 3) * 0.0, k.z + 0.3, '#7a5236', { rx: Math.PI / 2, seg: 8 });
+  // table legs + apron
+  for (const [lx, lz] of [[-2.95, -2.0], [2.95, -2.0], [-2.95, 2.0], [2.95, 2.0]]) box(L, 0.16, 0.92, 0.16, lx, 0.46, lz, '#6e4526', 0.05);
+  box(L, 6.1, 0.14, 0.08, 0, 0.84, 2.07, '#6e4526'); box(L, 6.1, 0.14, 0.08, 0, 0.84, -2.07, '#6e4526');
+  box(L, 0.08, 0.14, 4.1, -3.0, 0.84, 0, '#6e4526'); box(L, 0.08, 0.14, 4.1, 3.0, 0.84, 0, '#6e4526');
+  // a stool at the front
+  cyl(L, 0.3, 0.26, 0.06, -4.2, 0.6, 1.4, '#8a5a32', { seg: 12 });
+  for (let i = 0; i < 3; i++) { const a = i / 3 * Math.PI * 2 + 0.4; cyl(L, 0.04, 0.04, 0.6, -4.2 + Math.cos(a) * 0.2, 0.3, 1.4 + Math.sin(a) * 0.2, '#6e4526', { seg: 6 }); }
+  const mesh = mergeToMesh(L, lambertVC); mesh.receiveShadow = true; mesh.castShadow = false;
+  return mesh;
+}
+function buildTableProps() {
+  const L = [];
+  // paint pots: ceramic body, paint disc on top
+  const pots = [['#1f4e9c', 2.15, 1.45], ['#1fa3a3', 2.55, 1.6], ['#d9452b', 2.95, 1.45], ['#2e8b57', 2.6, 1.15]];
+  for (const [hex, px, pz] of pots) {
+    cyl(L, 0.15, 0.13, 0.24, px, TABLE_Y + 0.12, pz, '#e8dcc4', { seg: 14 });
+    cyl(L, 0.12, 0.12, 0.02, px, TABLE_Y + 0.245, pz, hex, { seg: 14 });
+  }
+  // brushes lying on the left front
+  for (let i = 0; i < 3; i++) {
+    const bx = -2.4 + i * 0.16, bz = 1.55, a = 0.25 + i * 0.12;
+    cyl(L, 0.022, 0.03, 0.9, bx, TABLE_Y + 0.03, bz, ['#c69a5a', '#8a5a32', '#d9b67a'][i], { rx: Math.PI / 2, ry: a, seg: 8 });
+    cyl(L, 0.026, 0.026, 0.1, bx + Math.sin(a) * 0.5, TABLE_Y + 0.03, bz - Math.cos(a) * 0.5, '#c9c9c9', { rx: Math.PI / 2, ry: a, seg: 8 });
+    cyl(L, 0.006, 0.026, 0.14, bx + Math.sin(a) * 0.62, TABLE_Y + 0.03, bz - Math.cos(a) * 0.62, ['#1f4e9c', '#d9452b', '#2b2a3d'][i], { rx: Math.PI / 2, ry: a, seg: 8 });
+  }
+  // water bowl
+  cyl(L, 0.3, 0.22, 0.16, 2.5, TABLE_Y + 0.08, -1.45, '#dcd2bb', { seg: 18 });
+  cyl(L, 0.26, 0.26, 0.02, 2.5, TABLE_Y + 0.15, -1.45, '#9fcfe0', { seg: 18 });
+  // stack of blank tiles + a folded cloth
+  for (let i = 0; i < 4; i++) box(L, 0.5, 0.05, 0.5, -2.5 + i * 0.01, TABLE_Y + 0.03 + i * 0.052, -1.3 - i * 0.015, '#f3eee0', { ry: i * 0.06 });
+  box(L, 0.7, 0.04, 0.5, -2.35, TABLE_Y + 0.02, 0.5, '#3f5a9c', 0.08);
+  box(L, 0.5, 0.04, 0.4, -2.3, TABLE_Y + 0.06, 0.48, '#4b67ac', 0.08);
+  const mesh = mergeToMesh(L, lambertVC, { shadow: true });
+  return mesh;
+}
+function woodTexture() {
+  const S = LOW ? 256 : 512; const cv = document.createElement('canvas'); cv.width = S; cv.height = S; const ctx = cv.getContext('2d');
+  ctx.fillStyle = '#9c6a3e'; ctx.fillRect(0, 0, S, S);
+  const rng = mulberry32(99);
+  for (let i = 0; i < 90; i++) {
+    const y = rng() * S; ctx.strokeStyle = `rgba(${60 + rng() * 40 | 0},${30 + rng() * 25 | 0},${10 + rng() * 15 | 0},${0.12 + rng() * 0.2})`; ctx.lineWidth = 1 + rng() * 3;
+    ctx.beginPath(); ctx.moveTo(0, y); for (let x = 0; x <= S; x += 32) ctx.lineTo(x, y + Math.sin(x / 50 + i) * 4 * rng()); ctx.stroke();
+  }
+  for (let i = 0; i < 6; i++) { ctx.fillStyle = 'rgba(255,220,170,0.06)'; ctx.fillRect(0, rng() * S, S, 20 + rng() * 40); }
+  const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(2, 1.5); tex.anisotropy = LOW ? 1 : 4;
+  return tex;
+}
+function bandTexture() {
+  // frame band: same pattern as the tiles' border edge, tiled along the frame bars
+  const S = 256; const cv = document.createElement('canvas'); cv.width = S; cv.height = 64; const ctx = cv.getContext('2d');
+  ctx.fillStyle = PAL.cobalt.fill; ctx.fillRect(0, 0, S, 64);
+  ctx.fillStyle = PAL.turquoise.fill; ctx.fillRect(0, 0, S, 8); ctx.fillRect(0, 56, S, 8);
+  ctx.fillStyle = '#fbf7ee';
+  for (let x = 18; x < S; x += 36) { ctx.beginPath(); ctx.moveTo(x, 14); ctx.lineTo(x + 11, 32); ctx.lineTo(x, 50); ctx.lineTo(x - 11, 32); ctx.closePath(); ctx.fill(); }
+  ctx.fillStyle = PAL.cobalt.light; for (let x = 0; x <= S; x += 36) { ctx.beginPath(); ctx.arc(x, 32, 3.5, 0, Math.PI * 2); ctx.fill(); }
+  const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; tex.wrapS = tex.wrapT = THREE.RepeatWrapping; return tex;
+}
+function softSprite(size) {
+  const cv = document.createElement('canvas'); cv.width = cv.height = size; const ctx = cv.getContext('2d');
+  const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2); g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(0.4, 'rgba(255,255,255,0.5)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, size, size); const tex = new THREE.CanvasTexture(cv); return tex;
+}
+function glowBarTexture() {
+  // soft halo with a bright core so the line reads both over the white glaze and in the dark gap
+  const cv = document.createElement('canvas'); cv.width = 64; cv.height = 32; const ctx = cv.getContext('2d');
+  const g = ctx.createLinearGradient(0, 0, 0, 32);
+  g.addColorStop(0, 'rgba(255,200,90,0)'); g.addColorStop(0.28, 'rgba(255,200,90,0.5)'); g.addColorStop(0.4, 'rgba(255,236,150,1)'); g.addColorStop(0.6, 'rgba(255,236,150,1)'); g.addColorStop(0.72, 'rgba(255,200,90,0.5)'); g.addColorStop(1, 'rgba(255,200,90,0)');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, 64, 32);
+  const h = ctx.createLinearGradient(0, 0, 64, 0); h.addColorStop(0, 'rgba(255,255,255,0)'); h.addColorStop(0.1, 'rgba(255,255,255,1)'); h.addColorStop(0.9, 'rgba(255,255,255,1)'); h.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.globalCompositeOperation = 'destination-in'; ctx.fillStyle = h; ctx.fillRect(0, 0, 64, 32);
+  const tex = new THREE.CanvasTexture(cv); return tex;
+}
+
+// Bevelled tile geometry: top + bevel ring textured, sides + bottom mapped to the white strip.
+function makeTileGeometry(s, h, b) {
+  const pos = [], nor = [], uv = [], idx = [];
+  const half = s / 2, inner = half - b, yb = h - b * 0.8;
+  const vStrip = STRIP / (TEX_SIZE + STRIP);
+  const uvTop = (x, z) => [0.5 + x / s, vStrip + (0.5 - z / s) * (1 - vStrip)];
+  const add = (p, n, t) => { pos.push(...p); nor.push(...n); uv.push(...t); return pos.length / 3 - 1; };
+  // top face
+  const t0 = add([-inner, h, -inner], [0, 1, 0], uvTop(-inner, -inner)), t1 = add([inner, h, -inner], [0, 1, 0], uvTop(inner, -inner));
+  const t2 = add([inner, h, inner], [0, 1, 0], uvTop(inner, inner)), t3 = add([-inner, h, inner], [0, 1, 0], uvTop(-inner, inner));
+  idx.push(t0, t3, t2, t0, t2, t1);
+  // bevel ring: 4 quads
+  const corners = [[-1, -1], [1, -1], [1, 1], [-1, 1]];
+  for (let i = 0; i < 4; i++) {
+    const a = corners[i], c = corners[(i + 1) % 4];
+    const nx = (a[0] + c[0]) / 2, nz = (a[1] + c[1]) / 2; // outward direction of this side
+    const n = new THREE.Vector3(nx, 1.2, nz).normalize().toArray();
+    const i0 = add([a[0] * inner, h, a[1] * inner], n, uvTop(a[0] * inner, a[1] * inner));
+    const i1 = add([c[0] * inner, h, c[1] * inner], n, uvTop(c[0] * inner, c[1] * inner));
+    const o0 = add([a[0] * half, yb, a[1] * half], n, uvTop(a[0] * half, a[1] * half));
+    const o1 = add([c[0] * half, yb, c[1] * half], n, uvTop(c[0] * half, c[1] * half));
+    idx.push(i0, o0, o1, i0, o1, i1);
+  }
+  // sides
+  const su = [0.5, vStrip * 0.5];
+  for (let i = 0; i < 4; i++) {
+    const a = corners[i], c = corners[(i + 1) % 4];
+    const n = [(a[0] + c[0]) / 2, 0, (a[1] + c[1]) / 2];
+    const p0 = add([a[0] * half, yb, a[1] * half], n, su), p1 = add([c[0] * half, yb, c[1] * half], n, su);
+    const p2 = add([c[0] * half, 0, c[1] * half], n, su), p3 = add([a[0] * half, 0, a[1] * half], n, su);
+    idx.push(p0, p3, p2, p0, p2, p1);
+  }
+  // bottom
+  const b0 = add([-half, 0, -half], [0, -1, 0], su), b1 = add([half, 0, -half], [0, -1, 0], su), b2 = add([half, 0, half], [0, -1, 0], su), b3 = add([-half, 0, half], [0, -1, 0], su);
+  idx.push(b0, b2, b3, b0, b1, b2);
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3));
+  g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  g.setIndex(idx);
+  return g;
+}
+
+// ---- build the static world ----
+const room = buildRoom(); scene.add(room);
+const props = buildTableProps(); scene.add(props);
+const tableTop = new THREE.Mesh(new THREE.BoxGeometry(6.4, 0.16, 4.6), new THREE.MeshStandardMaterial({ map: woodTexture(), roughness: 0.75, metalness: 0 }));
+tableTop.position.set(0, TABLE_Y - 0.08, 0); tableTop.receiveShadow = true; tableTop.castShadow = false; scene.add(tableTop);
+// window glass (warm sky)
+{
+  const cv = document.createElement('canvas'); cv.width = 64; cv.height = 64; const ctx = cv.getContext('2d');
+  const g = ctx.createLinearGradient(0, 0, 0, 64); g.addColorStop(0, '#dcecff'); g.addColorStop(0.55, '#fff3d2'); g.addColorStop(1, '#ffd9a0'); ctx.fillStyle = g; ctx.fillRect(0, 0, 64, 64);
+  const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace;
+  const glass = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 1.7), new THREE.MeshBasicMaterial({ map: tex })); glass.position.set(-4.0, 2.85, WALL_Z - 0.04); scene.add(glass);
+  // soft light shaft from the window toward the table
+  const shaft = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 7.5), new THREE.MeshBasicMaterial({ color: '#ffe3b0', transparent: true, opacity: 0.07, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }));
+  shaft.position.set(-2.2, 2.4, -1.6); shaft.rotation.set(-0.9, 0.35, 0.3); scene.add(shaft);
+}
+// kiln glow (mouth) + sparks
+const kilnGlow = new THREE.Mesh(new THREE.PlaneGeometry(1.0, 0.8), new THREE.MeshBasicMaterial({ map: softSprite(64), color: '#ff9a3c', transparent: true, opacity: 0.9, depthWrite: false, blending: THREE.AdditiveBlending }));
+kilnGlow.position.set(KILN_MOUTH.x, KILN_MOUTH.y, KILN_MOUTH.z + 0.1); scene.add(kilnGlow);
+const SPARKS = 50;
+const sparkGeo = new THREE.BufferGeometry(); sparkGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(SPARKS * 3), 3));
+const sparks = new THREE.Points(sparkGeo, new THREE.PointsMaterial({ map: softSprite(32), color: '#ffb060', size: 0.09, transparent: true, opacity: 0.95, depthWrite: false, blending: THREE.AdditiveBlending }));
+const sparkVel = new Float32Array(SPARKS * 3); const sparkLife = new Float32Array(SPARKS); sparks.visible = false; scene.add(sparks);
+// dust motes: one Points object
+const DUST = LOW ? 80 : 170;
+const dustGeo = new THREE.BufferGeometry(); const dustPos = new Float32Array(DUST * 3); const dustBase = new Float32Array(DUST * 3); const dustPhase = new Float32Array(DUST);
+for (let i = 0; i < DUST; i++) { dustBase[i * 3] = -3.8 + Math.random() * 7.2; dustBase[i * 3 + 1] = 1.1 + Math.random() * 3.4; dustBase[i * 3 + 2] = -3.5 + Math.random() * 5.5; dustPhase[i] = Math.random() * 100; }
+dustPos.set(dustBase); dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
+const dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({ map: softSprite(32), color: '#ffe9bb', size: 0.07, transparent: true, opacity: 0.55, depthWrite: false, blending: THREE.AdditiveBlending, sizeAttenuation: true }));
+scene.add(dust);
+
+// cat (merged body + separate tail) on the upper shelf
+const cat = new THREE.Group();
+{
+  const L = []; const fur = '#3a3744', fur2 = '#4a4656';
+  box(L, 0.42, 0.2, 0.18, 0, 0.19, 0, fur, 0.05);
+  box(L, 0.2, 0.18, 0.17, 0.26, 0.3, 0, fur2);
+  box(L, 0.05, 0.08, 0.05, 0.3, 0.42, 0.05, fur); box(L, 0.05, 0.08, 0.05, 0.3, 0.42, -0.05, fur);
+  box(L, 0.04, 0.02, 0.03, 0.37, 0.28, 0, '#e9a3a3');
+  for (const [lx, lz] of [[-0.14, 0.06], [-0.14, -0.06], [0.12, 0.06], [0.12, -0.06]]) box(L, 0.07, 0.14, 0.06, lx, 0.07, lz, fur);
+  // eyes
+  box(L, 0.02, 0.03, 0.03, 0.365, 0.33, 0.045, '#d9c25a'); box(L, 0.02, 0.03, 0.03, 0.365, 0.33, -0.045, '#d9c25a');
+  const body = mergeToMesh(L, lambertVC); cat.add(body);
+  const tail = new THREE.Mesh(colorize(new THREE.CylinderGeometry(0.025, 0.035, 0.36, 6).translate(0, 0.18, 0), fur), lambertVC);
+  tail.position.set(-0.22, 0.2, 0); tail.rotation.z = 1.1; cat.add(tail); cat.userData.tail = tail;
+}
+cat.position.set(5.55, 2.58, -2.5); cat.visible = false; scene.add(cat);
+
+// ---- board group: base, frame, tiles, glow ----
+const boardGroup = new THREE.Group(); boardGroup.position.set(0, TABLE_Y, 0); scene.add(boardGroup);
+const boardBase = new THREE.Mesh(colorize(new THREE.BoxGeometry(BOARD_SIZE + 0.64, 0.06, BOARD_SIZE + 0.64), '#3b2a1e'), lambertVC);
+boardBase.position.y = 0.03; boardBase.receiveShadow = true; boardBase.castShadow = true; boardGroup.add(boardBase);
+const frameTex = bandTexture();
+const frameMat = new THREE.MeshStandardMaterial({ map: frameTex, roughness: 0.4, metalness: 0 });
+const frameGroup = new THREE.Group(); boardGroup.add(frameGroup);
+{
+  const w = 0.3, len = BOARD_SIZE + 2 * w, off = BOARD_SIZE / 2 + w / 2;
+  const geoH = new THREE.BoxGeometry(len, 0.08, w);
+  // the side bars are the same box rotated, so the band texture runs along their length too
+  const geoV = new THREE.BoxGeometry(BOARD_SIZE, 0.08, w); geoV.rotateY(Math.PI / 2);
+  for (const [g, x, z, along] of [[geoH, 0, -off, len], [geoH, 0, off, len], [geoV, -off, 0, BOARD_SIZE], [geoV, off, 0, BOARD_SIZE]]) {
+    const tex = frameTex.clone(); tex.needsUpdate = true; tex.repeat.set(along / 0.55, 1);
+    const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ map: tex, roughness: 0.4 })); m.position.set(x, 0.1, z); m.castShadow = true; m.receiveShadow = true; frameGroup.add(m);
+  }
+}
+const glowTex = glowBarTexture();
+const glowMat = new THREE.MeshBasicMaterial({ map: glowTex, transparent: true, opacity: 0.85, depthWrite: false, color: '#ffd27a' });
+const glowMesh = new THREE.Mesh(new THREE.BufferGeometry(), glowMat); glowMesh.renderOrder = 2; boardGroup.add(glowMesh);
+const sweep = new THREE.Mesh(new THREE.PlaneGeometry(0.7, BOARD_SIZE * 1.7), new THREE.MeshBasicMaterial({ map: glowTex, transparent: true, opacity: 0, depthWrite: false, color: '#ffffff', blending: THREE.AdditiveBlending }));
+sweep.rotation.x = -Math.PI / 2; sweep.rotation.z = 0.5; sweep.position.y = 0.25; sweep.renderOrder = 3; boardGroup.add(sweep);
+
+// ---- wall gallery (atlas + merged frames) ----
+const ATLAS_CELL = LOW ? 128 : 256;
+const atlasCanvas = document.createElement('canvas'); atlasCanvas.width = ATLAS_CELL * GALLERY.cols; atlasCanvas.height = ATLAS_CELL * GALLERY.rows;
+const atlasTex = new THREE.CanvasTexture(atlasCanvas); atlasTex.colorSpace = THREE.SRGBColorSpace; atlasTex.anisotropy = LOW ? 1 : 4;
+const galleryPics = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshLambertMaterial({ map: atlasTex })); scene.add(galleryPics);
+let galleryFrames = null;
+function gallerySlotPos(i) { const r = Math.floor(i / GALLERY.cols), c = i % GALLERY.cols; return new THREE.Vector3(GALLERY.x0 + c * GALLERY.dx, GALLERY.y[r], GALLERY.z); }
+// transit piece (comes out of the kiln and flies to the wall)
+const transit = new THREE.Group(); transit.visible = false; scene.add(transit);
+const transitFrame = new THREE.Mesh(colorize(new THREE.BoxGeometry(GALLERY.size + 0.12, GALLERY.size + 0.12, 0.06), '#b07a35'), lambertVC); transit.add(transitFrame);
+const transitPic = new THREE.Mesh(new THREE.PlaneGeometry(GALLERY.size, GALLERY.size), new THREE.MeshLambertMaterial({ color: '#ffffff' })); transitPic.position.z = 0.035; transit.add(transitPic);
+
+resize();
+
+
+// ============================================================================
+//  Progress (localStorage)
+// ============================================================================
+const STORE_KEY = 'cini-ustasi-v1';
+let progress = { best: {}, collection: [], seenHowto: {}, sound: true, music: true, lang: 'tr' };
+function loadProgress() {
+  try { if (FLAG('fresh')) localStorage.removeItem(STORE_KEY); const raw = localStorage.getItem(STORE_KEY); if (raw) progress = Object.assign(progress, JSON.parse(raw)); } catch (e) { }
+}
+function saveProgress() { if (FLAG('fill')) return; try { localStorage.setItem(STORE_KEY, JSON.stringify(progress)); } catch (e) { } }
+const levelKey = idx => idx === 'daily' ? 'D' + dailyKey() : 'L' + (idx + 1);
+const isUnlocked = idx => idx === 'daily' ? dailyUnlocked() : idx === 0 || !!progress.best['L' + idx];
+function dailyUnlocked() { for (let i = 0; i < 10; i++) if (!progress.best['L' + (i + 1)]) return false; return true; }
+function levelDisplayName(idx) { return idx === 'daily' ? t('dailyName') : LEVEL_NAMES[idx][lang === 'tr' ? 0 : 1]; }
+function totalStars() { let s = 0; for (let i = 0; i < 30; i++) { const b = progress.best['L' + (i + 1)]; if (b) s += b.stars; } return s; }
+function completedCount() { let c = 0; for (let i = 0; i < 30; i++) if (progress.best['L' + (i + 1)]) c++; return c; }
+function nextUnfinished() { for (let i = 0; i < 30; i++) if (!progress.best['L' + (i + 1)]) return i; return 29; }
+
+// ============================================================================
+//  Game state
+// ============================================================================
+const G = {
+  screen: 'loading', levelIndex: 0, pz: null, slots: null, history: [], hints: 3, time: 0, simulating: false,
+  tiles: [], tileBySlot: [], meshes: [], pitch: 1, tileSize: 1, tileH: 0.1, hover: null, drag: null, seq: null, bot: { plan: null, i: 0, timer: 0.8, done: false, solveMs: 0 },
+  intro: 0, pendingDaily: false, matchedCount: 0, paused: false, catState: { phase: 'hidden', t: 0, next: 3 },
+};
+window.cini = G;
+const shared = { geo: null, geoKey: '' };
+
+function moveCount() { let m = 0; for (const h of G.history) m += h.type === 'hint' ? h.moves.length : 1; return m; }
+function slotLocal(p) { const n = G.pz.n, r = (p / n) | 0, c = p % n; return [(c - (n - 1) / 2) * G.pitch, (r - (n - 1) / 2) * G.pitch]; }
+
+function clearTiles() {
+  for (const tl of G.tiles) { boardGroup.remove(tl.pivot); tl.mat.dispose(); }
+  for (const tex of textureCache.values()) tex.dispose();
+  textureCache.clear();
+  G.tiles = []; G.meshes = []; G.tileBySlot = []; G.hover = null; G.drag = null;
+}
+function buildTiles(withIntro) {
+  clearTiles();
+  const pz = G.pz, n = pz.n;
+  G.pitch = BOARD_SIZE / n; G.tileSize = G.pitch * 0.93; G.tileH = clamp(G.pitch * 0.11, 0.06, 0.11);
+  const key = n + '|' + TEX_SIZE;
+  if (shared.geoKey !== key) { if (shared.geo) shared.geo.dispose(); shared.geo = makeTileGeometry(G.tileSize, G.tileH, G.tileSize * 0.07); shared.geoKey = key; }
+  for (let p = 0; p < n * n; p++) {
+    const s = G.slots[p]; const td = pz.tiles[s.t];
+    const kind = td.fixed ? 'fixed' : td.faces.length > 1 ? 'flip' : 'plain';
+    const texA = tileTexture(td.faces[0], kind, 100 + td.id);
+    const texB = td.faces.length > 1 ? tileTexture(td.faces[1], kind, 200 + td.id) : null;
+    const mat = new THREE.MeshStandardMaterial({ map: s.face ? texB : texA, roughness: 0.32, metalness: 0.02 });
+    const mesh = new THREE.Mesh(shared.geo, mat); mesh.castShadow = true; mesh.receiveShadow = true;
+    const pivot = new THREE.Group(); pivot.add(mesh); boardGroup.add(pivot);
+    const [x, z] = slotLocal(p);
+    const tl = { id: td.id, slot: p, pivot, mesh, mat, texA, texB, angle: -s.rot * Math.PI / 2, visAngle: -s.rot * Math.PI / 2, x, z, lift: 0, jump: 1, flip: null, intro: withIntro ? -(p * 0.03) : 1, fixed: td.fixed };
+    tl.visAngle = tl.angle; mesh.userData.tile = tl;
+    pivot.position.set(x, 0.06, z); mesh.rotation.y = tl.angle;
+    G.tiles[td.id] = tl; G.meshes.push(mesh); G.tileBySlot[p] = tl;
+  }
+  G.matchedCount = evaluate(pz, G.slots).matched.length;
+  updateGlow();
+}
+function updateGlow() {
+  const { matched } = evaluate(G.pz, G.slots);
+  const n = G.pz.n, s = G.tileSize, th = G.tileH, w = Math.max(0.1, G.pitch * 0.26);
+  const pos = [], uv = [], idx = [];
+  let v = 0;
+  for (const m of matched) {
+    const [cx, cz] = slotLocal(m.p);
+    // edge centre line position; quad straddles the edge
+    let ex = cx, ez = cz, ax = 0, az = 0;
+    if (m.k === 0) { ez = cz - s / 2; ax = 1; } else if (m.k === 2) { ez = cz + s / 2; ax = 1; } else if (m.k === 3) { ex = cx - s / 2; az = 1; } else { ex = cx + s / 2; az = 1; }
+    const L = s * 0.98;
+    // corners: along axis (ax,az) length L, across = perpendicular width w
+    const px = az, pz2 = ax; // perpendicular
+    const y = 0.06 + th + 0.006;
+    const c = [[-1, -1], [1, -1], [1, 1], [-1, 1]];
+    for (const [a, b] of c) { pos.push(ex + ax * a * L / 2 + px * b * w / 2, y, ez + az * a * L / 2 + pz2 * b * w / 2); uv.push(a > 0 ? 1 : 0, b > 0 ? 1 : 0); }
+    idx.push(v, v + 2, v + 1, v, v + 3, v + 2); v += 4;
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  g.setIndex(idx);
+  glowMesh.geometry.dispose(); glowMesh.geometry = g; glowMesh.visible = matched.length > 0;
+  G.glowCount = matched.length;
+}
+
+// ---- moves ----
+function applyPrimitive(m, inverse) {
+  const slots = G.slots;
+  if (m.type === 'rot') {
+    const s = slots[m.p]; const tl = G.tileBySlot[m.p];
+    if (inverse) { s.rot = (s.rot + 3) % 4; tl.angle += Math.PI / 2; } else { s.rot = (s.rot + 1) % 4; tl.angle -= Math.PI / 2; }
+    if (!G.simulating) Sound.rotate();
+  } else if (m.type === 'swap') {
+    const a = m.a, b = m.b; const ta = G.tileBySlot[a], tb = G.tileBySlot[b];
+    const tmp = slots[a]; slots[a] = slots[b]; slots[b] = tmp;
+    G.tileBySlot[a] = tb; G.tileBySlot[b] = ta; ta.slot = b; tb.slot = a; ta.jump = 0; tb.jump = 0;
+    if (!G.simulating) Sound.swap();
+  } else if (m.type === 'flip') {
+    const s = slots[m.p]; const tl = G.tileBySlot[m.p];
+    s.face = s.face ? 0 : 1;
+    tl.flip = { t: 0, toFace: s.face, swapped: false };
+    if (!G.simulating) Sound.flip();
+  }
+}
+function performMove(m) {
+  if (G.screen !== 'playing') return;
+  if (m.type === 'hint') { for (const x of m.moves) applyPrimitive(x, false); } else applyPrimitive(m, false);
+  G.history.push(m);
+  afterChange();
+}
+function undo() {
+  if (G.screen !== 'playing') return;
+  const m = G.history.pop();
+  if (!m) { toast(t('nothingToUndo')); return; }
+  if (m.type === 'hint') { for (let i = m.moves.length - 1; i >= 0; i--) applyPrimitive(m.moves[i], true); } else applyPrimitive(m, true);
+  toast(t('undone'));
+  afterChange(true);
+}
+function afterChange(isUndo) {
+  const before = G.matchedCount;
+  updateGlow();
+  G.matchedCount = G.glowCount;
+  if (!isUndo && G.matchedCount > before && !G.simulating) Sound.match(G.matchedCount - before);
+  updateHUD();
+  if (!isUndo && isSolved(G.pz, G.slots)) onSolved();
+}
+function useHint() {
+  if (G.screen !== 'playing') return;
+  if (G.hints <= 0) { toast(t('noHints')); Sound.deny(); return; }
+  const sol = solvePuzzle(G.pz, G.slots);
+  if (!sol) { toast(t('hintNone')); return; }
+  let p = -1;
+  for (let i = 0; i < sol.length; i++) { const s = G.slots[i]; if (s.t !== sol[i].t || s.rot !== sol[i].rot || s.face !== sol[i].face) { p = i; break; } }
+  if (p < 0) { toast(t('hintNone')); return; }
+  const moves = [];
+  const cur = G.slots.map(s => ({ ...s }));
+  if (cur[p].t !== sol[p].t) { const q = cur.findIndex(s => s.t === sol[p].t); const tmp = cur[p]; cur[p] = cur[q]; cur[q] = tmp; moves.push({ type: 'swap', a: p, b: q }); }
+  if (cur[p].face !== sol[p].face) moves.push({ type: 'flip', p });
+  const k = (sol[p].rot - cur[p].rot + 4) % 4; for (let i = 0; i < k; i++) moves.push({ type: 'rot', p });
+  G.hints--;
+  performMove({ type: 'hint', moves });
+  const tl = G.tileBySlot[p]; if (tl) tl.sparkle = 1;
+  toast(t('hintUsed'));
+  if (!G.simulating) Sound.star();
+  updateHUD();
+}
+function restartLevel() {
+  if (!G.pz) return;
+  G.slots = G.pz.start.map(s => ({ ...s })); G.history = []; G.hints = 3;
+  buildTiles(true); updateHUD(); toast(t('restarted'));
+}
+
+// ---- level flow ----
+function startLevel(idx) {
+  const def = idx === 'daily' ? DAILY_DEF : LEVEL_DEFS[idx];
+  const seed = idx === 'daily' ? dailySeed(dailyKey()) : levelSeed(idx);
+  G.levelIndex = idx; G.pz = generateLevel(def, seed); G.pz.key = levelKey(idx);
+  G.slots = G.pz.start.map(s => ({ ...s })); G.history = []; G.hints = 3; G.seq = null;
+  G.bot.plan = null; G.bot.i = 0; G.bot.timer = 0.6;
+  boardGroup.visible = true; boardGroup.position.set(0, TABLE_Y, 0); boardGroup.scale.setScalar(1); boardGroup.rotation.set(0, 0, 0);
+  buildTiles(true);
+  hideAll(); $('topbar').classList.remove('hidden');
+  G.screen = 'playing'; updateHUD();
+  const ch = idx === 'daily' ? 3 : Math.floor(idx / 10);
+  const first = idx === 'daily' || idx % 10 === 0;
+  if (first && !progress.seenHowto[ch] && !FLAG('nohowto')) { progress.seenHowto[ch] = true; saveProgress(); showHowto(ch); }
+}
+function onSolved() {
+  G.screen = 'completing';
+  G.drag = null; G.hover = null;
+  const moves = moveCount(), par = G.pz.par, stars = starsFor(moves, par);
+  const key = G.pz.key; const prev = progress.best[key];
+  const improved = !prev || stars > prev.stars || (stars === prev.stars && moves < prev.moves);
+  if (improved) progress.best[key] = { stars, moves };
+  let entry = progress.collection.find(c => c.key === key);
+  if (!entry) { entry = { key, idx: G.levelIndex, seed: G.pz.seed, stars, ts: Date.now() }; progress.collection.push(entry); G.newPiece = true; }
+  else { entry.stars = Math.max(entry.stars, stars); G.newPiece = false; }
+  saveProgress();
+  G.result = { moves, par, stars, best: progress.best[key] };
+  G.seq = { phase: 'glow', t: 0 };
+  G.transitPic = paintBoardPicture(G.pz, 256);
+  if (!G.simulating) Sound.match(3);
+  if (idx10Done()) G.pendingDaily = true;
+}
+function idx10Done() { return G.levelIndex === 9 && dailyUnlocked() && !progress.dailyToastShown; }
+
+// completion sequence driven by game time
+const SEQ = { glow: 1.0, shine: 1.3, tokiln: 1.7, fire: 1.5, out: 1.9 };
+function updateSequence(dt) {
+  const q = G.seq; if (!q) return;
+  q.t += dt; const dur = SEQ[q.phase]; const u = clamp(q.t / dur, 0, 1);
+  if (q.phase === 'glow') {
+    glowMat.opacity = 0.85 + 0.15 * Math.sin(q.t * 12);
+    if (u >= 1) { q.phase = 'shine'; q.t = 0; sweep.material.opacity = 0.75; }
+  } else if (q.phase === 'shine') {
+    sweep.position.x = lerp(-BOARD_SIZE * 1.1, BOARD_SIZE * 1.1, easeInOut(u)); sweep.position.z = sweep.position.x * 0.3;
+    for (const tl of G.tiles) { const d = Math.abs((tl.x + tl.z * 0.3) - sweep.position.x); tl.mat.emissive.setScalar(Math.max(0, 0.35 - d * 0.6)); }
+    if (u >= 1) { q.phase = 'tokiln'; q.t = 0; sweep.material.opacity = 0; for (const tl of G.tiles) tl.mat.emissive.setScalar(0); if (!G.simulating) Sound.whoosh(); }
+  } else if (q.phase === 'tokiln') {
+    const e = easeInOut(u);
+    const target = new THREE.Vector3(KILN_MOUTH.x, KILN_MOUTH.y - 0.1, KILN_MOUTH.z - 0.3);
+    // lift straight up first (the board is still over the table), travel and shrink, and only tilt once it is well clear of the table top
+    const lift = Math.sin(u * Math.PI) * 1.5;
+    boardGroup.position.set(lerp(0, target.x, e), TABLE_Y + lift + e * (target.y - TABLE_Y), lerp(0, target.z, e));
+    boardGroup.scale.setScalar(lerp(1, 0.22, e));
+    const tilt = easeInOut(clamp((u - 0.3) / 0.45, 0, 1));
+    boardGroup.rotation.z = Math.sin(u * Math.PI) * 0.15 * tilt; boardGroup.rotation.x = 0.4 * tilt;
+    kilnLight.intensity = 1.4 + u * 2.5; kilnGlow.scale.setScalar(1 + u * 0.6);
+    if (u >= 1) { q.phase = 'fire'; q.t = 0; boardGroup.visible = false; sparks.visible = true; for (let i = 0; i < SPARKS; i++) sparkLife[i] = -Math.random() * 0.8; if (!G.simulating) Sound.fire(); }
+  } else if (q.phase === 'fire') {
+    kilnLight.intensity = 3.5 + Math.sin(q.t * 40) * 0.8 + Math.sin(q.t * 23) * 0.5; kilnGlow.scale.setScalar(1.6 + Math.sin(q.t * 30) * 0.15);
+    if (u >= 1) {
+      q.phase = 'out'; q.t = 0;
+      transit.visible = true; transit.position.copy(KILN_MOUTH).add(new THREE.Vector3(0, 0, 0.3)); transit.scale.setScalar(0.3); transit.rotation.set(0, 0, 0);
+      if (transitPic.material.map) transitPic.material.map.dispose();
+      const tex = new THREE.CanvasTexture(G.transitPic); tex.colorSpace = THREE.SRGBColorSpace; transitPic.material.map = tex; transitPic.material.needsUpdate = true;
+      if (!G.simulating) Sound.fanfare();
+    }
+  } else if (q.phase === 'out') {
+    const e = easeInOut(u);
+    const slotIdx = wallSlotFor(G.pz.key);
+    const dest = gallerySlotPos(slotIdx).add(new THREE.Vector3(0, 0, 0.03));
+    const start = KILN_MOUTH.clone().add(new THREE.Vector3(0, 0, 0.3));
+    transit.position.set(lerp(start.x, dest.x, e), lerp(start.y, dest.y, e) + Math.sin(u * Math.PI) * 1.4, lerp(start.z, dest.z + 0.8, e) - (u > 0.9 ? (u - 0.9) * 8 : 0));
+    transit.scale.setScalar(lerp(0.3, 1, e)); transit.rotation.y = Math.sin(u * Math.PI) * 0.6; transit.rotation.x = Math.sin(u * Math.PI) * 0.2;
+    kilnLight.intensity = lerp(3.5, 1.4, e); kilnGlow.scale.setScalar(lerp(1.6, 1, e));
+    if (u >= 1) { q.phase = 'done'; transit.visible = false; sparks.visible = false; rebuildWall(); G.seq = null; showComplete(); }
+  }
+}
+function wallSlotFor(key) {
+  const list = progress.collection.slice().sort((a, b) => a.ts - b.ts).slice(-MAX_WALL);
+  const i = list.findIndex(c => c.key === key); return i < 0 ? list.length - 1 : i;
+}
+const pictureCache = new Map();
+function pictureFor(entry, size) {
+  const k = entry.key + '|' + size; let cv = pictureCache.get(k);
+  if (!cv) {
+    const def = entry.idx === 'daily' ? DAILY_DEF : LEVEL_DEFS[entry.idx];
+    const pz = generateLevel(def, entry.seed); cv = paintBoardPicture(pz, size); pictureCache.set(k, cv);
+    if (pictureCache.size > 60) pictureCache.delete(pictureCache.keys().next().value);
+  }
+  return cv;
+}
+function rebuildWall() {
+  const list = progress.collection.slice().sort((a, b) => a.ts - b.ts).slice(-MAX_WALL);
+  const ctx = atlasCanvas.getContext('2d'); ctx.fillStyle = '#000'; ctx.fillRect(0, 0, atlasCanvas.width, atlasCanvas.height);
+  const pos = [], uv = [], idx = []; const F = [];
+  for (let i = 0; i < list.length; i++) {
+    const cv = pictureFor(list[i], ATLAS_CELL);
+    const r = Math.floor(i / GALLERY.cols), c = i % GALLERY.cols;
+    ctx.drawImage(cv, c * ATLAS_CELL, r * ATLAS_CELL, ATLAS_CELL, ATLAS_CELL);
+    const p = gallerySlotPos(i), h = GALLERY.size / 2;
+    const u0 = c / GALLERY.cols, u1 = (c + 1) / GALLERY.cols, v1 = 1 - r / GALLERY.rows, v0 = 1 - (r + 1) / GALLERY.rows;
+    const b = pos.length / 3;
+    pos.push(p.x - h, p.y - h, p.z + 0.035, p.x + h, p.y - h, p.z + 0.035, p.x + h, p.y + h, p.z + 0.035, p.x - h, p.y + h, p.z + 0.035);
+    uv.push(u0, v0, u1, v0, u1, v1, u0, v1);
+    idx.push(b, b + 1, b + 2, b, b + 2, b + 3);
+    box(F, GALLERY.size + 0.12, GALLERY.size + 0.12, 0.06, p.x, p.y, p.z, list[i].stars === 3 ? '#c8923a' : '#8a5a32');
+    box(F, 0.02, 0.02, 0.012, p.x, p.y + GALLERY.size / 2 + 0.16, p.z, '#6e4526');
+  }
+  atlasTex.needsUpdate = true;
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); g.setIndex(idx); g.computeVertexNormals();
+  galleryPics.geometry.dispose(); galleryPics.geometry = g; galleryPics.visible = list.length > 0;
+  if (galleryFrames) { scene.remove(galleryFrames); galleryFrames.geometry.dispose(); galleryFrames = null; }
+  if (F.length) { galleryFrames = mergeToMesh(F, lambertVC); scene.add(galleryFrames); }
+}
+
+// ============================================================================
+//  HUD / screens
+// ============================================================================
+function hideAll() { for (const id of ['titleScreen', 'levelScreen', 'collectionScreen', 'howtoScreen', 'menuScreen', 'completeScreen']) $(id).classList.add('hidden'); }
+function starsHtml(s) { let h = ''; for (let i = 0; i < 3; i++) h += `<span class="${i < s ? '' : 'off'}">★</span>`; return h; }
+function updateHUD() {
+  if (!G.pz) return;
+  const idx = G.levelIndex;
+  $('lvlName').textContent = levelDisplayName(idx);
+  $('lvlSub').textContent = idx === 'daily' ? dailyKey() : `${t('chapter')} ${Math.floor(idx / 10) + 1} · ${t('level')} ${idx + 1} · ${G.pz.n}×${G.pz.n}`;
+  const m = moveCount(); $('movesVal').textContent = m; $('parVal').textContent = G.pz.par;
+  $('starsLive').innerHTML = starsHtml(starsFor(m, G.pz.par));
+  $('hintBadge').textContent = G.hints; $('btnHint').classList.toggle('off', G.hints <= 0);
+}
+function applyLang() {
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.innerHTML = t(el.dataset.i18n); });
+  for (const [id, k] of [['btnHint', 'hintTip'], ['btnUndo', 'undoTip'], ['btnRestart', 'restartTip'], ['btnHelp', 'helpTip'], ['btnSound', 'soundTip'], ['btnMusic', 'musicTip'], ['btnMenu', 'menuTip'], ['btnSound2', 'soundTip'], ['btnMusic2', 'musicTip'], ['btnLevelsClose', 'closeTip'], ['btnCollectionClose', 'closeTip']]) $(id).title = t(k);
+  $('btnLang').textContent = lang === 'tr' ? 'EN' : 'TR'; $('btnLang2').textContent = lang === 'tr' ? 'EN' : 'TR';
+  $('btnPlay').textContent = completedCount() > 0 ? t('continue') : t('play');
+  $('progressLine').textContent = `${completedCount()}/30 · ${totalStars()} ★`;
+  $('btnDaily').disabled = !dailyUnlocked(); $('btnDaily').title = dailyUnlocked() ? '' : t('dailyLocked');
+  updateHUD();
+  if (!$('levelScreen').classList.contains('hidden')) renderLevels();
+  if (!$('collectionScreen').classList.contains('hidden')) renderCollection();
+}
+function setLang(l) { lang = l; progress.lang = l; saveProgress(); applyLang(); }
+function toast(msg) {
+  const el = document.createElement('div'); el.className = 'toast glass'; el.textContent = msg; $('toasts').appendChild(el);
+  setTimeout(() => el.remove(), 2700);
+  while ($('toasts').children.length > 3) $('toasts').firstChild.remove();
+}
+function showTitle() {
+  hideAll(); G.screen = 'title'; $('titleScreen').classList.remove('hidden'); $('topbar').classList.add('hidden');
+  applyLang();
+}
+function showHowto(ch) {
+  const h = t('howto')[ch]; $('howtoTitle').textContent = h.title;
+  const icons = [
+    '<svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v5h-5"/></svg>',
+    '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/><path d="M15 8h3a2 2 0 0 1 2 2v1M9 16H6a2 2 0 0 1-2-2v-1"/></svg>',
+    '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 12h18"/></svg>',
+    '<svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>',
+  ];
+  $('howtoList').innerHTML = h.lines.map((l, i) => `<li><div class="ic">${icons[i % icons.length]}</div><div>${l}</div></li>`).join('');
+  $('howtoScreen').classList.remove('hidden'); G.prevScreen = G.screen; G.screen = 'howto';
+}
+function showMenu() { if (G.screen !== 'playing') return; $('menuScreen').classList.remove('hidden'); G.screen = 'menu'; }
+function closeOverlays() {
+  hideAll();
+  if (G.pz && G.screen !== 'title') { G.screen = 'playing'; $('topbar').classList.remove('hidden'); } else showTitle();
+}
+function showLevels() { hideAll(); renderLevels(); $('levelScreen').classList.remove('hidden'); G.screen = 'levels'; }
+function renderLevels() {
+  const root = $('chapters'); root.innerHTML = '';
+  for (let ch = 0; ch < 3; ch++) {
+    const sec = document.createElement('div'); sec.className = 'chapter';
+    sec.innerHTML = `<h3>${t('chapter')} ${ch + 1} · ${t('chapterNames')[ch]} <small>${t('chapterDesc')[ch]}</small></h3><div class="lgrid"></div>`;
+    const grid = sec.querySelector('.lgrid');
+    for (let i = ch * 10; i < ch * 10 + 10; i++) {
+      const b = progress.best['L' + (i + 1)]; const un = isUnlocked(i);
+      const el = document.createElement('button'); el.className = 'lcard' + (un ? '' : ' locked') + (G.pz && G.levelIndex === i ? ' cur' : '');
+      el.innerHTML = un ? `<div>${i + 1}</div><div class="st">${starsHtml(b ? b.stars : 0)}</div><div class="nm">${levelDisplayName(i)}</div>` : `<svg class="lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><div class="st">${starsHtml(0)}</div>`;
+      el.title = un ? `${i + 1}. ${levelDisplayName(i)}` : t('locked');
+      if (un) el.addEventListener('click', () => { Sound.ui(); startLevel(i); });
+      grid.appendChild(el);
+    }
+    if (ch === 0) {
+      const un = dailyUnlocked(); const b = progress.best['D' + dailyKey()];
+      const el = document.createElement('button'); el.className = 'lcard daily' + (un ? '' : ' locked');
+      el.innerHTML = `<div style="font-size:14px">${t('dailyName')}</div><div class="st">${starsHtml(b ? b.stars : 0)}</div><div class="nm" style="visibility:visible">${un ? dailyKey() : t('dailyLocked')}</div>`;
+      if (un) el.addEventListener('click', () => { Sound.ui(); startLevel('daily'); });
+      grid.appendChild(el);
+    }
+    root.appendChild(sec);
+  }
+}
+function showCollection() { hideAll(); renderCollection(); $('collectionScreen').classList.remove('hidden'); G.screen = 'collection'; }
+function renderCollection() {
+  const grid = $('collectionGrid'); grid.innerHTML = '';
+  const list = progress.collection.slice().sort((a, b) => a.ts - b.ts);
+  if (!list.length) { grid.innerHTML = `<div class="empty" style="grid-column:1/-1">${t('emptyCollection')}</div>`; return; }
+  for (const e of list) {
+    const d = document.createElement('div'); d.className = 'piece';
+    const fr = document.createElement('div'); fr.className = 'fr';
+    const cv = document.createElement('canvas'); cv.width = 224; cv.height = 224; cv.getContext('2d').drawImage(pictureFor(e, 224), 0, 0, 224, 224);
+    fr.appendChild(cv); d.appendChild(fr);
+    const name = e.idx === 'daily' ? `${t('dailyName')} ${e.key.slice(1)}` : `${e.idx + 1}. ${levelDisplayName(e.idx)}`;
+    const cap = document.createElement('div'); cap.className = 'cap'; cap.innerHTML = `${name}<small>${starsHtml(e.stars)}</small>`; d.appendChild(cap);
+    grid.appendChild(d);
+  }
+}
+function showComplete() {
+  const r = G.result; hideAll(); $('completeScreen').classList.remove('hidden'); G.screen = 'complete';
+  if (AUTO) G.bot.timer = 1.4; // let the bot admire the card for a moment
+  $('starsBig').innerHTML = starsHtml(r.stars);
+  $('cMoves').textContent = r.moves; $('cPar').textContent = r.par; $('cBest').textContent = r.best ? `${r.best.moves} · ${'★'.repeat(r.best.stars)}` : '—';
+  $('cNote').textContent = (G.newPiece ? t('newPiece') + '. ' : '') + t('fired');
+  const cv = $('completePreview'); cv.getContext('2d').clearRect(0, 0, 256, 256); cv.getContext('2d').drawImage(G.transitPic, 0, 0, 256, 256);
+  const last = G.levelIndex === 29 || G.levelIndex === 'daily';
+  $('btnNext').classList.toggle('hidden', last || (G.levelIndex !== 'daily' && !isUnlocked(G.levelIndex + 1)));
+  if (G.levelIndex === 29 && completedCount() === 30) toast(t('allDone'));
+  if (G.pendingDaily) { G.pendingDaily = false; progress.dailyToastShown = true; saveProgress(); toast(t('dailyUnlocked')); }
+  if (!G.simulating) { setTimeout(() => Sound.star(), 150); if (r.stars > 1) setTimeout(() => Sound.star(), 330); if (r.stars > 2) setTimeout(() => Sound.star(), 510); }
+}
+function nextLevel() { if (G.levelIndex === 'daily' || G.levelIndex >= 29) { showTitle(); return; } startLevel(G.levelIndex + 1); }
+
+// ---- buttons ----
+const on = (id, fn) => $(id).addEventListener('click', e => { e.stopPropagation(); Sound.unlock(); fn(); });
+on('btnPlay', () => { Sound.ui(); startLevel(nextUnfinished()); });
+on('btnLevels', () => { Sound.ui(); showLevels(); });
+on('btnCollection', () => { Sound.ui(); showCollection(); });
+on('btnDaily', () => { if (dailyUnlocked()) { Sound.ui(); startLevel('daily'); } });
+on('btnLevelsClose', () => { Sound.ui(); closeOverlays(); });
+on('btnCollectionClose', () => { Sound.ui(); closeOverlays(); });
+on('btnHowtoOk', () => { Sound.ui(); $('howtoScreen').classList.add('hidden'); G.screen = G.prevScreen === 'playing' || G.pz ? 'playing' : 'title'; if (G.screen === 'playing') $('topbar').classList.remove('hidden'); });
+on('btnHint', () => useHint());
+on('btnUndo', () => undo());
+on('btnRestart', () => { if (G.screen === 'playing') restartLevel(); });
+on('btnHelp', () => { if (G.screen === 'playing') showHowto(G.levelIndex === 'daily' ? 3 : Math.floor(G.levelIndex / 10)); });
+on('btnMenu', () => { Sound.ui(); showMenu(); });
+on('btnResume', () => { Sound.ui(); closeOverlays(); });
+on('btnMenuRestart', () => { Sound.ui(); closeOverlays(); restartLevel(); });
+on('btnMenuLevels', () => { Sound.ui(); showLevels(); });
+on('btnMenuCollection', () => { Sound.ui(); showCollection(); });
+on('btnMenuTitle', () => { Sound.ui(); showTitle(); });
+on('btnNext', () => { Sound.ui(); nextLevel(); });
+on('btnReplay', () => { Sound.ui(); startLevel(G.levelIndex); });
+on('btnCompleteLevels', () => { Sound.ui(); showLevels(); });
+function toggleSound() { Sound.setSound(!Sound.soundOn); progress.sound = Sound.soundOn; saveProgress(); syncToggles(); Sound.ui(); }
+function toggleMusic() { Sound.setMusic(!Sound.musicOn); progress.music = Sound.musicOn; saveProgress(); syncToggles(); }
+function syncToggles() { for (const id of ['btnSound', 'btnSound2']) $(id).classList.toggle('off', !Sound.soundOn); for (const id of ['btnMusic', 'btnMusic2']) $(id).classList.toggle('off', !Sound.musicOn); }
+on('btnSound', toggleSound); on('btnSound2', toggleSound); on('btnMusic', toggleMusic); on('btnMusic2', toggleMusic);
+on('btnLang', () => setLang(lang === 'tr' ? 'en' : 'tr')); on('btnLang2', () => setLang(lang === 'tr' ? 'en' : 'tr'));
+
+window.addEventListener('keydown', e => {
+  if (e.repeat) return;
+  Sound.unlock();
+  const k = e.key.toLowerCase();
+  if (k === 'escape') {
+    if (G.screen === 'playing') showMenu();
+    else if (['menu', 'levels', 'collection', 'howto'].includes(G.screen)) { if (G.screen === 'howto') $('btnHowtoOk').click(); else closeOverlays(); }
+    e.preventDefault();
+  }
+  if (G.screen !== 'playing') return;
+  if (k === 'z') undo(); else if (k === 'h') useHint(); else if (k === 'r') restartLevel();
+});
+
+// ============================================================================
+//  Pointer input: tap = rotate, drag tile = swap, right-click / long-press = flip, drag table = tilt, wheel/pinch = zoom
+// ============================================================================
+const raycaster = new THREE.Raycaster(); const ndc = new THREE.Vector2();
+const boardPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -(TABLE_Y + 0.06));
+const pointers = new Map(); let pinchDist = 0;
+const ptr = { down: false, tile: null, sx: 0, sy: 0, moved: false, dragging: false, camDrag: false, longTimer: null, longFired: false, lastX: 0, lastY: 0 };
+function setNdc(e) { const r = renderer.domElement.getBoundingClientRect(); ndc.x = ((e.clientX - r.left) / r.width) * 2 - 1; ndc.y = -((e.clientY - r.top) / r.height) * 2 + 1; }
+function pickTile(e) {
+  if (G.screen !== 'playing' || !G.pz) return null;
+  setNdc(e); raycaster.setFromCamera(ndc, camera);
+  const hits = raycaster.intersectObjects(G.meshes, false);
+  return hits.length ? hits[0].object.userData.tile : null;
+}
+function pointOnBoard(e) { setNdc(e); raycaster.setFromCamera(ndc, camera); const p = new THREE.Vector3(); return raycaster.ray.intersectPlane(boardPlane, p) ? p : null; }
+function slotAtLocal(x, z) {
+  const n = G.pz.n; const c = Math.round(x / G.pitch + (n - 1) / 2), r = Math.round(z / G.pitch + (n - 1) / 2);
+  if (c < 0 || c >= n || r < 0 || r >= n) return -1;
+  const [cx, cz] = slotLocal(r * n + c); if (Math.abs(x - cx) > G.pitch * 0.5 || Math.abs(z - cz) > G.pitch * 0.5) return -1;
+  return r * n + c;
+}
+function tryFlip(tl) {
+  if (!tl || G.screen !== 'playing') return;
+  if (tl.fixed) { toast(t('fixedTile')); Sound.deny(); shake(tl); return; }
+  if (!tl.texB) { toast(t('notTwoSided')); Sound.deny(); shake(tl); return; }
+  performMove({ type: 'flip', p: tl.slot });
+}
+function shake(tl) { tl.shake = 0.35; }
+const gl = renderer.domElement;
+gl.addEventListener('pointerdown', e => {
+  Sound.unlock();
+  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (pointers.size === 2) { const [a, b] = [...pointers.values()]; pinchDist = Math.hypot(a.x - b.x, a.y - b.y); ptr.down = false; ptr.tile = null; ptr.camDrag = false; clearTimeout(ptr.longTimer); return; }
+  if (pointers.size > 1) return;
+  gl.setPointerCapture(e.pointerId);
+  ptr.down = true; ptr.sx = ptr.lastX = e.clientX; ptr.sy = ptr.lastY = e.clientY; ptr.moved = false; ptr.dragging = false; ptr.longFired = false; ptr.camDrag = false;
+  ptr.tile = e.button === 2 ? null : pickTile(e);
+  if (e.button === 2) { tryFlip(pickTile(e)); ptr.down = false; return; }
+  if (ptr.tile) {
+    clearTimeout(ptr.longTimer);
+    if (e.pointerType !== 'mouse') ptr.longTimer = setTimeout(() => { if (ptr.down && !ptr.moved && ptr.tile) { ptr.longFired = true; tryFlip(ptr.tile); ptr.tile = null; } }, 520);
+  } else ptr.camDrag = true;
+});
+gl.addEventListener('pointermove', e => {
+  if (pointers.has(e.pointerId)) pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (pointers.size === 2) { const [a, b] = [...pointers.values()]; const d = Math.hypot(a.x - b.x, a.y - b.y); if (pinchDist > 0) { CAM.zoom = clamp(CAM.zoom * (pinchDist / d), 0.78, 1.3); updateCamera(); } pinchDist = d; return; }
+  if (!ptr.down) { if (e.pointerType === 'mouse' && !G.simulating) G.hover = pickTile(e); return; }
+  const dx = e.clientX - ptr.sx, dy = e.clientY - ptr.sy;
+  if (!ptr.moved && Math.hypot(dx, dy) > 9) { ptr.moved = true; clearTimeout(ptr.longTimer); }
+  if (ptr.camDrag) {
+    const mx = e.clientX - ptr.lastX, my = e.clientY - ptr.lastY;
+    CAM.azim = clamp(CAM.azim - mx * 0.004, -0.38, 0.38); CAM.polar = clamp(CAM.polar - my * 0.004, 36 * Math.PI / 180, 64 * Math.PI / 180); updateCamera();
+  } else if (ptr.tile && ptr.moved) {
+    if (!ptr.dragging) {
+      if (!G.pz.mech.swap) { if (!ptr.noSwapToasted) { toast(t('noSwapHere')); ptr.noSwapToasted = true; } }
+      else if (ptr.tile.fixed) { toast(t('fixedTile')); shake(ptr.tile); ptr.tile = null; }
+      else { ptr.dragging = true; G.drag = ptr.tile; Sound.lift(); }
+    }
+    if (ptr.dragging) { const p = pointOnBoard(e); if (p) { G.drag.x = p.x - boardGroup.position.x; G.drag.z = p.z - boardGroup.position.z; } }
+  }
+  ptr.lastX = e.clientX; ptr.lastY = e.clientY;
+});
+function endPointer(e) {
+  pointers.delete(e.pointerId);
+  if (pointers.size < 2) pinchDist = 0;
+  if (!ptr.down) return;
+  ptr.down = false; clearTimeout(ptr.longTimer);
+  if (ptr.dragging && G.drag) {
+    const tl = G.drag; G.drag = null; const p = pointOnBoard(e);
+    const q = p ? slotAtLocal(p.x - boardGroup.position.x, p.z - boardGroup.position.z) : -1;
+    if (q >= 0 && q !== tl.slot) {
+      const other = G.tileBySlot[q];
+      if (other.fixed) { toast(t('fixedTile')); Sound.deny(); shake(other); }
+      else performMove({ type: 'swap', a: tl.slot, b: q });
+    }
+  } else if (ptr.tile && !ptr.moved && !ptr.longFired && G.screen === 'playing') {
+    const tl = ptr.tile;
+    if (tl.fixed) { toast(t('fixedTile')); Sound.deny(); shake(tl); }
+    else performMove({ type: 'rot', p: tl.slot });
+  }
+  ptr.tile = null; ptr.camDrag = false; ptr.dragging = false;
+}
+gl.addEventListener('pointerup', endPointer); gl.addEventListener('pointercancel', endPointer);
+gl.addEventListener('contextmenu', e => e.preventDefault());
+gl.addEventListener('wheel', e => { e.preventDefault(); CAM.zoom = clamp(CAM.zoom * (1 + Math.sign(e.deltaY) * 0.08), 0.78, 1.3); updateCamera(); }, { passive: false });
+
+// ============================================================================
+//  Update loop (game time) + rendering
+// ============================================================================
+function updateTiles(dt) {
+  const k = 1 - Math.exp(-dt * 14), kp = 1 - Math.exp(-dt * 11);
+  for (const tl of G.tiles) {
+    if (!tl) continue;
+    tl.visAngle += (tl.angle - tl.visAngle) * k;
+    let [tx, tz] = slotLocal(tl.slot);
+    if (G.drag === tl) { tx = tl.x; tz = tl.z; } else { tl.x += (tx - tl.x) * kp; tl.z += (tz - tl.z) * kp; }
+    if (tl.jump < 1) tl.jump = Math.min(1, tl.jump + dt / 0.5);
+    let lift = 0;
+    if (G.drag === tl) lift = 0.3; else if (G.hover === tl && G.screen === 'playing') lift = 0.03;
+    lift += Math.sin(tl.jump * Math.PI) * 0.32;
+    if (tl.intro < 1) { tl.intro = Math.min(1, tl.intro + dt / 0.5); const u = Math.max(0, tl.intro); lift += (1 - easeOut(u)) * 0.9; tl.mesh.scale.setScalar(0.6 + 0.4 * easeOut(u)); } else if (tl.mesh.scale.x !== 1) tl.mesh.scale.setScalar(1);
+    let fx = 0;
+    if (tl.flip) {
+      const f = tl.flip; f.t = Math.min(1, f.t + dt / 0.42);
+      if (f.t < 0.5) fx = easeInOut(f.t * 2) * Math.PI / 2; else { if (!f.swapped) { f.swapped = true; tl.mat.map = f.toFace ? tl.texB : tl.texA; tl.mat.needsUpdate = true; } fx = -Math.PI / 2 + easeInOut((f.t - 0.5) * 2) * Math.PI / 2; }
+      lift += Math.sin(f.t * Math.PI) * G.tileSize * 0.55;
+      if (f.t >= 1) { tl.flip = null; fx = 0; }
+    }
+    if (tl.shake > 0) { tl.shake -= dt; fx += Math.sin(tl.shake * 60) * 0.08 * (tl.shake / 0.35); }
+    if (tl.sparkle > 0) { tl.sparkle -= dt * 1.2; tl.mat.emissive.setRGB(0.5 * tl.sparkle, 0.4 * tl.sparkle, 0.1 * tl.sparkle); if (tl.sparkle <= 0) tl.mat.emissive.setScalar(0); }
+    tl.lift += (lift - tl.lift) * (1 - Math.exp(-dt * 16));
+    tl.pivot.position.set(tl.x, 0.06 + tl.lift, tl.z);
+    tl.mesh.rotation.set(fx, tl.visAngle, 0);
+  }
+}
+function updateCat(dt) {
+  const c = G.catState; c.t += dt;
+  const z0 = -3.5, z1 = -1.55, walk = 6, sit = 6;
+  if (c.phase === 'hidden') { if (c.t >= c.next) { c.phase = 'walk'; c.t = 0; cat.visible = true; cat.position.z = z0; cat.rotation.y = -Math.PI / 2; } return; }
+  if (c.phase === 'walk') { const u = Math.min(1, c.t / walk); cat.position.z = lerp(z0, z1, u); cat.position.y = 2.58 + Math.abs(Math.sin(c.t * 7)) * 0.02; cat.userData.tail.rotation.x = Math.sin(c.t * 5) * 0.4; if (u >= 1) { c.phase = 'sit'; c.t = 0; } }
+  else if (c.phase === 'sit') { cat.userData.tail.rotation.x = Math.sin(c.t * 2.5) * 0.7; cat.position.y = 2.58; if (c.t >= sit) { c.phase = 'back'; c.t = 0; cat.rotation.y = Math.PI / 2; } }
+  else if (c.phase === 'back') { const u = Math.min(1, c.t / walk); cat.position.z = lerp(z1, z0, u); cat.position.y = 2.58 + Math.abs(Math.sin(c.t * 7)) * 0.02; cat.userData.tail.rotation.x = Math.sin(c.t * 5) * 0.4; if (u >= 1) { c.phase = 'hidden'; c.t = 0; c.next = 28 + Math.random() * 30; cat.visible = false; } }
+}
+function updateEffects(dt) {
+  const T = G.time;
+  // kiln flicker
+  if (!G.seq) { kilnLight.intensity = 1.3 + Math.sin(T * 9.1) * 0.12 + Math.sin(T * 23.7) * 0.08 + Math.sin(T * 3.3) * 0.1; kilnGlow.material.opacity = 0.75 + Math.sin(T * 11) * 0.1; }
+  // glow pulse
+  if (!G.seq) glowMat.opacity = 0.72 + Math.sin(T * 2.2) * 0.12;
+  // sparks
+  if (sparks.visible) {
+    const P = sparkGeo.attributes.position.array;
+    for (let i = 0; i < SPARKS; i++) {
+      sparkLife[i] += dt;
+      if (sparkLife[i] < 0) { P[i * 3] = KILN_MOUTH.x; P[i * 3 + 1] = -5; P[i * 3 + 2] = KILN_MOUTH.z; continue; }
+      if (sparkLife[i] === dt || sparkLife[i] > 1.2) { sparkLife[i] = 0; P[i * 3] = KILN_MOUTH.x + (Math.random() - 0.5) * 0.5; P[i * 3 + 1] = KILN_MOUTH.y + (Math.random() - 0.5) * 0.3; P[i * 3 + 2] = KILN_MOUTH.z + 0.2; sparkVel[i * 3] = (Math.random() - 0.5) * 1.2; sparkVel[i * 3 + 1] = 1 + Math.random() * 1.8; sparkVel[i * 3 + 2] = 0.6 + Math.random() * 1.2; }
+      P[i * 3] += sparkVel[i * 3] * dt; P[i * 3 + 1] += sparkVel[i * 3 + 1] * dt; P[i * 3 + 2] += sparkVel[i * 3 + 2] * dt; sparkVel[i * 3 + 1] -= 2.5 * dt;
+    }
+    sparkGeo.attributes.position.needsUpdate = true;
+  }
+}
+function updateDust() {
+  if (G.simulating) return;
+  const T = G.time; const P = dustGeo.attributes.position.array;
+  for (let i = 0; i < DUST; i++) {
+    const ph = dustPhase[i];
+    P[i * 3] = dustBase[i * 3] + Math.sin(T * 0.21 + ph) * 0.35 + Math.sin(T * 0.07 + ph * 2) * 0.2;
+    P[i * 3 + 1] = dustBase[i * 3 + 1] + Math.sin(T * 0.17 + ph * 1.3) * 0.25;
+    P[i * 3 + 2] = dustBase[i * 3 + 2] + Math.cos(T * 0.19 + ph * 0.7) * 0.3;
+  }
+  dustGeo.attributes.position.needsUpdate = true;
+}
+function update(dt) {
+  G.time += dt;
+  if (G.screen === 'playing' || G.screen === 'completing' || G.screen === 'menu' || G.screen === 'howto' || G.screen === 'levels' || G.screen === 'collection' || G.screen === 'complete') updateTiles(dt);
+  updateSequence(dt);
+  updateEffects(dt);
+  updateCat(dt);
+  if (AUTO) botUpdate(dt);
+}
+
+// ============================================================================
+//  Auto-play bot (?auto): solves the live puzzle state with the real solver and performs the moves
+// ============================================================================
+function botUpdate(dt) {
+  const B = G.bot; if (B.done) return;
+  B.timer -= dt; if (B.timer > 0) return;
+  switch (G.screen) {
+    case 'title': { startLevel(nextUnfinished()); B.timer = 0.6; break; }
+    case 'howto': { $('btnHowtoOk').click(); B.timer = 0.3; break; }
+    case 'menu': case 'levels': case 'collection': { closeOverlays(); B.timer = 0.3; break; }
+    case 'playing': {
+      if (!B.plan) {
+        const t0 = performance.now(); const sol = solvePuzzle(G.pz, G.slots); B.solveMs = performance.now() - t0;
+        if (!sol) { debugError('BOT: solver failed on level ' + levelKey(G.levelIndex)); B.done = true; return; }
+        B.plan = planMoves(G.pz, G.slots, sol); B.i = 0; B.timer = 0.4; B.solved = 0; break;
+      }
+      if (B.i < B.plan.length) {
+        const m = B.plan[B.i++]; performMove(m);
+        B.timer = m.type === 'rot' ? 0.14 : m.type === 'swap' ? 0.34 : 0.3;
+      } else {
+        debugError('BOT: plan finished but board not solved (' + levelKey(G.levelIndex) + ')'); B.done = true;
+      }
+      break;
+    }
+    case 'complete': {
+      B.plan = null; B.levelsDone = (B.levelsDone || 0) + 1;
+      if (G.levelIndex === 29 || G.levelIndex === 'daily') { showCollection(); B.done = true; } else nextLevel();
+      B.timer = 0.9; break;
+    }
+  }
+}
+
+// ============================================================================
+//  Debug overlay + fast forward
+// ============================================================================
+const dbg = { fps: 0, frames: 0, acc: 0 };
+function debugError(msg) { window.__ciniErrors.push(msg); console.error(msg); renderDebug(); }
+function renderDebug() {
+  if (!DEBUG) return;
+  const el = $('debug');
+  const info = renderer.info.render;
+  const lines = [
+    `draw calls ${info.calls}  tris ${info.triangles}  fps ${dbg.fps.toFixed(0)}  px ${renderer.getPixelRatio().toFixed(2)}  ${LOW ? 'LOW' : 'normal'}`,
+    `screen ${G.screen}  level ${G.pz ? levelKey(G.levelIndex) : '-'}  n ${G.pz ? G.pz.n : '-'}  moves ${G.pz ? moveCount() : 0}/${G.pz ? G.pz.par : 0}  glow ${G.glowCount || 0}  t ${G.time.toFixed(1)}s`,
+    AUTO ? `bot plan ${G.bot.plan ? G.bot.i + '/' + G.bot.plan.length : '-'}  solve ${G.bot.solveMs.toFixed(1)}ms  levelsDone ${G.bot.levelsDone || 0}` : 'bot off',
+    `collection ${progress.collection.length}  stars ${totalStars()}  textures ${textureCache.size}`,
+  ];
+  const errs = window.__ciniErrors;
+  el.innerHTML = lines.join('\n') + (errs.length ? '\n<span class="err">ERRORS (' + errs.length + '):\n' + errs.slice(-4).map(e => String(e).slice(0, 200)).join('\n') + '</span>' : '\nerrors: 0');
+}
+window.__ciniShowErr = renderDebug;
+window.ciniSim = function (seconds) {
+  const steps = Math.ceil(seconds * 30); G.simulating = true;
+  for (let i = 0; i < steps; i++) update(1 / 30);
+  G.simulating = false; updateCamera(); updateDust();
+  if (DEBUG) renderer.render(scene, camera); // one real frame so the draw-call count reflects the simulated state
+  renderDebug();
+};
+
+let last = performance.now(), running = true;
+function frame(now) {
+  requestAnimationFrame(frame);
+  if (!running) { last = now; return; }
+  let dt = (now - last) / 1000; last = now; if (dt > 0.1) dt = 0.1;
+  update(dt);
+  updateDust();
+  renderer.render(scene, camera);
+  dbg.frames++; dbg.acc += dt; if (dbg.acc >= 0.5) { dbg.fps = dbg.frames / dbg.acc; dbg.frames = 0; dbg.acc = 0; renderDebug(); }
+}
+document.addEventListener('visibilitychange', () => { running = !document.hidden; if (document.hidden) Sound.pause(); else { Sound.resume(); last = performance.now(); } });
+
+// ============================================================================
+//  Boot
+// ============================================================================
+function boot() {
+  loadProgress();
+  if (FLAG('fill')) { for (let i = 0; i < 30; i++) { const key = 'L' + (i + 1); const stars = 1 + ((i * 7) % 3); progress.best[key] = { stars, moves: 20 + i }; if (!progress.collection.find(c => c.key === key)) progress.collection.push({ key, idx: i, seed: levelSeed(i), stars, ts: 1700000000000 + i * 1000 }); } }
+  lang = PARAMS.get('lang') || progress.lang || 'tr'; if (!I18N[lang]) lang = 'tr';
+  Sound.setSound(progress.sound !== false); Sound.setMusic(progress.music !== false); syncToggles();
+  paintLogo($('logoBig')); paintLogo($('logoSmall'));
+  rebuildWall();
+  applyLang();
+  if (DEBUG) $('debug').classList.remove('hidden');
+  if (FLAG('noanim')) document.documentElement.classList.add('noanim'); // screenshot helper: skip CSS animations
+  if (LOW) toast(t('lowMode'));
+  $('loading').classList.add('hidden');
+  const lv = PARAMS.get('level');
+  if (lv === 'daily') startLevel('daily');
+  else if (lv) startLevel(clamp(parseInt(lv, 10) - 1, 0, 29));
+  else showTitle();
+  const sc = PARAMS.get('screen');
+  if (sc === 'levels') showLevels(); else if (sc === 'collection') showCollection(); else if (sc === 'howto') showHowto(parseInt(PARAMS.get('ch') || '0', 10));
+  const sim = parseFloat(PARAMS.get('sim') || '0');
+  if (sim > 0) window.ciniSim(sim);
+  renderDebug();
+  requestAnimationFrame(frame);
+}
+try { boot(); } catch (e) { window.__ciniErrors.push('boot: ' + (e.stack || e)); $('loading').innerHTML = '<div style="padding:20px;max-width:600px">' + t('errorLoad') + '<br><small>' + String(e) + '</small></div>'; if (DEBUG) { $('debug').classList.remove('hidden'); renderDebug(); } }
+</script>
+</body>
+</html>
