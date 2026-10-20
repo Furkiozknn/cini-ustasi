@@ -10,6 +10,7 @@
 <meta property="og:image" content="https://furkiozknn.github.io/cini-ustasi/docs/chapter3-level22-wall.png">
 <meta property="og:url" content="https://furkiozknn.github.io/cini-ustasi/">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" href="assets/ui/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -40,8 +41,12 @@ button{font-family:var(--font); cursor:pointer;}
 .stat{display:flex; flex-direction:column; align-items:center; line-height:1.1;}
 .stat b{font-size:17px; font-weight:800; color:var(--cobalt-deep);}
 .stat span{font-size:11px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.6px;}
-#starsLive{font-size:17px; letter-spacing:2px; color:var(--gold); text-shadow:0 1px 0 rgba(255,255,255,.7);}
-#starsLive .off{color:rgba(90,80,70,.28); text-shadow:none;}
+/* stars are inline SVG (the ★ glyph is not in Nunito and rendered grey from a fallback font) */
+.stars{display:inline-flex; gap:2px; align-items:center; vertical-align:middle;}
+.stars svg{width:1em; height:1em; display:block; fill:var(--gold); stroke:#a8771f; stroke-width:1.2; stroke-linejoin:round; filter:drop-shadow(0 1px 0 rgba(255,255,255,.7));}
+.stars svg.off{fill:rgba(90,80,70,.22); stroke:rgba(90,80,70,.25); filter:none;}
+#starsLive{display:inline-flex; height:22px; align-items:center;}
+#starsLive svg{width:18px; height:18px;}
 #topbar .right{display:flex; align-items:center; gap:6px; margin-left:auto; flex-wrap:nowrap;}
 .ibtn{position:relative; width:40px; height:40px; border-radius:12px; border:1px solid rgba(255,255,255,.65); background:rgba(255,255,255,.55); color:var(--cobalt-deep); display:inline-flex; align-items:center; justify-content:center; transition:transform .12s, background .12s; padding:0;}
 .ibtn:hover{background:rgba(255,255,255,.9); transform:translateY(-1px);}
@@ -51,17 +56,21 @@ button{font-family:var(--font); cursor:pointer;}
 .ibtn.off::after{content:""; position:absolute; left:9px; right:9px; top:50%; height:2px; background:#c1444a; transform:rotate(-35deg); border-radius:2px;}
 .ibtn .badge{position:absolute; top:-6px; right:-6px; min-width:18px; height:18px; padding:0 5px; border-radius:9px; background:var(--coral); color:#fff; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; box-shadow:0 1px 3px rgba(0,0,0,.25);}
 .ibtn.txt{width:auto; padding:0 10px; font-weight:800; font-size:13px; letter-spacing:.5px;}
+.btn:focus-visible, .ibtn:focus-visible, .lcard:focus-visible, .seg button:focus-visible, input[type=range]:focus-visible, .foot a:focus-visible{outline:3px solid var(--turq); outline-offset:2px;}
+.crest{border-radius:0 !important; box-shadow:none !important; filter:drop-shadow(0 6px 10px rgba(40,20,0,.35));}
 
 /* ---------- overlays ---------- */
 .overlay{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:16px; background:radial-gradient(ellipse at center, rgba(40,25,10,.18), rgba(40,25,10,.46)); animation:fadeIn .35s ease;}
 .overlay.clear{background:none;}
+.overlay.dim{background:rgba(40,25,10,.42); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);}
+.lowq .overlay.dim{backdrop-filter:none; -webkit-backdrop-filter:none; background:rgba(40,25,10,.55);}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 .card{background:rgba(253,249,240,0.82); padding:26px 28px; max-width:520px; width:100%; text-align:center; animation:popIn .4s cubic-bezier(.2,.9,.3,1.2);}
 @keyframes popIn{from{transform:translateY(16px) scale(.96); opacity:0}to{transform:none; opacity:1}}
 .card h1{margin:0 0 4px; font-size:44px; font-weight:800; color:var(--cobalt-deep); letter-spacing:-.5px; line-height:1.05;}
 .card h2{margin:0 0 10px; font-size:26px; font-weight:800; color:var(--cobalt-deep);}
 .card p{margin:6px 0 14px; color:var(--ink-soft); font-size:15px; line-height:1.45;}
-.btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; min-width:140px; padding:12px 22px; margin:5px; border-radius:14px; border:0; font-size:16px; font-weight:800; color:#fff; background:linear-gradient(180deg, #2a62bd, var(--cobalt)); box-shadow:0 6px 16px rgba(31,78,156,.35), 0 1px 0 rgba(255,255,255,.3) inset; transition:transform .12s, box-shadow .12s;}
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; min-width:150px; padding:12px 22px; margin:5px; border-radius:14px; border:0; font-size:16px; font-weight:800; color:#fff; background:linear-gradient(180deg, #2a62bd, var(--cobalt)); box-shadow:0 6px 16px rgba(31,78,156,.35), 0 1px 0 rgba(255,255,255,.3) inset; transition:transform .12s, box-shadow .12s;}
 .btn:hover{transform:translateY(-2px); box-shadow:0 10px 22px rgba(31,78,156,.4);}
 .btn:active{transform:translateY(0);}
 .btn.alt{background:linear-gradient(180deg, #ffffff, #f1ebdd); color:var(--cobalt-deep); box-shadow:0 4px 12px rgba(60,40,10,.15);}
@@ -88,8 +97,7 @@ button{font-family:var(--font); cursor:pointer;}
 .lgrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(78px, 1fr)); gap:10px;}
 .lcard{position:relative; aspect-ratio:1; border-radius:14px; border:1px solid rgba(255,255,255,.75); background:linear-gradient(180deg, rgba(255,255,255,.85), rgba(255,255,255,.55)); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; font-weight:800; color:var(--cobalt-deep); font-size:20px; box-shadow:0 3px 10px rgba(60,40,10,.12); transition:transform .12s, box-shadow .12s; padding:4px;}
 .lcard:hover:not(.locked){transform:translateY(-3px); box-shadow:0 10px 18px rgba(60,40,10,.18);}
-.lcard .st{font-size:13px; color:var(--gold); letter-spacing:1px;}
-.lcard .st .off{color:rgba(90,80,70,.25);}
+.lcard .st{font-size:13px;}
 .lcard .nm{font-size:10px; font-weight:600; color:var(--ink-soft); text-align:center; line-height:1.1; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
 .lcard.locked{opacity:.55; cursor:default; color:#8a8a98;}
 .lcard.locked .nm{visibility:hidden;}
@@ -103,16 +111,18 @@ button{font-family:var(--font); cursor:pointer;}
 .piece .fr{padding:7px; background:linear-gradient(135deg, #8a5a2b, #c9995a 50%, #8a5a2b); border-radius:6px; box-shadow:0 6px 14px rgba(40,20,0,.3), 0 0 0 1px rgba(255,255,255,.4) inset;}
 .piece canvas{display:block; width:112px; height:112px; border-radius:2px;}
 .piece .cap{font-size:12px; font-weight:700; color:var(--ink); text-align:center;}
-.piece .cap small{display:block; color:var(--gold); letter-spacing:1px;}
+.piece .cap small{display:block; font-size:13px; margin-top:2px;}
 .empty{padding:30px; text-align:center; color:var(--ink-soft);}
 
 /* ---------- complete card ---------- */
-.starsBig{font-size:56px; letter-spacing:6px; color:var(--gold); text-shadow:0 2px 0 rgba(255,255,255,.8), 0 6px 18px rgba(217,164,65,.45); margin:4px 0 2px; min-height:70px;}
-.starsBig span{display:inline-block; opacity:0; transform:scale(.3) rotate(-20deg); animation:starPop .5s cubic-bezier(.2,1,.3,1.3) forwards;}
-.starsBig span:nth-child(2){animation-delay:.18s}
-.starsBig span:nth-child(3){animation-delay:.36s}
-.starsBig span.off{color:rgba(90,80,70,.22); text-shadow:none;}
+.starsBig{font-size:56px; margin:4px 0 2px; min-height:64px; display:flex; justify-content:center;}
+.starsBig .stars{gap:8px;}
+.starsBig svg{opacity:0; transform:scale(.3) rotate(-20deg); animation:starPop .5s cubic-bezier(.2,1,.3,1.3) forwards; filter:drop-shadow(0 2px 0 rgba(255,255,255,.8)) drop-shadow(0 6px 12px rgba(217,164,65,.45));}
+.starsBig svg.off{filter:none;}
+.starsBig svg:nth-child(2){animation-delay:.18s}
+.starsBig svg:nth-child(3){animation-delay:.36s}
 @keyframes starPop{to{opacity:1; transform:none}}
+.record{display:inline-block; margin:2px 0 4px; padding:4px 12px; border-radius:999px; background:linear-gradient(180deg, #f3c766, var(--gold)); color:#4a2e05; font-weight:800; font-size:13px; letter-spacing:.6px; text-transform:uppercase; box-shadow:0 3px 10px rgba(217,164,65,.45); animation:popIn .5s .5s both;}
 .scoreRow{display:flex; justify-content:center; gap:28px; margin:6px 0 10px;}
 .scoreRow .stat b{font-size:24px;}
 #completeCard canvas.preview{width:150px; height:150px; border-radius:4px; box-shadow:0 0 0 7px #a4742f, 0 0 0 9px #e2bd7e, 0 12px 24px rgba(0,0,0,.35); margin:14px auto 18px; display:block;}
@@ -126,9 +136,30 @@ button{font-family:var(--font); cursor:pointer;}
 kbd{font-family:var(--font); background:#fff; border:1px solid #cfc9bb; border-bottom-width:2px; border-radius:6px; padding:0 6px; font-size:12px; font-weight:800; color:var(--cobalt-deep);}
 
 /* ---------- toasts ---------- */
-#toasts{position:absolute; bottom:22px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:6px; pointer-events:none;}
-.toast{padding:9px 16px; border-radius:999px; font-weight:700; font-size:14px; color:var(--cobalt-deep); animation:toastIn .3s ease, toastOut .4s ease 2.2s forwards; white-space:nowrap; max-width:92vw; overflow:hidden; text-overflow:ellipsis;}
-@keyframes toastIn{from{opacity:0; transform:translateY(10px)}to{opacity:1; transform:none}}
+#toasts{position:absolute; top:84px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:6px; pointer-events:none; z-index:6;}
+.toast{padding:9px 16px; border-radius:999px; font-weight:700; font-size:14px; color:var(--cobalt-deep); animation:toastIn .3s ease, toastOut .4s ease 2.2s forwards; white-space:nowrap; max-width:92vw; overflow:hidden; text-overflow:ellipsis; border-left:4px solid var(--cobalt);}
+.toast.good{border-left-color:var(--emerald); color:#1d5c38;}
+.toast.bad{border-left-color:var(--coral); color:#8f2a17;}
+@keyframes toastIn{from{opacity:0; transform:translateY(-10px)}to{opacity:1; transform:none}}
+
+/* ---------- settings ---------- */
+.settings{max-width:440px; text-align:left;}
+.settings h2{text-align:center;}
+.srow{display:flex; align-items:center; gap:12px; padding:9px 0; border-bottom:1px dashed rgba(31,78,156,.15); min-height:48px;}
+.srow:last-of-type{border-bottom:0;}
+.srow label{flex:0 0 120px; font-weight:800; font-size:14px; color:var(--ink);}
+.srow input[type=range]{flex:1 1 auto; accent-color:var(--cobalt); height:32px; min-width:0;}
+.srow output{flex:0 0 40px; text-align:right; font-weight:800; color:var(--cobalt-deep); font-size:14px;}
+.seg{display:flex; gap:6px; flex:1 1 auto;}
+.seg button{flex:1 1 0; min-height:44px; border-radius:12px; border:1px solid rgba(31,78,156,.25); background:rgba(255,255,255,.6); color:var(--cobalt-deep); font-weight:800; font-size:14px;}
+.seg button.on{background:linear-gradient(180deg, #2a62bd, var(--cobalt)); color:#fff; border-color:transparent;}
+.settings .row{margin-top:12px;}
+
+/* ---------- title extras ---------- */
+.credit{margin-top:12px; font-size:12px;}
+.credit a{color:var(--ink-soft); text-decoration:none; border-bottom:1px dotted rgba(91,90,112,.5); padding:4px 0;}
+.credit a:hover{color:var(--cobalt);}
+.assetLine{font-size:12px; color:var(--ink-soft); min-height:16px; margin-top:4px;}
 @keyframes toastOut{to{opacity:0; transform:translateY(-6px)}}
 
 /* ---------- debug ---------- */
@@ -139,14 +170,18 @@ kbd{font-family:var(--font); background:#fff; border:1px solid #cfc9bb; border-b
 @keyframes spin{to{transform:rotate(360deg)}}
 
 .noanim *{animation:none !important; transition:none !important;}
-.noanim .starsBig span{opacity:1; transform:none;}
+.noanim .starsBig svg{opacity:1; transform:none;}
 @media (max-width:640px){
   #topbar{padding:6px 8px; gap:6px;}
   #topbar .logo span{display:none;}
   #topbar .mid{order:3; flex:1 0 100%; justify-content:space-between; padding:4px 2px 0;}
-  #lvlName{max-width:46vw; font-size:14px;}
-  .ibtn{width:36px; height:36px; border-radius:10px;}
+  #lvlName{max-width:40vw; font-size:14px;}
+  #topbar .right{gap:6px;}
+  #topbar .right .wideOnly{display:none;}
+  .ibtn{width:44px; height:44px; border-radius:12px;}
   .ibtn svg{width:20px; height:20px;}
+  #toasts{top:122px;}
+  .srow label{flex-basis:96px;}
   .card{padding:20px 16px;}
   .card h1{font-size:34px;}
   .btn{min-width:120px; padding:11px 16px; font-size:15px;}
@@ -157,6 +192,7 @@ kbd{font-family:var(--font); background:#fff; border:1px solid #cfc9bb; border-b
   .scoreRow{gap:18px;}
   .starsBig{font-size:46px;}
 }
+@media (pointer:coarse){ .btn{min-height:44px;} .ibtn{min-width:44px; min-height:44px;} }
 @media (max-height:520px){
   .card h1{font-size:30px;} .logoBig{width:70px; height:70px;}
 }
@@ -172,15 +208,16 @@ kbd{font-family:var(--font); background:#fff; border:1px solid #cfc9bb; border-b
       <div class="stat" style="align-items:flex-start"><b id="lvlName">—</b><span id="lvlSub" style="text-transform:none;letter-spacing:0"></span></div>
       <div class="stat"><b id="movesVal">0</b><span data-i18n="moves">Hamle</span></div>
       <div class="stat"><b id="parVal">0</b><span data-i18n="par">Par</span></div>
-      <div class="stat"><b id="starsLive">★★★</b><span data-i18n="stars">Yıldız</span></div>
+      <div class="stat"><b id="edgesVal">0/0</b><span data-i18n="edges">Kenar</span></div>
+      <div class="stat"><b id="starsLive"></b><span data-i18n="stars">Yıldız</span></div>
     </div>
     <div class="right">
       <button class="ibtn" id="btnHint" data-tip="hint" title="İpucu (H)"><svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 17l.7 1.8 1.8.7-1.8.7L19 22l-.7-1.8-1.8-.7 1.8-.7z"/></svg><span class="badge" id="hintBadge">3</span></button>
       <button class="ibtn" id="btnUndo" title="Geri al (Z)"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg></button>
       <button class="ibtn" id="btnRestart" title="Yeniden (R)"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button>
-      <button class="ibtn" id="btnHelp" title="Nasıl oynanır?"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.8.4-1 .9-1 1.7"/><path d="M12 17h.01"/></svg></button>
+      <button class="ibtn wideOnly" id="btnHelp" title="Nasıl oynanır?"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.8.4-1 .9-1 1.7"/><path d="M12 17h.01"/></svg></button>
       <button class="ibtn" id="btnSound" title="Ses"><svg viewBox="0 0 24 24"><path d="M4 10v4h3l4 3V7L7 10z"/><path d="M15 9.5a4 4 0 0 1 0 5"/><path d="M17.5 7a7 7 0 0 1 0 10"/></svg></button>
-      <button class="ibtn" id="btnMusic" title="Müzik"><svg viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg></button>
+      <button class="ibtn wideOnly" id="btnMusic" title="Müzik"><svg viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg></button>
       <button class="ibtn txt" id="btnLang" title="Language">EN</button>
       <button class="ibtn" id="btnMenu" title="Menü (Esc)"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
     </div>
@@ -193,6 +230,7 @@ kbd{font-family:var(--font); background:#fff; border:1px solid #cfc9bb; border-b
       <div class="titleDeco" data-i18n="subtitle">İznik çini bulmacası</div>
       <p data-i18n="intro">Kenarlardaki motifleri eşleştir, panoyu fırınla, duvarını doldur.</p>
       <div class="row">
+        <button class="btn" id="btnContinue" data-i18n="continue">Devam et</button>
         <button class="btn" id="btnPlay" data-i18n="play">Oyna</button>
         <button class="btn alt" id="btnLevels" data-i18n="levels">Bölümler</button>
       </div>
@@ -200,12 +238,15 @@ kbd{font-family:var(--font); background:#fff; border:1px solid #cfc9bb; border-b
         <button class="btn alt" id="btnCollection" data-i18n="collection">Koleksiyon</button>
         <button class="btn turq" id="btnDaily" data-i18n="daily">Günün Çinisi</button>
       </div>
+      <div class="assetLine" id="assetLine"></div>
       <div class="foot">
         <button class="ibtn" id="btnSound2" title="Ses"><svg viewBox="0 0 24 24"><path d="M4 10v4h3l4 3V7L7 10z"/><path d="M15 9.5a4 4 0 0 1 0 5"/><path d="M17.5 7a7 7 0 0 1 0 10"/></svg></button>
         <button class="ibtn" id="btnMusic2" title="Müzik"><svg viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg></button>
+        <button class="ibtn" id="btnSettings2" title="Ayarlar"><svg viewBox="0 0 24 24"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg></button>
         <button class="ibtn txt" id="btnLang2">EN</button>
       </div>
       <div class="tiny" id="progressLine" style="margin-top:10px"></div>
+      <div class="credit"><a href="https://furkiozknn.github.io/claude-game-arena/" target="_blank" rel="noopener">Claude Game Arena · built by Claude Fable 5.1 · assets remastered</a></div>
     </div>
   </div>
 
@@ -231,12 +272,26 @@ kbd{font-family:var(--font); background:#fff; border:1px solid #cfc9bb; border-b
     </div>
   </div>
 
-  <div id="menuScreen" class="overlay hidden">
+  <div id="menuScreen" class="overlay dim hidden">
     <div class="card glass">
       <h2 data-i18n="paused">Mola</h2>
       <div class="row"><button class="btn" id="btnResume" data-i18n="resume">Devam</button></div>
-      <div class="row"><button class="btn alt" id="btnMenuRestart" data-i18n="restart">Yeniden</button><button class="btn alt" id="btnMenuLevels" data-i18n="levels">Bölümler</button></div>
-      <div class="row"><button class="btn alt" id="btnMenuCollection" data-i18n="collection">Koleksiyon</button><button class="btn alt" id="btnMenuTitle" data-i18n="backToTitle">Ana ekran</button></div>
+      <div class="row"><button class="btn alt" id="btnMenuRestart" data-i18n="restart">Yeniden</button><button class="btn alt" id="btnMenuSettings" data-i18n="settings">Ayarlar</button></div>
+      <div class="row"><button class="btn alt" id="btnMenuLevels" data-i18n="levels">Bölümler</button><button class="btn alt" id="btnMenuCollection" data-i18n="collection">Koleksiyon</button></div>
+      <div class="row"><button class="btn alt" id="btnMenuHelp" data-i18n="howtoBtn">Nasıl oynanır?</button><button class="btn alt" id="btnMenuTitle" data-i18n="backToTitle">Ana ekran</button></div>
+    </div>
+  </div>
+
+  <div id="settingsScreen" class="overlay dim hidden">
+    <div class="card glass settings">
+      <h2 data-i18n="settings">Ayarlar</h2>
+      <div class="srow"><label for="volMaster" data-i18n="masterVolume">Ana ses</label><input type="range" id="volMaster" min="0" max="100" step="5"><output id="volMasterV"></output></div>
+      <div class="srow"><label for="volMusic" data-i18n="musicVolume">Müzik</label><input type="range" id="volMusic" min="0" max="100" step="5"><output id="volMusicV"></output></div>
+      <div class="srow"><label for="volSfx" data-i18n="sfxVolume">Efektler</label><input type="range" id="volSfx" min="0" max="100" step="5"><output id="volSfxV"></output></div>
+      <div class="srow"><label data-i18n="language">Dil</label><div class="seg"><button id="setLangTr">Türkçe</button><button id="setLangEn">English</button></div></div>
+      <div class="srow"><label data-i18n="quality">Grafik</label><div class="seg"><button id="setQLow" data-i18n="qualityLow">Düşük</button><button id="setQHigh" data-i18n="qualityHigh">Yüksek</button></div></div>
+      <div class="srow"><label data-i18n="fullscreen">Tam ekran</label><div class="seg"><button id="setFull" data-i18n="fullscreenToggle">Aç / kapat</button></div></div>
+      <div class="row"><button class="btn" id="btnSettingsClose" data-i18n="close">Kapat</button></div>
     </div>
   </div>
 
@@ -244,6 +299,7 @@ kbd{font-family:var(--font); background:#fff; border:1px solid #cfc9bb; border-b
     <div class="card glass" id="completeCard">
       <h2 data-i18n="complete">Çini tamamlandı!</h2>
       <div class="starsBig" id="starsBig"></div>
+      <div class="record hidden" id="cRecord" data-i18n="newRecord">Yeni rekor!</div>
       <canvas class="preview" id="completePreview" width="256" height="256"></canvas>
       <div class="scoreRow">
         <div class="stat"><b id="cMoves">0</b><span data-i18n="moves">Hamle</span></div>
@@ -255,6 +311,7 @@ kbd{font-family:var(--font); background:#fff; border:1px solid #cfc9bb; border-b
         <button class="btn" id="btnNext" data-i18n="next">Sonraki</button>
         <button class="btn alt" id="btnReplay" data-i18n="replay">Tekrar</button>
         <button class="btn alt" id="btnCompleteLevels" data-i18n="levels">Bölümler</button>
+        <button class="btn alt" id="btnCompleteTitle" data-i18n="backToTitle">Ana ekran</button>
       </div>
     </div>
   </div>
@@ -278,13 +335,14 @@ setTimeout(() => { if (!window.cini) { const l = document.getElementById('loadin
 <script type="module">
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 // ============================================================================
 //  Utilities
 // ============================================================================
 const PARAMS = new URLSearchParams(location.search);
 const FLAG = k => PARAMS.has(k);
-const LOW = FLAG('low');
 const DEBUG = FLAG('debug');
 const AUTO = FLAG('auto');
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -292,6 +350,38 @@ const lerp = (a, b, t) => a + (b - a) * t;
 const easeOut = t => 1 - Math.pow(1 - t, 3);
 const easeInOut = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 const $ = id => document.getElementById(id);
+
+// ============================================================================
+//  Settings (arena.cini.settings) and save (arena.cini.save); migrated once from the old 'cini-ustasi-v1' key
+// ============================================================================
+const SETTINGS_KEY = 'arena.cini.settings', SAVE_KEY = 'arena.cini.save', OLD_KEY = 'cini-ustasi-v1';
+const COARSE = !!(window.matchMedia && matchMedia('(pointer:coarse)').matches);
+const settings = {
+  master: 0.8, music: 0.6, sfx: 0.8, musicOn: true, soundOn: true,
+  lang: (navigator.language || '').toLowerCase().startsWith('tr') ? 'tr' : 'en',
+  quality: COARSE || (navigator.hardwareConcurrency || 8) <= 4 ? 'low' : 'high',
+};
+let progress = { best: {}, collection: [], seenHowto: {}, dailyToastShown: false };
+const readJSON = k => { try { const raw = localStorage.getItem(k); return raw ? JSON.parse(raw) : null; } catch (e) { return null; } };
+const writeJSON = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { } };
+function loadStorage() {
+  if (FLAG('fresh')) { try { for (const k of [SETTINGS_KEY, SAVE_KEY, OLD_KEY]) localStorage.removeItem(k); } catch (e) { } }
+  let st = readJSON(SETTINGS_KEY), sv = readJSON(SAVE_KEY);
+  const old = (!st || !sv) ? readJSON(OLD_KEY) : null;
+  if (old) { // round-1 key mixed progress and settings
+    if (!st) st = { soundOn: old.sound !== false, musicOn: old.music !== false, lang: old.lang };
+    if (!sv) sv = { best: old.best, collection: old.collection, seenHowto: old.seenHowto, dailyToastShown: old.dailyToastShown };
+  }
+  if (st) for (const k of Object.keys(settings)) if (st[k] !== undefined && st[k] !== null) settings[k] = st[k];
+  if (sv) for (const k of Object.keys(progress)) if (sv[k] !== undefined && sv[k] !== null) progress[k] = sv[k];
+  if (!['tr', 'en'].includes(settings.lang)) settings.lang = 'tr';
+  if (old && !FLAG('fill')) { saveSettings(); saveProgress(); }
+}
+function saveSettings() { writeJSON(SETTINGS_KEY, settings); }
+function saveProgress() { if (!FLAG('fill')) writeJSON(SAVE_KEY, progress); }
+loadStorage();
+// ?low forces the low tier for this visit without saving it
+let LOW = FLAG('low') || settings.quality === 'low';
 
 // ==== CORE BEGIN ====
 // Pure puzzle logic: no DOM, no three.js. (Also extracted and run under Node for the solver tests.)
@@ -373,8 +463,9 @@ function generateLevel(def, seed) {
       t.push({ id: r * n + c, home: r * n + c, faces: [e], fixed: false });
     }
     if (ok) { tiles = t; break; }
-    if (attempt === 399) { tiles = t; }
   }
+  // never seen for the 30 levels; a daily seed that fails every attempt moves on to the next seed instead of a partial board
+  if (!tiles) return generateLevel(def, (seed + 1) >>> 0);
   const mech = { swap: !!def.shuf, flip: !!def.flip, fixed: !!def.fix };
   const slots = tiles.map((t, i) => ({ t: i, rot: 0, face: 0 }));
   // fixed tiles
@@ -414,14 +505,17 @@ function generateLevel(def, seed) {
     if (t.faces.length > 1 && rng() < 0.8) s.face = 1;
   }
   const pz = { n, tiles, mech, palette, seed, def };
-  // make sure at least one thing is wrong, and that every double-sided tile has a wrong face if nothing else differs
-  if (isSolved(pz, slots)) { const p = movable[0]; slots.findIndex(s => s.t === p); const s = slots.find(s => s.t === p); s.rot = (s.rot + 1) % 4; }
-  const solution = tiles.map((t, i) => ({ t: i, rot: 0, face: 0 }));
-  pz.par = planMoves(pz, slots, solution).length;
+  // make sure at least one thing is wrong
+  if (isSolved(pz, slots)) { const p = movable[0]; const s = slots.find(s => s.t === p); s.rot = (s.rot + 1) % 4; }
+  pz.par = planMoves(pz, slots, homeSolution(pz)).length;
   pz.start = slots.map(s => ({ ...s }));
   return pz;
 }
 
+// The board is generated solved: every tile at its home slot, rotation 0, front face (fixed tiles never move).
+// Hints and the bot plan against it, so they are O(N) and never fail.
+function homeSolution(pz) { return pz.tiles.map((t, i) => ({ t: i, rot: 0, face: 0 })); }
+function edgeTotal(n) { return 2 * n * n + 2 * n; }
 function edgesAt(pz, s) { return rotEdges(pz.tiles[s.t].faces[s.face], s.rot); }
 
 // Returns list of matched edges for the glow and whether everything matches.
@@ -443,7 +537,7 @@ function evaluate(pz, slots) {
 }
 function isSolved(pz, slots) { return evaluate(pz, slots).solved; }
 
-// Backtracking solver over the live state. Returns slots array (solution) or null.
+// Backtracking solver over the live state. Returns slots array (solution) or null. Used by the Node tests only.
 function solvePuzzle(pz, slots, nodeLimit) {
   nodeLimit = nodeLimit || 6e6;
   const n = pz.n, N = n * n, tiles = pz.tiles;
@@ -527,42 +621,46 @@ const I18N = {
   tr: {
     loading: 'Atölye hazırlanıyor…', title: 'Çini Ustası', subtitle: 'İznik çini bulmacası', intro: 'Kenarlardaki motifleri eşleştir, panoyu fırınla, duvarını doldur.',
     play: 'Oyna', continue: 'Devam et', levels: 'Bölümler', collection: 'Koleksiyon', daily: 'Günün Çinisi', dailyLocked: '1. bölüm bitince açılır',
-    chapter: 'Bölüm', level: 'Seviye', moves: 'Hamle', par: 'Par', stars: 'Yıldız', hint: 'İpucu', undo: 'Geri al', restart: 'Yeniden', menu: 'Menü', paused: 'Mola', resume: 'Devam',
+    chapter: 'Bölüm', level: 'Seviye', moves: 'Hamle', par: 'Par', stars: 'Yıldız', edges: 'Kenar', restart: 'Yeniden', paused: 'Mola', resume: 'Devam',
+    settings: 'Ayarlar', masterVolume: 'Ana ses', musicVolume: 'Müzik', sfxVolume: 'Efektler', language: 'Dil', quality: 'Grafik', qualityLow: 'Düşük', qualityHigh: 'Yüksek', fullscreen: 'Tam ekran', fullscreenToggle: 'Aç / kapat', close: 'Kapat',
+    newRecord: 'Yeni rekor!', howtoBtn: 'Nasıl oynanır?', loadingAssets: 'Atölye hazırlanıyor… {n}/{m}', qualityNote: 'Kenar yumuşatma bir sonraki açılışta değişir', settingsTip: 'Ayarlar',
     backToTitle: 'Ana ekran', start: 'Başla', next: 'Sonraki', replay: 'Tekrar', best: 'En iyi', complete: 'Çini tamamlandı!', fired: 'Fırından çıktı ve duvara asıldı.',
-    noHints: 'İpucu kalmadı', hintUsed: 'Bir çini yerine oturdu', hintNone: 'Pano zaten doğru görünüyor', undone: 'Geri alındı', nothingToUndo: 'Geri alınacak hamle yok',
-    fixedTile: 'Bu çini sabit, oynamaz', notTwoSided: 'Bu çini tek yüzlü', noSwapHere: 'Bu bölümde çiniler yer değiştirmez', restarted: 'Pano yeniden karıştırıldı',
+    noHints: 'İpucu kalmadı', hintUsed: 'Bir çini yerine oturdu', undone: 'Geri alındı', nothingToUndo: 'Geri alınacak hamle yok',
+    fixedTile: 'Bu çini sabit, oynamaz', notTwoSided: 'Bu çini tek yüzlü', noSwapHere: 'Bu bölümde çiniler yer değiştirmez', restarted: 'Pano baştan başladı',
     dailyUnlocked: 'Günün Çinisi açıldı!', allDone: 'Tüm panolar tamamlandı. Tebrikler, usta!', emptyCollection: 'Duvar henüz boş. İlk panoyu bitir, fırından çıksın!',
     errorLoad: 'Three.js yüklenemedi. İnternet bağlantısı gerekir.', lowMode: 'Düşük grafik modu', locked: 'Kilitli', newPiece: 'Yeni parça koleksiyona eklendi',
     chapterNames: ['Çırak', 'Kalfa', 'Usta'], chapterDesc: ['Çinileri döndür', 'Döndür ve yer değiştir', 'Sabit çiniler, çift yüzlü çiniler, 6×6 panolar'],
-    dailyName: 'Günün Çinisi', dailyBest: 'Bugünkü en iyi', closeTip: 'Kapat', soundTip: 'Ses', musicTip: 'Müzik', hintTip: 'İpucu (H)', undoTip: 'Geri al (Z)', restartTip: 'Yeniden (R)', helpTip: 'Nasıl oynanır?', menuTip: 'Menü (Esc)',
+    dailyName: 'Günün Çinisi', closeTip: 'Kapat', soundTip: 'Ses', musicTip: 'Müzik', hintTip: 'İpucu (H)', undoTip: 'Geri al (Z)', restartTip: 'Yeniden (R)', helpTip: 'Nasıl oynanır?', menuTip: 'Mola (P / Esc)', soundTip2: 'Ses (X)', musicTip2: 'Müzik (M)', langTip: 'Dil (L)',
     howto: [
-      { title: 'Kenarları eşleştir', lines: ['Bir çiniye dokun: 90° döner.', 'Komşu kenarlardaki motifler aynı olmalı: aynı şekil, aynı renk.', 'Kenar şeridi yalnızca dış çerçeveye bakar.', 'Eşleşen kenarlar altın gibi parlar. <kbd>Z</kbd> geri al, <kbd>H</kbd> ipucu, <kbd>R</kbd> yeniden.'] },
+      { title: 'Kenarları eşleştir', lines: ['Bir çiniye dokun: 90° döner.', 'Komşu kenarlardaki motifler aynı olmalı: aynı şekil, aynı renk.', 'Kenar şeridi yalnızca dış çerçeveye bakar.', 'Eşleşen kenarlar altın gibi parlar. <kbd>Z</kbd> geri al, <kbd>H</kbd> ipucu, <kbd>R</kbd> yeniden, <kbd>P</kbd> mola.'] },
       { title: 'Yer değiştir', lines: ['Bir çiniyi sürükleyip başka bir çininin üstüne bırak: yer değişirler.', 'Dokunmak yine döndürür. Doğru çiniyi doğru yere koy, sonra çevir.', 'Masaya sürükleyerek bakış açısını, tekerlekle yakınlığı ayarla.'] },
-      { title: 'Usta işi', lines: ['Pirinç çivili çiniler sabittir: yerinde durur, dönmez.', 'Ok işaretli çiniler çift yüzlüdür: sağ tık ya da uzun bas, ters yüz olur.', 'Panolar 6×6\'ya kadar büyür. Köşelerden başla, sabit çinileri rehber al.'] },
+      { title: 'Usta işi', lines: ['Pirinç çivili çiniler sabittir: yerinde durur, dönmez.', 'Ok işaretli çiniler çift yüzlüdür: sağ tık, uzun bas ya da üstündeyken <kbd>F</kbd>, ters yüz olur.', 'Panolar 6×6\'ya kadar büyür. Köşelerden başla, sabit çinileri rehber al.'] },
       { title: 'Günün Çinisi', lines: ['Her gün yeni bir 4×4 pano. Döndür, yer değiştir, en az hamleyle bitir.', 'Bugünkü en iyi derecen kaydedilir.'] },
     ],
   },
   en: {
     loading: 'Preparing the workshop…', title: 'Çini Ustası', subtitle: 'Iznik tile puzzle', intro: 'Match the motifs on the edges, fire the panel, fill your wall.',
     play: 'Play', continue: 'Continue', levels: 'Levels', collection: 'Collection', daily: 'Daily Tile', dailyLocked: 'Unlocks after chapter 1',
-    chapter: 'Chapter', level: 'Level', moves: 'Moves', par: 'Par', stars: 'Stars', hint: 'Hint', undo: 'Undo', restart: 'Restart', menu: 'Menu', paused: 'Paused', resume: 'Resume',
+    chapter: 'Chapter', level: 'Level', moves: 'Moves', par: 'Par', stars: 'Stars', edges: 'Edges', restart: 'Restart', paused: 'Paused', resume: 'Resume',
+    settings: 'Settings', masterVolume: 'Master', musicVolume: 'Music', sfxVolume: 'Effects', language: 'Language', quality: 'Graphics', qualityLow: 'Low', qualityHigh: 'High', fullscreen: 'Fullscreen', fullscreenToggle: 'On / off', close: 'Close',
+    newRecord: 'New record!', howtoBtn: 'How to play', loadingAssets: 'Preparing the workshop… {n}/{m}', qualityNote: 'Anti-aliasing changes on the next visit', settingsTip: 'Settings',
     backToTitle: 'Title screen', start: 'Start', next: 'Next', replay: 'Replay', best: 'Best', complete: 'Panel complete!', fired: 'Fired in the kiln and hung on the wall.',
-    noHints: 'No hints left', hintUsed: 'One tile set right', hintNone: 'The board already looks right', undone: 'Undone', nothingToUndo: 'Nothing to undo',
-    fixedTile: 'This tile is fixed', notTwoSided: 'This tile has one side', noSwapHere: 'Tiles cannot be swapped in this chapter', restarted: 'Board reshuffled',
+    noHints: 'No hints left', hintUsed: 'One tile set right', undone: 'Undone', nothingToUndo: 'Nothing to undo',
+    fixedTile: 'This tile is fixed', notTwoSided: 'This tile has one side', noSwapHere: 'Tiles cannot be swapped in this chapter', restarted: 'Board reset',
     dailyUnlocked: 'Daily Tile unlocked!', allDone: 'All panels complete. Congratulations, master!', emptyCollection: 'The wall is empty. Finish your first panel and fire it!',
     errorLoad: 'Three.js could not be loaded. An internet connection is required.', lowMode: 'Low graphics mode', locked: 'Locked', newPiece: 'New piece added to the collection',
     chapterNames: ['Apprentice', 'Journeyman', 'Master'], chapterDesc: ['Rotate the tiles', 'Rotate and swap', 'Fixed tiles, double-sided tiles, 6×6 boards'],
-    dailyName: 'Daily Tile', dailyBest: "Today's best", closeTip: 'Close', soundTip: 'Sound', musicTip: 'Music', hintTip: 'Hint (H)', undoTip: 'Undo (Z)', restartTip: 'Restart (R)', helpTip: 'How to play', menuTip: 'Menu (Esc)',
+    dailyName: 'Daily Tile', closeTip: 'Close', soundTip: 'Sound', musicTip: 'Music', hintTip: 'Hint (H)', undoTip: 'Undo (Z)', restartTip: 'Restart (R)', helpTip: 'How to play', menuTip: 'Pause (P / Esc)', soundTip2: 'Sound (X)', musicTip2: 'Music (M)', langTip: 'Language (L)',
     howto: [
-      { title: 'Match the edges', lines: ['Tap a tile: it turns 90°.', 'Motifs on neighbouring edges must be the same: same shape, same colour.', 'The border band only faces the outer frame.', 'Matching edges glow gold. <kbd>Z</kbd> undo, <kbd>H</kbd> hint, <kbd>R</kbd> restart.'] },
+      { title: 'Match the edges', lines: ['Tap a tile: it turns 90°.', 'Motifs on neighbouring edges must be the same: same shape, same colour.', 'The border band only faces the outer frame.', 'Matching edges glow gold. <kbd>Z</kbd> undo, <kbd>H</kbd> hint, <kbd>R</kbd> restart, <kbd>P</kbd> pause.'] },
       { title: 'Swap places', lines: ['Drag a tile onto another tile: they swap places.', 'Tapping still rotates. Put the right tile in the right place, then turn it.', 'Drag on the table to tilt the view, scroll to zoom.'] },
-      { title: "Master's work", lines: ['Tiles with a brass nail are fixed: they stay put and do not turn.', 'Tiles with an arrow mark are double-sided: right-click or long-press to flip.', 'Boards grow up to 6×6. Start from the corners and use the fixed tiles as guides.'] },
+      { title: "Master's work", lines: ['Tiles with a brass nail are fixed: they stay put and do not turn.', 'Tiles with an arrow mark are double-sided: right-click, long-press or <kbd>F</kbd> while hovering to flip.', 'Boards grow up to 6×6. Start from the corners and use the fixed tiles as guides.'] },
       { title: 'Daily Tile', lines: ['A new 4×4 board every day. Rotate, swap, finish in as few moves as you can.', "Today's best result is saved."] },
     ],
   },
 };
 let lang = 'tr';
-const t = k => (I18N[lang][k] !== undefined ? I18N[lang][k] : I18N.tr[k] !== undefined ? I18N.tr[k] : k);
+const t = (k, vars) => { let v = I18N[lang][k] !== undefined ? I18N[lang][k] : I18N.tr[k] !== undefined ? I18N.tr[k] : k; if (vars) for (const x in vars) v = v.replace('{' + x + '}', vars[x]); return v; };
 
 // ============================================================================
 //  Motif painter (canvas). Each edge shows one complete motif growing inward from the edge midpoint.
@@ -575,7 +673,7 @@ const PAL = {
   emerald: { fill: '#2f9a52', dark: '#1f6b38', light: '#8ad4a0' },
 };
 const INK = '#17315f';
-const TEX_SIZE = LOW ? 128 : 256;
+let TEX_SIZE = LOW ? 128 : 256; // follows the quality tier from the next level on
 const STRIP = 16; // white strip below the motif area, used by the tile sides/bottom
 const textureCache = new Map();
 
@@ -786,22 +884,22 @@ function paintLogo(cv) {
 // ============================================================================
 const Sound = (() => {
   let ctx = null, master, musicBus, sfxBus, delay, delayGain, drone = null;
-  let soundOn = true, musicOn = true, musicTimer = null, nextNote = 0, degree = 0, noiseBuf = null;
+  let soundOn = settings.soundOn !== false, musicOn = settings.musicOn !== false, musicTimer = null, nextNote = 0, degree = 0, noiseBuf = null;
   const SCALE = [293.66, 311.13, 369.99, 392.0, 440.0, 466.16, 523.25, 587.33, 622.25, 739.99]; // Hicaz on D
   function ensure() {
     if (!ctx) {
       try {
         const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return false;
         ctx = new AC();
-        master = ctx.createGain(); master.gain.value = 0.9; master.connect(ctx.destination);
-        musicBus = ctx.createGain(); musicBus.gain.value = musicOn ? 1 : 0; musicBus.connect(master);
-        sfxBus = ctx.createGain(); sfxBus.gain.value = soundOn ? 1 : 0; sfxBus.connect(master);
+        master = ctx.createGain(); master.gain.value = settings.master * 1.1; master.connect(ctx.destination);
+        musicBus = ctx.createGain(); musicBus.gain.value = musicGain(); musicBus.connect(master);
+        sfxBus = ctx.createGain(); sfxBus.gain.value = sfxGain(); sfxBus.connect(master);
         // simple feedback delay as a room
         delay = ctx.createDelay(1.0); delay.delayTime.value = 0.27;
         delayGain = ctx.createGain(); delayGain.gain.value = 0.32;
         const dl = ctx.createBiquadFilter(); dl.type = 'lowpass'; dl.frequency.value = 1800;
         delay.connect(dl); dl.connect(delayGain); delayGain.connect(delay); delayGain.connect(master);
-        noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 1, ctx.sampleRate);
+        noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
         const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
       } catch (e) { return false; }
     }
@@ -809,7 +907,7 @@ const Sound = (() => {
     return true;
   }
   function noise(dur, type, freq, q, gain, when, bus, sweepTo) {
-    const src = ctx.createBufferSource(); src.buffer = noiseBuf;
+    const src = ctx.createBufferSource(); src.buffer = noiseBuf; src.loop = true; // whoosh/fire run longer than the 2 s buffer would allow without it
     const f = ctx.createBiquadFilter(); f.type = type; f.frequency.setValueAtTime(freq, when); if (sweepTo) f.frequency.exponentialRampToValueAtTime(sweepTo, when + dur); f.Q.value = q || 1;
     const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, when); g.gain.exponentialRampToValueAtTime(gain, when + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, when + dur);
     src.connect(f); f.connect(g); g.connect(bus || sfxBus); src.start(when); src.stop(when + dur + 0.05);
@@ -853,16 +951,18 @@ const Sound = (() => {
       nextNote += [0.8, 1.0, 1.2, 1.6, 2.0, 2.6][(Math.random() * 6) | 0];
     }
   }
+  // the 1.25 / 1.1 factors keep the default mix (0.8 / 0.6 / 0.8) close to the round-1 loudness
+  const musicGain = () => musicOn ? settings.music * 1.25 : 0, sfxGain = () => soundOn ? settings.sfx * 1.25 : 0;
   const api = {
     get soundOn() { return soundOn; }, get musicOn() { return musicOn; },
     unlock() { if (ensure() && musicOn) api.startMusic(); },
-    setSound(v) { soundOn = v; if (ctx) sfxBus.gain.setTargetAtTime(v ? 1 : 0, ctx.currentTime, 0.02); },
-    setMusic(v) { musicOn = v; if (!ctx) return; if (v) { api.startMusic(); musicBus.gain.setTargetAtTime(1, ctx.currentTime, 0.3); } else musicBus.gain.setTargetAtTime(0, ctx.currentTime, 0.3); },
+    setSound(v) { soundOn = v; if (ctx) sfxBus.gain.setTargetAtTime(sfxGain(), ctx.currentTime, 0.02); },
+    setMusic(v) { musicOn = v; if (!ctx) return; if (v) api.startMusic(); musicBus.gain.setTargetAtTime(musicGain(), ctx.currentTime, 0.3); },
+    applyVolumes() { if (!ctx) return; master.gain.setTargetAtTime(settings.master * 1.1, ctx.currentTime, 0.05); musicBus.gain.setTargetAtTime(musicGain(), ctx.currentTime, 0.05); sfxBus.gain.setTargetAtTime(sfxGain(), ctx.currentTime, 0.05); },
     startMusic() { if (!ensure() || !musicOn) return; startDrone(); if (!musicTimer) { nextNote = ctx.currentTime + 0.5; musicTimer = setInterval(schedule, 250); schedule(); } },
     pause() { if (ctx && ctx.state === 'running') ctx.suspend().catch(() => {}); },
     resume() { if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {}); },
     // ---- SFX ----
-    click() { if (!ensure() || !soundOn) return; const n = ctx.currentTime; noise(0.04, 'bandpass', 2600, 1.5, 0.25, n); tone(1900, n, 0.05, 0.08, 'sine'); },
     rotate() { if (!ensure() || !soundOn) return; const n = ctx.currentTime; noise(0.16, 'bandpass', 900, 1.2, 0.18, n, null, 2400); tone(660, n + 0.02, 0.12, 0.05, 'triangle'); },
     swap() { if (!ensure() || !soundOn) return; const n = ctx.currentTime; noise(0.22, 'bandpass', 500, 1, 0.2, n, null, 1600); tone(440, n, 0.1, 0.05, 'triangle'); tone(550, n + 0.12, 0.1, 0.05, 'triangle'); },
     flip() { if (!ensure() || !soundOn) return; const n = ctx.currentTime; noise(0.12, 'bandpass', 1400, 1.5, 0.2, n, null, 500); tone(880, n + 0.1, 0.08, 0.06, 'sine'); },
@@ -884,31 +984,55 @@ const Sound = (() => {
 const TABLE_Y = 1.0;
 const BOARD_SIZE = 3.6;
 const WALL_Z = -4.2;
-const KILN_POS = new THREE.Vector3(4.8, 0, -3.0);
-const KILN_MOUTH = new THREE.Vector3(4.8, 0.95, -2.1);
+// x 4.55 (was 4.8): the dome no longer cuts through the lower right-wall shelf at y 2.55
+const KILN_POS = new THREE.Vector3(4.55, 0, -3.0);
+const KILN_MOUTH = new THREE.Vector3(4.55, 0.95, -2.1);
 const GALLERY = { cols: 6, rows: 2, x0: -1.75, dx: 0.92, y: [2.08, 1.32], size: 0.62, z: WALL_Z + 0.03 };
+const WINDOW = { x: -4.0, y: 2.85, w: 2.6, h: 1.7 };
+const KILIM = { y: 2.4, z: -3.1, w: 1.6, h: 1.8 };
+const STOOL = new THREE.Vector3(-4.2, 0.63, 1.4); // stool seat top (the cat sits here when the cat model is loaded)
+const PAINT_SET = new THREE.Vector3(2.65, TABLE_Y, 1.5); // free table strip x 2.2 ... 3.1 right of the board frame
 const MAX_WALL = GALLERY.cols * GALLERY.rows;
 
-const renderer = new THREE.WebGLRenderer({ canvas: $('gl'), antialias: true, powerPreference: 'high-performance' });
+// antialias can only be chosen when the context is created, so it follows the tier saved at start-up
+const renderer = new THREE.WebGLRenderer({ canvas: $('gl'), antialias: !LOW, powerPreference: 'high-performance' });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, LOW ? 1 : 1.5));
 renderer.shadowMap.enabled = !LOW;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+// the room is still most of the time: the shadow map is redrawn only on frames where something moved (see frame())
+renderer.shadowMap.autoUpdate = false; renderer.shadowMap.needsUpdate = true;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 const scene = new THREE.Scene();
 scene.background = new THREE.Color('#5a3b26');
 scene.fog = new THREE.Fog('#5a3b26', 16, 30);
 const camera = new THREE.PerspectiveCamera(46, 1, 0.1, 60);
-const CAM = { target: new THREE.Vector3(0, 1.25, -0.45), dist: 7.7, polar: 48 * Math.PI / 180, azim: 0, zoom: 1 };
+// focus: extra look-target offset eased per frame; the kiln sequence pans it toward the kiln and the gallery slot
+// (fully in portrait, where the kiln is outside the frustum, at 0.22 in landscape). Like Godot's CameraRig.
+const CAM = { target: new THREE.Vector3(0, 1.25, -0.45), dist: 7.7, polar: 48 * Math.PI / 180, azim: 0, zoom: 1,
+  focus: new THREE.Vector3(), curFocus: new THREE.Vector3(), shake: 0, idle: 0 };
+const _look = new THREE.Vector3();
 
 function updateCamera() {
   const aspect = camera.aspect;
   // in portrait the board must still fit horizontally
   const hTan = Math.tan(camera.fov * Math.PI / 360) * aspect;
   const need = 2.75 / hTan;
-  const dist = Math.max(CAM.dist, need) * CAM.zoom;
-  const sp = Math.sin(CAM.polar), cp = Math.cos(CAM.polar);
-  camera.position.set(CAM.target.x + dist * sp * Math.sin(CAM.azim), CAM.target.y + dist * cp, CAM.target.z + dist * sp * Math.cos(CAM.azim));
-  camera.lookAt(CAM.target);
+  const portrait = aspect < 1;
+  // while the camera pans to the kiln on a phone it also comes closer, so the kiln and the wall fill the view
+  const pan = portrait ? clamp(CAM.curFocus.length() / 2.5, 0, 1) : 0;
+  const dist = lerp(Math.max(CAM.dist, need), CAM.dist * 1.15, pan) * CAM.zoom;
+  const drA = Math.sin(CAM.idle * 0.21) * 0.012, drP = Math.sin(CAM.idle * 0.17) * 0.006;
+  const sp = Math.sin(CAM.polar + drP), cp = Math.cos(CAM.polar + drP), az = CAM.azim + drA;
+  _look.copy(CAM.curFocus).multiplyScalar(portrait ? 1 : 0.22).add(CAM.target);
+  camera.position.set(_look.x + dist * sp * Math.sin(az), _look.y + dist * cp, _look.z + dist * sp * Math.cos(az));
+  if (CAM.shake > 0) { const s = CAM.shake * 0.06, T = CAM.idle; camera.position.x += Math.sin(T * 37) * s; camera.position.y += Math.sin(T * 41 + 1) * s * 0.6; }
+  camera.lookAt(_look);
+}
+function stepCamera(dt) {
+  CAM.idle += dt;
+  CAM.curFocus.lerp(CAM.focus, 1 - Math.exp(-dt * 2.5));
+  if (CAM.shake > 0) CAM.shake = Math.max(0, CAM.shake - dt * 0.8);
+  updateCamera();
 }
 function resize() {
   const w = window.innerWidth, h = window.innerHeight;
@@ -931,6 +1055,7 @@ const kilnLight = new THREE.PointLight('#ff8a2a', 1.4, 7, 1.6); kilnLight.positi
 
 // ---- geometry helpers (vertex coloured, merged) ----
 const _c = new THREE.Color();
+let shadowDirty = true; // set whenever something that casts a shadow moved; frame() redraws the shadow map only then
 function colorize(geo, hex, jitter) {
   const n = geo.attributes.position.count; const arr = new Float32Array(n * 3);
   _c.set(hex);
@@ -958,26 +1083,28 @@ function mergeToMesh(list, mat, opts) {
 }
 const lambertVC = new THREE.MeshLambertMaterial({ vertexColors: true });
 
+// The room is built as a few merged vertex-coloured meshes. The parts a generated asset can replace (floor, walls,
+// kilim, kiln, paint set) are separate meshes, so the procedural version can be hidden when the asset arrives.
 function buildRoom() {
-  const L = [];
+  const L = [], F = [], W = [], K = [], R = [];
   // floor: terracotta tiles with slight variation
   for (let x = -8; x < 8; x++) for (let z = -5; z < 7; z++) {
     const g = new THREE.PlaneGeometry(1, 1); g.rotateX(-Math.PI / 2); g.translate(x + 0.5, 0, z + 0.5);
-    colorize(g, (x + z) % 2 ? '#a9603f' : '#b56b47', 0.1); L.push(g);
+    colorize(g, (x + z) % 2 ? '#a9603f' : '#b56b47', 0.1); F.push(g);
   }
   // grout lines (thin boxes) for a hand-laid look
-  for (let x = -8; x <= 8; x++) box(L, 0.03, 0.005, 12, x, 0.003, 1, '#7a4530');
-  for (let z = -5; z <= 7; z++) box(L, 16, 0.005, 0.03, 0, 0.003, z, '#7a4530');
+  for (let x = -8; x <= 8; x++) box(F, 0.03, 0.005, 12, x, 0.003, 1, '#7a4530');
+  for (let z = -5; z <= 7; z++) box(F, 16, 0.005, 0.03, 0, 0.003, z, '#7a4530');
   // walls
-  box(L, 12.4, 5.2, 0.2, 0, 2.6, WALL_Z - 0.1, '#ecdfc3', 0.03);
-  box(L, 0.2, 5.2, 12, -6.1, 2.6, 1, '#dfd0b0', 0.03);
-  box(L, 0.2, 5.2, 12, 6.1, 2.6, 1, '#e4d5b6', 0.03);
+  box(W, 12.4, 5.2, 0.2, 0, 2.6, WALL_Z - 0.1, '#ecdfc3', 0.03);
+  box(W, 0.2, 5.2, 12, -6.1, 2.6, 1, '#dfd0b0', 0.03);
+  box(W, 0.2, 5.2, 12, 6.1, 2.6, 1, '#e4d5b6', 0.03);
   // skirting
   box(L, 12.4, 0.18, 0.06, 0, 0.09, WALL_Z + 0.03, '#6e4a2e');
   box(L, 0.06, 0.18, 12, -5.97, 0.09, 1, '#6e4a2e');
   box(L, 0.06, 0.18, 12, 5.97, 0.09, 1, '#6e4a2e');
   // window on the back wall (left): frame + sill + mullions
-  const wx = -4.0, wy = 2.85, ww = 2.6, wh = 1.7, wz = WALL_Z + 0.02;
+  const wx = WINDOW.x, wy = WINDOW.y, ww = WINDOW.w, wh = WINDOW.h, wz = WALL_Z + 0.02;
   box(L, ww + 0.3, 0.14, 0.16, wx, wy + wh / 2 + 0.07, wz, '#f7f0e0');
   box(L, ww + 0.3, 0.16, 0.26, wx, wy - wh / 2 - 0.08, wz + 0.06, '#f7f0e0');
   box(L, 0.14, wh, 0.16, wx - ww / 2 - 0.07, wy, wz, '#f7f0e0');
@@ -990,20 +1117,21 @@ function buildRoom() {
   // two wooden ledges on the back wall for the finished panels
   for (const gy of GALLERY.y) { box(L, 5.9, 0.05, 0.14, 0.55, gy - GALLERY.size / 2 - 0.1, WALL_Z + 0.07, '#8a5a32', 0.05); for (const bx of [-2.1, 0.55, 3.2]) box(L, 0.08, 0.14, 0.1, bx, gy - GALLERY.size / 2 - 0.2, WALL_Z + 0.05, '#6e4526'); }
   // kilim rug on the left wall
-  const rz = -3.1, ry0 = 1.5;
-  for (let i = 0; i < 9; i++) box(L, 0.04, 0.2, 1.6, -5.95, ry0 + i * 0.2, rz, ['#a33b2a', '#e0b85a', '#1f4e9c', '#a33b2a', '#f1e7d0'][i % 5]);
-  for (let i = 0; i < 4; i++) box(L, 0.05, 1.8, 0.05, -5.94, ry0 + 0.8, rz - 0.7 + i * 0.47, '#f1e7d0');
+  const rz = KILIM.z, ry0 = KILIM.y - 0.9;
+  for (let i = 0; i < 9; i++) box(R, 0.04, 0.2, 1.6, -5.95, ry0 + i * 0.2, rz, ['#a33b2a', '#e0b85a', '#1f4e9c', '#a33b2a', '#f1e7d0'][i % 5]);
+  for (let i = 0; i < 4; i++) box(R, 0.05, 1.8, 0.05, -5.94, ry0 + 0.8, rz - 0.7 + i * 0.47, '#f1e7d0');
   // shelves on the right wall with brackets
   for (const sy of [2.55, 3.45]) {
     box(L, 0.62, 0.06, 3.0, 5.69, sy, -2.5, '#8a5a32', 0.05);
     for (const bz of [-3.7, -1.3]) box(L, 0.5, 0.06, 0.08, 5.72, sy - 0.2, bz, '#6e4526', { rz: 0.5 });
   }
-  // plates standing on the shelves (white with coloured rims)
+  // plates standing on the shelves (white with coloured rims); the rims share the disc's tilt and sit on its front face
   const plates = [[-3.6, 3.45, '#1f4e9c'], [-2.8, 3.45, '#1fa3a3'], [-2.0, 3.45, '#d9452b'], [-1.25, 3.45, '#2e8b57'], [-3.85, 2.55, '#2e8b57']];
   for (const [pz, py, rim] of plates) {
     cyl(L, 0.3, 0.3, 0.035, 5.55, py + 0.33, pz, '#f6f1e4', { rz: Math.PI / 2 - 0.22, seg: 24 });
-    const tr = new THREE.TorusGeometry(0.28, 0.025, 6, 24); tr.rotateY(Math.PI / 2 + 0.22); tr.translate(5.57, py + 0.33, pz); colorize(tr, rim); L.push(tr);
-    const tr2 = new THREE.TorusGeometry(0.14, 0.02, 6, 20); tr2.rotateY(Math.PI / 2 + 0.22); tr2.translate(5.567, py + 0.33, pz); colorize(tr2, rim); L.push(tr2);
+    for (const [r, tube, x] of [[0.28, 0.025, 5.52], [0.14, 0.02, 5.515]]) {
+      const tr = new THREE.TorusGeometry(r, tube, 6, 24); tr.rotateY(-Math.PI / 2); tr.rotateZ(-0.22); tr.translate(x, py + 0.33, pz); colorize(tr, rim); L.push(tr);
+    }
   }
   // vases (lathe), banded colours
   const vaseProfile = [[0, 0], [0.16, 0], [0.22, 0.08], [0.2, 0.3], [0.1, 0.42], [0.12, 0.52], [0, 0.53]];
@@ -1017,52 +1145,55 @@ function buildRoom() {
   }
   // kiln: stone base, brick body, dome, chimney, mouth
   const k = KILN_POS;
-  box(L, 2.1, 0.2, 2.1, k.x, 0.1, k.z, '#6f5a4c', 0.06);
-  box(L, 1.7, 1.9, 1.7, k.x, 1.15, k.z, '#a4583a', 0.08);
+  box(K, 2.1, 0.2, 2.1, k.x, 0.1, k.z, '#6f5a4c', 0.06);
+  box(K, 1.7, 1.9, 1.7, k.x, 1.15, k.z, '#a4583a', 0.08);
   // brick lines
-  for (let i = 0; i < 6; i++) { box(L, 1.72, 0.02, 1.72, k.x, 0.45 + i * 0.28, k.z, '#7b3f28'); }
-  const dome = new THREE.SphereGeometry(0.86, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2); dome.translate(k.x, 2.1, k.z); colorize(dome, '#9a5234', 0.06); L.push(dome);
-  cyl(L, 0.16, 0.2, 1.3, k.x - 0.3, 3.1, k.z - 0.35, '#5c3a2a');
+  for (let i = 0; i < 6; i++) { box(K, 1.72, 0.02, 1.72, k.x, 0.45 + i * 0.28, k.z, '#7b3f28'); }
+  const dome = new THREE.SphereGeometry(0.86, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2); dome.translate(k.x, 2.1, k.z); colorize(dome, '#9a5234', 0.06); K.push(dome);
+  cyl(K, 0.16, 0.2, 1.3, k.x - 0.3, 3.1, k.z - 0.35, '#5c3a2a');
   // mouth: dark recess with an arch of lighter stones
-  box(L, 0.9, 0.7, 0.3, k.x, 0.95, k.z + 0.75, '#1a0c06');
-  for (let i = 0; i < 7; i++) { const a = Math.PI * (i / 6); box(L, 0.16, 0.14, 0.12, k.x + Math.cos(a) * 0.52, 0.95 + Math.sin(a) * 0.42 + 0.05, k.z + 0.86, '#c98a62', { rz: a - Math.PI / 2 }); }
-  box(L, 1.2, 0.08, 0.5, k.x, 0.56, k.z + 1.0, '#6f5a4c');
+  box(K, 0.9, 0.7, 0.3, k.x, 0.95, k.z + 0.75, '#1a0c06');
+  for (let i = 0; i < 7; i++) { const a = Math.PI * (i / 6); box(K, 0.16, 0.14, 0.12, k.x + Math.cos(a) * 0.52, 0.95 + Math.sin(a) * 0.42 + 0.05, k.z + 0.86, '#c98a62', { rz: a - Math.PI / 2 }); }
+  box(K, 1.2, 0.08, 0.5, k.x, 0.56, k.z + 1.0, '#6f5a4c');
   // a log pile next to the kiln
-  for (let i = 0; i < 5; i++) cyl(L, 0.1, 0.1, 0.9, k.x - 1.35 + (i % 3) * 0.22, 0.1 + Math.floor(i / 3) * 0.19 + (i % 3) * 0.0, k.z + 0.3, '#7a5236', { rx: Math.PI / 2, seg: 8 });
+  for (let i = 0; i < 5; i++) cyl(L, 0.1, 0.1, 0.9, k.x - 1.35 + (i % 3) * 0.22, 0.1 + Math.floor(i / 3) * 0.19, k.z + 0.3, '#7a5236', { rx: Math.PI / 2, seg: 8 });
   // table legs + apron
   for (const [lx, lz] of [[-2.95, -2.0], [2.95, -2.0], [-2.95, 2.0], [2.95, 2.0]]) box(L, 0.16, 0.92, 0.16, lx, 0.46, lz, '#6e4526', 0.05);
   box(L, 6.1, 0.14, 0.08, 0, 0.84, 2.07, '#6e4526'); box(L, 6.1, 0.14, 0.08, 0, 0.84, -2.07, '#6e4526');
   box(L, 0.08, 0.14, 4.1, -3.0, 0.84, 0, '#6e4526'); box(L, 0.08, 0.14, 4.1, 3.0, 0.84, 0, '#6e4526');
   // a stool at the front
-  cyl(L, 0.3, 0.26, 0.06, -4.2, 0.6, 1.4, '#8a5a32', { seg: 12 });
-  for (let i = 0; i < 3; i++) { const a = i / 3 * Math.PI * 2 + 0.4; cyl(L, 0.04, 0.04, 0.6, -4.2 + Math.cos(a) * 0.2, 0.3, 1.4 + Math.sin(a) * 0.2, '#6e4526', { seg: 6 }); }
-  const mesh = mergeToMesh(L, lambertVC); mesh.receiveShadow = true; mesh.castShadow = false;
-  return mesh;
+  cyl(L, 0.3, 0.26, 0.06, STOOL.x, STOOL.y - 0.03, STOOL.z, '#8a5a32', { seg: 12 });
+  for (let i = 0; i < 3; i++) { const a = i / 3 * Math.PI * 2 + 0.4; cyl(L, 0.04, 0.04, 0.6, STOOL.x + Math.cos(a) * 0.2, 0.3, STOOL.z + Math.sin(a) * 0.2, '#6e4526', { seg: 6 }); }
+  const out = {};
+  for (const [name, list] of [['main', L], ['floor', F], ['walls', W], ['kiln', K], ['kilim', R]]) { const m = mergeToMesh(list, lambertVC); m.receiveShadow = true; scene.add(m); out[name] = m; }
+  return out;
 }
 function buildTableProps() {
-  const L = [];
-  // paint pots: ceramic body, paint disc on top
-  const pots = [['#1f4e9c', 2.15, 1.45], ['#1fa3a3', 2.55, 1.6], ['#d9452b', 2.95, 1.45], ['#2e8b57', 2.6, 1.15]];
+  const L = [], P = [];
+  // paint pots: ceramic body, paint disc on top (shifted right so pot 1 clears the board frame; x <= 3.05 stays on the table)
+  const pots = [['#1f4e9c', 2.4, 1.45], ['#1fa3a3', 2.75, 1.65], ['#d9452b', 3.0, 1.3], ['#2e8b57', 2.7, 1.1]];
   for (const [hex, px, pz] of pots) {
-    cyl(L, 0.15, 0.13, 0.24, px, TABLE_Y + 0.12, pz, '#e8dcc4', { seg: 14 });
-    cyl(L, 0.12, 0.12, 0.02, px, TABLE_Y + 0.245, pz, hex, { seg: 14 });
+    cyl(P, 0.15, 0.13, 0.24, px, TABLE_Y + 0.12, pz, '#e8dcc4', { seg: 14 });
+    cyl(P, 0.12, 0.12, 0.02, px, TABLE_Y + 0.245, pz, hex, { seg: 14 });
   }
-  // brushes lying on the left front
+  // brushes on the free strip left of the board (x -3.2 ... -2.12). cyl() applies rx, rz, then ry, so a handle
+  // points along (sin a, 0, cos a) and the collar and tip are offset along that same axis.
   for (let i = 0; i < 3; i++) {
-    const bx = -2.4 + i * 0.16, bz = 1.55, a = 0.25 + i * 0.12;
-    cyl(L, 0.022, 0.03, 0.9, bx, TABLE_Y + 0.03, bz, ['#c69a5a', '#8a5a32', '#d9b67a'][i], { rx: Math.PI / 2, ry: a, seg: 8 });
-    cyl(L, 0.026, 0.026, 0.1, bx + Math.sin(a) * 0.5, TABLE_Y + 0.03, bz - Math.cos(a) * 0.5, '#c9c9c9', { rx: Math.PI / 2, ry: a, seg: 8 });
-    cyl(L, 0.006, 0.026, 0.14, bx + Math.sin(a) * 0.62, TABLE_Y + 0.03, bz - Math.cos(a) * 0.62, ['#1f4e9c', '#d9452b', '#2b2a3d'][i], { rx: Math.PI / 2, ry: a, seg: 8 });
+    const bx = -2.9 + i * 0.17, bz = 1.45, a = -0.1 + i * 0.1;
+    cyl(P, 0.022, 0.03, 0.9, bx, TABLE_Y + 0.03, bz, ['#c69a5a', '#8a5a32', '#d9b67a'][i], { rx: Math.PI / 2, ry: a, seg: 8 });
+    cyl(P, 0.026, 0.026, 0.1, bx + Math.sin(a) * 0.5, TABLE_Y + 0.03, bz + Math.cos(a) * 0.5, '#c9c9c9', { rx: Math.PI / 2, ry: a, seg: 8 });
+    cyl(P, 0.006, 0.026, 0.14, bx + Math.sin(a) * 0.62, TABLE_Y + 0.03, bz + Math.cos(a) * 0.62, ['#1f4e9c', '#d9452b', '#2b2a3d'][i], { rx: Math.PI / 2, ry: a, seg: 8 });
   }
   // water bowl
   cyl(L, 0.3, 0.22, 0.16, 2.5, TABLE_Y + 0.08, -1.45, '#dcd2bb', { seg: 18 });
   cyl(L, 0.26, 0.26, 0.02, 2.5, TABLE_Y + 0.15, -1.45, '#9fcfe0', { seg: 18 });
-  // stack of blank tiles + a folded cloth
-  for (let i = 0; i < 4; i++) box(L, 0.5, 0.05, 0.5, -2.5 + i * 0.01, TABLE_Y + 0.03 + i * 0.052, -1.3 - i * 0.015, '#f3eee0', { ry: i * 0.06 });
-  box(L, 0.7, 0.04, 0.5, -2.35, TABLE_Y + 0.02, 0.5, '#3f5a9c', 0.08);
-  box(L, 0.5, 0.04, 0.4, -2.3, TABLE_Y + 0.06, 0.48, '#4b67ac', 0.08);
-  const mesh = mergeToMesh(L, lambertVC, { shadow: true });
-  return mesh;
+  // stack of blank tiles + a folded cloth (clear of the board base edge at x -2.12)
+  for (let i = 0; i < 4; i++) box(L, 0.5, 0.05, 0.5, -2.65 + i * 0.01, TABLE_Y + 0.03 + i * 0.052, -1.3 - i * 0.015, '#f3eee0', { ry: i * 0.06 });
+  box(L, 0.5, 0.04, 0.5, -2.65, TABLE_Y + 0.02, 0.5, '#3f5a9c', 0.08);
+  box(L, 0.4, 0.04, 0.4, -2.62, TABLE_Y + 0.06, 0.48, '#4b67ac', 0.08);
+  const rest = mergeToMesh(L, lambertVC, { shadow: true }), paint = mergeToMesh(P, lambertVC, { shadow: true });
+  scene.add(rest, paint);
+  return { rest, paint };
 }
 function woodTexture() {
   const S = LOW ? 256 : 512; const cv = document.createElement('canvas'); cv.width = S; cv.height = S; const ctx = cv.getContext('2d');
@@ -1146,16 +1277,19 @@ function makeTileGeometry(s, h, b) {
 }
 
 // ---- build the static world ----
-const room = buildRoom(); scene.add(room);
-const props = buildTableProps(); scene.add(props);
+const room = buildRoom();
+const props = buildTableProps();
 const tableTop = new THREE.Mesh(new THREE.BoxGeometry(6.4, 0.16, 4.6), new THREE.MeshStandardMaterial({ map: woodTexture(), roughness: 0.75, metalness: 0 }));
 tableTop.position.set(0, TABLE_Y - 0.08, 0); tableTop.receiveShadow = true; tableTop.castShadow = false; scene.add(tableTop);
-// window glass (warm sky)
-{
+// window glass (warm sky); in front of the wall face (z -4.2), behind the frame bars (front at z -4.10)
+const glass = (() => {
   const cv = document.createElement('canvas'); cv.width = 64; cv.height = 64; const ctx = cv.getContext('2d');
   const g = ctx.createLinearGradient(0, 0, 0, 64); g.addColorStop(0, '#dcecff'); g.addColorStop(0.55, '#fff3d2'); g.addColorStop(1, '#ffd9a0'); ctx.fillStyle = g; ctx.fillRect(0, 0, 64, 64);
   const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace;
-  const glass = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 1.7), new THREE.MeshBasicMaterial({ map: tex })); glass.position.set(-4.0, 2.85, WALL_Z - 0.04); scene.add(glass);
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(WINDOW.w, WINDOW.h), new THREE.MeshBasicMaterial({ map: tex, fog: false })); m.position.set(WINDOW.x, WINDOW.y, WALL_Z + 0.005); scene.add(m);
+  return m;
+})();
+{
   // soft light shaft from the window toward the table
   const shaft = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 7.5), new THREE.MeshBasicMaterial({ color: '#ffe3b0', transparent: true, opacity: 0.07, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }));
   shaft.position.set(-2.2, 2.4, -1.6); shaft.rotation.set(-0.9, 0.35, 0.3); scene.add(shaft);
@@ -1168,11 +1302,12 @@ const sparkGeo = new THREE.BufferGeometry(); sparkGeo.setAttribute('position', n
 const sparks = new THREE.Points(sparkGeo, new THREE.PointsMaterial({ map: softSprite(32), color: '#ffb060', size: 0.09, transparent: true, opacity: 0.95, depthWrite: false, blending: THREE.AdditiveBlending }));
 const sparkVel = new Float32Array(SPARKS * 3); const sparkLife = new Float32Array(SPARKS); sparks.visible = false; scene.add(sparks);
 // dust motes: one Points object
-const DUST = LOW ? 80 : 170;
+const DUST = 170; // the Low tier draws the first 80 (drawRange)
 const dustGeo = new THREE.BufferGeometry(); const dustPos = new Float32Array(DUST * 3); const dustBase = new Float32Array(DUST * 3); const dustPhase = new Float32Array(DUST);
 for (let i = 0; i < DUST; i++) { dustBase[i * 3] = -3.8 + Math.random() * 7.2; dustBase[i * 3 + 1] = 1.1 + Math.random() * 3.4; dustBase[i * 3 + 2] = -3.5 + Math.random() * 5.5; dustPhase[i] = Math.random() * 100; }
 dustPos.set(dustBase); dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
 const dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({ map: softSprite(32), color: '#ffe9bb', size: 0.07, transparent: true, opacity: 0.55, depthWrite: false, blending: THREE.AdditiveBlending, sizeAttenuation: true }));
+dustGeo.setDrawRange(0, LOW ? 80 : DUST);
 scene.add(dust);
 
 // cat (merged body + separate tail) on the upper shelf
@@ -1197,7 +1332,6 @@ const boardGroup = new THREE.Group(); boardGroup.position.set(0, TABLE_Y, 0); sc
 const boardBase = new THREE.Mesh(colorize(new THREE.BoxGeometry(BOARD_SIZE + 0.64, 0.06, BOARD_SIZE + 0.64), '#3b2a1e'), lambertVC);
 boardBase.position.y = 0.03; boardBase.receiveShadow = true; boardBase.castShadow = true; boardGroup.add(boardBase);
 const frameTex = bandTexture();
-const frameMat = new THREE.MeshStandardMaterial({ map: frameTex, roughness: 0.4, metalness: 0 });
 const frameGroup = new THREE.Group(); boardGroup.add(frameGroup);
 {
   const w = 0.3, len = BOARD_SIZE + 2 * w, off = BOARD_SIZE / 2 + w / 2;
@@ -1229,16 +1363,146 @@ const transitPic = new THREE.Mesh(new THREE.PlaneGeometry(GALLERY.size, GALLERY.
 
 resize();
 
+// ============================================================================
+//  Generated assets (Higgsfield: Tripo GLBs, GPT Image textures) with the procedural world as the fallback.
+//  From file:// (Chrome blocks fetch) or with ?noassets nothing is loaded and the procedural look stays.
+//  The tile faces are always procedural: the puzzle depends on motifs meeting exactly at the edge midpoints.
+// ============================================================================
+const ASSET_FILES = {
+  models: { kiln: 'assets/models/kiln.glb', cat: 'assets/models/cat.glb', paintSet: 'assets/models/paint-set.glb' },
+  textures: {
+    wood: 'assets/textures/wood.webp', floor: 'assets/textures/floor-terracotta.webp', plaster: 'assets/textures/plaster.webp',
+    window: 'assets/textures/window-view.webp', kilim: 'assets/textures/kilim.webp', pano: 'assets/textures/workshop-pano.webp',
+  },
+  crest: 'assets/ui/crest-256.webp',
+};
+// placement of each model: yaw turns the file's front to +Z (or the listed facing), size is the target in metres
+const MODEL_FIT = {
+  kiln: { yaw: -Math.PI / 2, depth: 2.4, pos: new THREE.Vector3(KILN_POS.x, 0, -2.95) }, // mouth faces +Z, back touches the wall
+  cat: { yaw: 0, height: 0.46 }, // file faces +X; sits on the stool, yaw set per frame
+  paintSet: { yaw: 0, depth: 0.6, pos: new THREE.Vector3(2.68, TABLE_Y, 1.5) }, // jar at the back, pots in front
+};
+const assetState = { total: 0, loaded: 0, done: false, failed: [] };
+const loadedAssets = {};
+const NO_ASSETS = FLAG('noassets') || location.protocol === 'file:';
+
+function modelFromGltf(gltf, fit) {
+  const parts = []; let map = null;
+  gltf.scene.updateMatrixWorld(true);
+  gltf.scene.traverse(o => {
+    if (!o.isMesh) return;
+    const g = new THREE.BufferGeometry(), src = o.geometry;
+    const plain = a => { const out = new Float32Array(a.count * a.itemSize); for (let i = 0; i < a.count; i++) for (let k = 0; k < a.itemSize; k++) out[i * a.itemSize + k] = a.getComponent(i, k); return new THREE.BufferAttribute(out, a.itemSize); };
+    g.setAttribute('position', plain(src.attributes.position));
+    if (src.attributes.uv) g.setAttribute('uv', plain(src.attributes.uv));
+    if (src.index) g.setIndex(src.index.clone());
+    g.applyMatrix4(o.matrixWorld);
+    parts.push(g.index ? g.toNonIndexed() : g);
+    map = map || o.material.map;
+  });
+  const geo = parts.length > 1 ? mergeGeometries(parts) : parts[0];
+  geo.rotateY(fit.yaw || 0);
+  geo.computeBoundingBox();
+  let b = geo.boundingBox; const size = b.getSize(new THREE.Vector3());
+  const s = fit.depth ? fit.depth / size.z : fit.height / size.y;
+  geo.translate(-(b.min.x + b.max.x) / 2, -b.min.y, -(b.min.z + b.max.z) / 2); geo.scale(s, s, s);
+  geo.computeVertexNormals(); geo.computeBoundingBox();
+  if (map) { map.colorSpace = THREE.SRGBColorSpace; map.anisotropy = LOW ? 1 : 4; }
+  return { geo, mat: new THREE.MeshLambertMaterial({ map }), size: geo.boundingBox.getSize(new THREE.Vector3()) };
+}
+function loadAssets() {
+  if (NO_ASSETS) { assetState.done = true; return Promise.resolve(); }
+  const gl = new GLTFLoader(), tl = new THREE.TextureLoader();
+  const jobs = [];
+  const track = (p, name) => { assetState.total++; jobs.push(p.then(v => { loadedAssets[name] = v; }).catch(err => { assetState.failed.push(name); console.warn('[cini] asset not loaded, keeping the procedural one:', name, err && err.message || err); }).finally(() => { assetState.loaded++; updateAssetLine(); })); };
+  for (const [name, url] of Object.entries(ASSET_FILES.models)) track(gl.loadAsync(url).then(g => modelFromGltf(g, MODEL_FIT[name])), name);
+  for (const [name, url] of Object.entries(ASSET_FILES.textures)) track(tl.loadAsync(url).then(tex => { tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = LOW ? 1 : 4; return tex; }), 'tex:' + name);
+  track(new Promise((res, rej) => { const img = new Image(); img.onload = () => res(img); img.onerror = () => rej(new Error('crest')); img.src = ASSET_FILES.crest; }), 'crest');
+  updateAssetLine();
+  return Promise.all(jobs);
+}
+function updateAssetLine() {
+  const el = $('assetLine'); if (!el) return;
+  const busy = !assetState.done && !NO_ASSETS;
+  el.textContent = busy ? t('loadingAssets', { n: assetState.loaded, m: assetState.total || '…' }) : '';
+  for (const id of ['btnPlay', 'btnContinue', 'btnDaily']) $(id).disabled = busy || (id === 'btnDaily' && !dailyUnlocked());
+}
+function tiled(tex, repeatX, repeatY, color) {
+  const map = tex.clone(); map.needsUpdate = true; map.wrapS = map.wrapT = THREE.RepeatWrapping; map.repeat.set(repeatX, repeatY);
+  return new THREE.MeshLambertMaterial({ map, color: color || '#ffffff' });
+}
+// swap in whatever has loaded; anything missing keeps its procedural mesh
+function applyAssets() {
+  const A = loadedAssets, used = [];
+  if (A['tex:floor']) {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(16, 12).rotateX(-Math.PI / 2).translate(0, 0, 1), tiled(A['tex:floor'], 8, 6));
+    m.receiveShadow = true; scene.add(m); room.floor.visible = false; used.push('floor');
+  }
+  if (A['tex:plaster']) {
+    const L = [];
+    for (const [w, h, d, x, z] of [[12.4, 5.2, 0.2, 0, WALL_Z - 0.1], [0.2, 5.2, 12, -6.1, 1], [0.2, 5.2, 12, 6.1, 1]]) L.push(new THREE.BoxGeometry(w, h, d).translate(x, 2.6, z));
+    const m = new THREE.Mesh(mergeGeometries(L), tiled(A['tex:plaster'], 4, 1.7, '#fbf3e3'));
+    m.receiveShadow = true; scene.add(m); room.walls.visible = false; used.push('plaster');
+  }
+  if (A['tex:wood']) {
+    const map = A['tex:wood']; map.wrapS = map.wrapT = THREE.RepeatWrapping; map.repeat.set(1.5, 1);
+    tableTop.material.map.dispose(); tableTop.material.map = map; tableTop.material.needsUpdate = true; used.push('wood');
+  }
+  if (A['tex:window']) { glass.material.map.dispose(); glass.material.map = A['tex:window']; glass.material.needsUpdate = true; used.push('window'); }
+  if (A['tex:kilim']) {
+    // a plane facing +X just in front of the left wall (inner face x -6.0); its +u runs toward -z, i.e. left to right as seen from the room
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(KILIM.w, KILIM.h).rotateY(Math.PI / 2).translate(-5.975, KILIM.y, KILIM.z), new THREE.MeshLambertMaterial({ map: A['tex:kilim'] }));
+    m.receiveShadow = true; scene.add(m); room.kilim.visible = false; used.push('kilim');
+  }
+  if (A['tex:pano']) {
+    const pm = new THREE.PMREMGenerator(renderer), tex = A['tex:pano']; tex.mapping = THREE.EquirectangularReflectionMapping;
+    setEnvironment(pm.fromEquirectangular(tex).texture); pm.dispose(); used.push('pano');
+  }
+  if (A.kiln) {
+    const F = MODEL_FIT.kiln, m = new THREE.Mesh(A.kiln.geo, A.kiln.mat); m.position.copy(F.pos); m.receiveShadow = true;
+    scene.add(m); room.kiln.visible = false; used.push('kiln');
+    // the glow quad sits just inside the model's arched mouth
+    kilnGlow.position.z = F.pos.z + A.kiln.size.z / 2 - 0.18;
+  }
+  if (A.paintSet) {
+    const m = new THREE.Mesh(A.paintSet.geo, A.paintSet.mat); m.position.copy(MODEL_FIT.paintSet.pos); m.castShadow = true; m.receiveShadow = true;
+    scene.add(m); props.paint.visible = false; used.push('paint-set');
+  }
+  if (A.cat) { catModel = new THREE.Mesh(A.cat.geo, A.cat.mat); catModel.visible = false; scene.add(catModel); cat.visible = false; G.catState = { phase: 'hidden', t: 0, next: 4 }; used.push('cat'); }
+  if (A.crest) {
+    for (const id of ['logoBig', 'logoSmall']) { const cv = $(id), ctx = cv.getContext('2d'); ctx.clearRect(0, 0, cv.width, cv.height); ctx.drawImage(A.crest, 0, 0, cv.width, cv.height); cv.classList.add('crest'); }
+    used.push('crest');
+  }
+  G.assets = used; shadowDirty = true;
+}
+// glaze reflections: a small panorama (or three's RoomEnvironment when it is not loaded) only lights the reflections,
+// the background stays the room colour; Lambert materials ignore it, the tiles, frame and table pick it up
+function setEnvironment(tex) {
+  if (scene.environment) scene.environment.dispose();
+  scene.environment = tex; scene.environmentIntensity = 0.45;
+}
+{ const pm = new THREE.PMREMGenerator(renderer); setEnvironment(pm.fromScene(new RoomEnvironment(), 0.04).texture); pm.dispose(); }
+
+// sitting cat model on the stool: appears, sits and breathes, turns its head now and then, leaves
+let catModel = null;
+const CAT_FACE = -0.54; // yaw that turns the +X-facing model toward the board and the camera
+function updateCatModel(dt) {
+  const c = G.catState; c.t += dt;
+  const m = catModel;
+  if (c.phase === 'hidden') { if (c.t >= c.next) { c.phase = 'in'; c.t = 0; m.visible = true; } return; }
+  let s = 1, y = STOOL.y;
+  if (c.phase === 'in') { const u = Math.min(1, c.t / 0.6); s = 0.6 + 0.4 * easeOut(u); y += (1 - easeOut(u)) * 0.35; if (u >= 1) { c.phase = 'sit'; c.t = 0; c.stay = 18 + Math.random() * 14; } }
+  else if (c.phase === 'sit') { if (c.t >= c.stay) { c.phase = 'out'; c.t = 0; } }
+  else if (c.phase === 'out') { const u = Math.min(1, c.t / 0.5); s = 1 - 0.4 * u; y += easeInOut(u) * 0.3; if (u >= 1) { c.phase = 'hidden'; c.t = 0; c.next = 25 + Math.random() * 30; m.visible = false; } }
+  const breathe = 1 + Math.sin(G.time * 2 * Math.PI * 0.3) * 0.015;
+  const look = Math.sin(G.time * 0.45) * 0.3 * Math.max(0, Math.sin(G.time * 0.13));
+  m.position.set(STOOL.x, y, STOOL.z); m.scale.set(s, s * breathe, s); m.rotation.y = CAT_FACE + look;
+}
+
 
 // ============================================================================
 //  Progress (localStorage)
 // ============================================================================
-const STORE_KEY = 'cini-ustasi-v1';
-let progress = { best: {}, collection: [], seenHowto: {}, sound: true, music: true, lang: 'tr' };
-function loadProgress() {
-  try { if (FLAG('fresh')) localStorage.removeItem(STORE_KEY); const raw = localStorage.getItem(STORE_KEY); if (raw) progress = Object.assign(progress, JSON.parse(raw)); } catch (e) { }
-}
-function saveProgress() { if (FLAG('fill')) return; try { localStorage.setItem(STORE_KEY, JSON.stringify(progress)); } catch (e) { } }
 const levelKey = idx => idx === 'daily' ? 'D' + dailyKey() : 'L' + (idx + 1);
 const isUnlocked = idx => idx === 'daily' ? dailyUnlocked() : idx === 0 || !!progress.best['L' + idx];
 function dailyUnlocked() { for (let i = 0; i < 10; i++) if (!progress.best['L' + (i + 1)]) return false; return true; }
@@ -1253,8 +1517,10 @@ function nextUnfinished() { for (let i = 0; i < 30; i++) if (!progress.best['L' 
 const G = {
   screen: 'loading', levelIndex: 0, pz: null, slots: null, history: [], hints: 3, time: 0, simulating: false,
   tiles: [], tileBySlot: [], meshes: [], pitch: 1, tileSize: 1, tileH: 0.1, hover: null, drag: null, seq: null, bot: { plan: null, i: 0, timer: 0.8, done: false, solveMs: 0 },
-  intro: 0, pendingDaily: false, matchedCount: 0, paused: false, catState: { phase: 'hidden', t: 0, next: 3 },
+  pendingDaily: false, matchedCount: 0, returnTo: 'title', catState: { phase: 'hidden', t: 0, next: 3 },
+  progress: null, settings, assets: [], assetsReady: false,
 };
+G.progress = progress;
 window.cini = G;
 const shared = { geo: null, geoKey: '' };
 
@@ -1288,7 +1554,7 @@ function buildTiles(withIntro) {
     G.tiles[td.id] = tl; G.meshes.push(mesh); G.tileBySlot[p] = tl;
   }
   G.matchedCount = evaluate(pz, G.slots).matched.length;
-  updateGlow();
+  updateGlow(); shadowDirty = true;
 }
 function updateGlow() {
   const { matched } = evaluate(G.pz, G.slots);
@@ -1345,7 +1611,8 @@ function undo() {
   if (G.screen !== 'playing') return;
   const m = G.history.pop();
   if (!m) { toast(t('nothingToUndo')); return; }
-  if (m.type === 'hint') { for (let i = m.moves.length - 1; i >= 0; i--) applyPrimitive(m.moves[i], true); } else applyPrimitive(m, true);
+  // undoing a hint gives the hint back
+  if (m.type === 'hint') { for (let i = m.moves.length - 1; i >= 0; i--) applyPrimitive(m.moves[i], true); G.hints++; } else applyPrimitive(m, true);
   toast(t('undone'));
   afterChange(true);
 }
@@ -1359,12 +1626,12 @@ function afterChange(isUndo) {
 }
 function useHint() {
   if (G.screen !== 'playing') return;
-  if (G.hints <= 0) { toast(t('noHints')); Sound.deny(); return; }
-  const sol = solvePuzzle(G.pz, G.slots);
-  if (!sol) { toast(t('hintNone')); return; }
+  if (G.hints <= 0) { toast(t('noHints'), 'bad'); Sound.deny(); return; }
+  // plan against the generated solution: O(N), no search, always valid (fixed tiles never leave home)
+  const sol = homeSolution(G.pz);
   let p = -1;
   for (let i = 0; i < sol.length; i++) { const s = G.slots[i]; if (s.t !== sol[i].t || s.rot !== sol[i].rot || s.face !== sol[i].face) { p = i; break; } }
-  if (p < 0) { toast(t('hintNone')); return; }
+  if (p < 0) return;
   const moves = [];
   const cur = G.slots.map(s => ({ ...s }));
   if (cur[p].t !== sol[p].t) { const q = cur.findIndex(s => s.t === sol[p].t); const tmp = cur[p]; cur[p] = cur[q]; cur[q] = tmp; moves.push({ type: 'swap', a: p, b: q }); }
@@ -1373,7 +1640,7 @@ function useHint() {
   G.hints--;
   performMove({ type: 'hint', moves });
   const tl = G.tileBySlot[p]; if (tl) tl.sparkle = 1;
-  toast(t('hintUsed'));
+  toast(t('hintUsed'), 'good');
   if (!G.simulating) Sound.star();
   updateHUD();
 }
@@ -1390,6 +1657,8 @@ function startLevel(idx) {
   G.levelIndex = idx; G.pz = generateLevel(def, seed); G.pz.key = levelKey(idx);
   G.slots = G.pz.start.map(s => ({ ...s })); G.history = []; G.hints = 3; G.seq = null;
   G.bot.plan = null; G.bot.i = 0; G.bot.timer = 0.6;
+  TEX_SIZE = LOW ? 128 : 256; CAM.focus.set(0, 0, 0);
+  G.stack = [];
   boardGroup.visible = true; boardGroup.position.set(0, TABLE_Y, 0); boardGroup.scale.setScalar(1); boardGroup.rotation.set(0, 0, 0);
   buildTiles(true);
   hideAll(); $('topbar').classList.remove('hidden');
@@ -1407,9 +1676,13 @@ function onSolved() {
   if (improved) progress.best[key] = { stars, moves };
   let entry = progress.collection.find(c => c.key === key);
   if (!entry) { entry = { key, idx: G.levelIndex, seed: G.pz.seed, stars, ts: Date.now() }; progress.collection.push(entry); G.newPiece = true; }
-  else { entry.stars = Math.max(entry.stars, stars); G.newPiece = false; }
+  else {
+    entry.stars = Math.max(entry.stars, stars); G.newPiece = false;
+    // a replayed panel that is no longer among the 12 on the wall goes back up as the newest one
+    if (!wallList().includes(entry)) entry.ts = Date.now();
+  }
   saveProgress();
-  G.result = { moves, par, stars, best: progress.best[key] };
+  G.result = { moves, par, stars, best: progress.best[key], record: improved && !!prev };
   G.seq = { phase: 'glow', t: 0 };
   G.transitPic = paintBoardPicture(G.pz, 256);
   if (!G.simulating) Sound.match(3);
@@ -1428,7 +1701,10 @@ function updateSequence(dt) {
   } else if (q.phase === 'shine') {
     sweep.position.x = lerp(-BOARD_SIZE * 1.1, BOARD_SIZE * 1.1, easeInOut(u)); sweep.position.z = sweep.position.x * 0.3;
     for (const tl of G.tiles) { const d = Math.abs((tl.x + tl.z * 0.3) - sweep.position.x); tl.mat.emissive.setScalar(Math.max(0, 0.35 - d * 0.6)); }
-    if (u >= 1) { q.phase = 'tokiln'; q.t = 0; sweep.material.opacity = 0; for (const tl of G.tiles) tl.mat.emissive.setScalar(0); if (!G.simulating) Sound.whoosh(); }
+    if (u >= 1) {
+      q.phase = 'tokiln'; q.t = 0; sweep.material.opacity = 0; for (const tl of G.tiles) tl.mat.emissive.setScalar(0); if (!G.simulating) Sound.whoosh();
+      CAM.focus.copy(KILN_MOUTH).sub(CAM.target).multiplyScalar(0.95); // pan to the kiln (fully on phones)
+    }
   } else if (q.phase === 'tokiln') {
     const e = easeInOut(u);
     const target = new THREE.Vector3(KILN_MOUTH.x, KILN_MOUTH.y - 0.1, KILN_MOUTH.z - 0.3);
@@ -1439,7 +1715,7 @@ function updateSequence(dt) {
     const tilt = easeInOut(clamp((u - 0.3) / 0.45, 0, 1));
     boardGroup.rotation.z = Math.sin(u * Math.PI) * 0.15 * tilt; boardGroup.rotation.x = 0.4 * tilt;
     kilnLight.intensity = 1.4 + u * 2.5; kilnGlow.scale.setScalar(1 + u * 0.6);
-    if (u >= 1) { q.phase = 'fire'; q.t = 0; boardGroup.visible = false; sparks.visible = true; for (let i = 0; i < SPARKS; i++) sparkLife[i] = -Math.random() * 0.8; if (!G.simulating) Sound.fire(); }
+    if (u >= 1) { q.phase = 'fire'; q.t = 0; boardGroup.visible = false; sparks.visible = true; for (let i = 0; i < SPARKS; i++) sparkLife[i] = -Math.random() * 0.8; CAM.shake = 0.6; if (!G.simulating) Sound.fire(); }
   } else if (q.phase === 'fire') {
     kilnLight.intensity = 3.5 + Math.sin(q.t * 40) * 0.8 + Math.sin(q.t * 23) * 0.5; kilnGlow.scale.setScalar(1.6 + Math.sin(q.t * 30) * 0.15);
     if (u >= 1) {
@@ -1453,15 +1729,20 @@ function updateSequence(dt) {
     const e = easeInOut(u);
     const slotIdx = wallSlotFor(G.pz.key);
     const dest = gallerySlotPos(slotIdx).add(new THREE.Vector3(0, 0, 0.03));
+    // landscape: back to the table view; portrait: follow the panel to its frame on the wall
+    if (camera.aspect < 1) { _kilnFocus.copy(KILN_MOUTH).sub(CAM.target).multiplyScalar(0.95); CAM.focus.copy(dest).sub(CAM.target); _kilnFocus.lerp(CAM.focus, clamp(u * 1.6, 0, 1)); CAM.focus.copy(_kilnFocus); }
+    else CAM.focus.set(0, 0, 0);
     const start = KILN_MOUTH.clone().add(new THREE.Vector3(0, 0, 0.3));
     transit.position.set(lerp(start.x, dest.x, e), lerp(start.y, dest.y, e) + Math.sin(u * Math.PI) * 1.4, lerp(start.z, dest.z + 0.8, e) - (u > 0.9 ? (u - 0.9) * 8 : 0));
     transit.scale.setScalar(lerp(0.3, 1, e)); transit.rotation.y = Math.sin(u * Math.PI) * 0.6; transit.rotation.x = Math.sin(u * Math.PI) * 0.2;
     kilnLight.intensity = lerp(3.5, 1.4, e); kilnGlow.scale.setScalar(lerp(1.6, 1, e));
-    if (u >= 1) { q.phase = 'done'; transit.visible = false; sparks.visible = false; rebuildWall(); G.seq = null; showComplete(); }
+    if (u >= 1) { q.phase = 'done'; transit.visible = false; sparks.visible = false; rebuildWall(); G.seq = null; if (camera.aspect >= 1) CAM.focus.set(0, 0, 0); showComplete(); }
   }
 }
+const _kilnFocus = new THREE.Vector3();
+function wallList() { return progress.collection.slice().sort((a, b) => a.ts - b.ts).slice(-MAX_WALL); }
 function wallSlotFor(key) {
-  const list = progress.collection.slice().sort((a, b) => a.ts - b.ts).slice(-MAX_WALL);
+  const list = wallList();
   const i = list.findIndex(c => c.key === key); return i < 0 ? list.length - 1 : i;
 }
 const pictureCache = new Map();
@@ -1475,7 +1756,7 @@ function pictureFor(entry, size) {
   return cv;
 }
 function rebuildWall() {
-  const list = progress.collection.slice().sort((a, b) => a.ts - b.ts).slice(-MAX_WALL);
+  const list = wallList();
   const ctx = atlasCanvas.getContext('2d'); ctx.fillStyle = '#000'; ctx.fillRect(0, 0, atlasCanvas.width, atlasCanvas.height);
   const pos = [], uv = [], idx = []; const F = [];
   for (let i = 0; i < list.length; i++) {
@@ -1502,38 +1783,70 @@ function rebuildWall() {
 // ============================================================================
 //  HUD / screens
 // ============================================================================
-function hideAll() { for (const id of ['titleScreen', 'levelScreen', 'collectionScreen', 'howtoScreen', 'menuScreen', 'completeScreen']) $(id).classList.add('hidden'); }
-function starsHtml(s) { let h = ''; for (let i = 0; i < 3; i++) h += `<span class="${i < s ? '' : 'off'}">★</span>`; return h; }
+// Screens: a base screen (title / playing / completing / complete) with a stack of overlays on top (levels, collection,
+// howto, menu, settings). Closing an overlay goes back to the one below it, or to the base it was opened from.
+const OVERLAYS = { levels: 'levelScreen', collection: 'collectionScreen', howto: 'howtoScreen', menu: 'menuScreen', settings: 'settingsScreen' };
+const BASES = ['title', 'playing', 'completing', 'complete'];
+G.stack = [];
+function hideAll() { for (const id of ['titleScreen', 'completeScreen', ...Object.values(OVERLAYS)]) $(id).classList.add('hidden'); }
+const STAR_PATH = 'M12 2.6l2.9 6 6.5.8-4.8 4.5 1.2 6.5L12 17.2l-5.8 3.2 1.2-6.5L2.6 9.4l6.5-.8z';
+const starSvg = lit => `<svg viewBox="0 0 24 24" class="${lit ? '' : 'off'}" aria-hidden="true"><path d="${STAR_PATH}"/></svg>`;
+function starsHtml(s) { let h = `<span class="stars" role="img" aria-label="${s}/3">`; for (let i = 0; i < 3; i++) h += starSvg(i < s); return h + '</span>'; }
 function updateHUD() {
   if (!G.pz) return;
   const idx = G.levelIndex;
   $('lvlName').textContent = levelDisplayName(idx);
   $('lvlSub').textContent = idx === 'daily' ? dailyKey() : `${t('chapter')} ${Math.floor(idx / 10) + 1} · ${t('level')} ${idx + 1} · ${G.pz.n}×${G.pz.n}`;
   const m = moveCount(); $('movesVal').textContent = m; $('parVal').textContent = G.pz.par;
+  $('edgesVal').textContent = `${G.matchedCount}/${edgeTotal(G.pz.n)}`;
   $('starsLive').innerHTML = starsHtml(starsFor(m, G.pz.par));
   $('hintBadge').textContent = G.hints; $('btnHint').classList.toggle('off', G.hints <= 0);
 }
 function applyLang() {
   document.documentElement.lang = lang;
   document.querySelectorAll('[data-i18n]').forEach(el => { el.innerHTML = t(el.dataset.i18n); });
-  for (const [id, k] of [['btnHint', 'hintTip'], ['btnUndo', 'undoTip'], ['btnRestart', 'restartTip'], ['btnHelp', 'helpTip'], ['btnSound', 'soundTip'], ['btnMusic', 'musicTip'], ['btnMenu', 'menuTip'], ['btnSound2', 'soundTip'], ['btnMusic2', 'musicTip'], ['btnLevelsClose', 'closeTip'], ['btnCollectionClose', 'closeTip']]) $(id).title = t(k);
+  for (const [id, k] of [['btnHint', 'hintTip'], ['btnUndo', 'undoTip'], ['btnRestart', 'restartTip'], ['btnHelp', 'helpTip'], ['btnSound', 'soundTip2'], ['btnMusic', 'musicTip2'], ['btnMenu', 'menuTip'], ['btnLang', 'langTip'], ['btnSound2', 'soundTip2'], ['btnMusic2', 'musicTip2'], ['btnLang2', 'langTip'], ['btnSettings2', 'settingsTip'], ['btnLevelsClose', 'closeTip'], ['btnCollectionClose', 'closeTip']]) $(id).title = t(k);
+  for (const id of ['btnSound', 'btnMusic', 'btnMenu', 'btnHint', 'btnUndo', 'btnRestart', 'btnHelp', 'btnSound2', 'btnMusic2', 'btnSettings2', 'btnLevelsClose', 'btnCollectionClose']) $(id).setAttribute('aria-label', $(id).title);
   $('btnLang').textContent = lang === 'tr' ? 'EN' : 'TR'; $('btnLang2').textContent = lang === 'tr' ? 'EN' : 'TR';
-  $('btnPlay').textContent = completedCount() > 0 ? t('continue') : t('play');
-  $('progressLine').textContent = `${completedCount()}/30 · ${totalStars()} ★`;
+  const hasSave = completedCount() > 0;
+  $('btnContinue').classList.toggle('hidden', !hasSave); $('btnPlay').classList.toggle('hidden', hasSave);
+  $('progressLine').innerHTML = `${completedCount()}/30 · ${totalStars()} <span class="stars">${starSvg(true)}</span>`;
   $('btnDaily').disabled = !dailyUnlocked(); $('btnDaily').title = dailyUnlocked() ? '' : t('dailyLocked');
+  syncSettingsUI(); updateAssetLine();
   updateHUD();
   if (!$('levelScreen').classList.contains('hidden')) renderLevels();
   if (!$('collectionScreen').classList.contains('hidden')) renderCollection();
 }
-function setLang(l) { lang = l; progress.lang = l; saveProgress(); applyLang(); }
-function toast(msg) {
-  const el = document.createElement('div'); el.className = 'toast glass'; el.textContent = msg; $('toasts').appendChild(el);
+function setLang(l) { lang = l; settings.lang = l; saveSettings(); applyLang(); }
+function toast(msg, kind) {
+  const el = document.createElement('div'); el.className = 'toast glass' + (kind ? ' ' + kind : ''); el.textContent = msg; $('toasts').appendChild(el);
   setTimeout(() => el.remove(), 2700);
   while ($('toasts').children.length > 3) $('toasts').firstChild.remove();
 }
+const focusSoon = id => { if (!COARSE) requestAnimationFrame(() => { const el = $(id); if (el && el.offsetParent) el.focus({ preventScroll: true }); }); };
 function showTitle() {
-  hideAll(); G.screen = 'title'; $('titleScreen').classList.remove('hidden'); $('topbar').classList.add('hidden');
-  applyLang();
+  hideAll(); G.stack = []; G.screen = 'title'; G.returnTo = 'title'; CAM.focus.set(0, 0, 0);
+  $('titleScreen').classList.remove('hidden'); $('topbar').classList.add('hidden');
+  applyLang(); focusSoon(completedCount() > 0 ? 'btnContinue' : 'btnPlay');
+}
+// open an overlay on top of the current base screen or overlay
+function openOverlay(name) {
+  if (BASES.includes(G.screen)) { G.returnTo = G.screen; G.stack = []; }
+  if (G.stack.length) $(OVERLAYS[G.stack[G.stack.length - 1]]).classList.add('hidden');
+  if (G.returnTo !== 'playing' && G.returnTo !== 'completing') { $('titleScreen').classList.add('hidden'); $('completeScreen').classList.add('hidden'); }
+  G.stack.push(name); G.screen = name; $(OVERLAYS[name]).classList.remove('hidden');
+}
+function closeOverlay() {
+  const top = G.stack.pop(); if (top) $(OVERLAYS[top]).classList.add('hidden');
+  if (G.stack.length) { const prev = G.stack[G.stack.length - 1]; G.screen = prev; $(OVERLAYS[prev]).classList.remove('hidden'); return; }
+  returnToBase();
+}
+function closeOverlays() { while (G.stack.length) $(OVERLAYS[G.stack.pop()]).classList.add('hidden'); returnToBase(); }
+function returnToBase() {
+  const base = G.returnTo;
+  if (base === 'complete' && G.result) { G.screen = 'complete'; $('completeScreen').classList.remove('hidden'); focusSoon('btnNext'); }
+  else if (base === 'playing' && G.pz && !G.seq && !isSolved(G.pz, G.slots)) { G.screen = 'playing'; $('topbar').classList.remove('hidden'); }
+  else showTitle();
 }
 function showHowto(ch) {
   const h = t('howto')[ch]; $('howtoTitle').textContent = h.title;
@@ -1544,14 +1857,12 @@ function showHowto(ch) {
     '<svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>',
   ];
   $('howtoList').innerHTML = h.lines.map((l, i) => `<li><div class="ic">${icons[i % icons.length]}</div><div>${l}</div></li>`).join('');
-  $('howtoScreen').classList.remove('hidden'); G.prevScreen = G.screen; G.screen = 'howto';
+  openOverlay('howto'); focusSoon('btnHowtoOk');
 }
-function showMenu() { if (G.screen !== 'playing') return; $('menuScreen').classList.remove('hidden'); G.screen = 'menu'; }
-function closeOverlays() {
-  hideAll();
-  if (G.pz && G.screen !== 'title') { G.screen = 'playing'; $('topbar').classList.remove('hidden'); } else showTitle();
-}
-function showLevels() { hideAll(); renderLevels(); $('levelScreen').classList.remove('hidden'); G.screen = 'levels'; }
+const currentChapter = () => G.levelIndex === 'daily' ? 3 : Math.floor(G.levelIndex / 10);
+function showMenu() { if (G.screen !== 'playing') return; openOverlay('menu'); focusSoon('btnResume'); }
+function showSettings() { syncSettingsUI(); openOverlay('settings'); focusSoon('volMaster'); }
+function showLevels() { renderLevels(); openOverlay('levels'); }
 function renderLevels() {
   const root = $('chapters'); root.innerHTML = '';
   for (let ch = 0; ch < 3; ch++) {
@@ -1563,20 +1874,20 @@ function renderLevels() {
       const el = document.createElement('button'); el.className = 'lcard' + (un ? '' : ' locked') + (G.pz && G.levelIndex === i ? ' cur' : '');
       el.innerHTML = un ? `<div>${i + 1}</div><div class="st">${starsHtml(b ? b.stars : 0)}</div><div class="nm">${levelDisplayName(i)}</div>` : `<svg class="lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><div class="st">${starsHtml(0)}</div>`;
       el.title = un ? `${i + 1}. ${levelDisplayName(i)}` : t('locked');
-      if (un) el.addEventListener('click', () => { Sound.ui(); startLevel(i); });
+      if (un) el.addEventListener('click', () => { Sound.ui(); startLevel(i); }); else el.disabled = true;
       grid.appendChild(el);
     }
     if (ch === 0) {
       const un = dailyUnlocked(); const b = progress.best['D' + dailyKey()];
       const el = document.createElement('button'); el.className = 'lcard daily' + (un ? '' : ' locked');
       el.innerHTML = `<div style="font-size:14px">${t('dailyName')}</div><div class="st">${starsHtml(b ? b.stars : 0)}</div><div class="nm" style="visibility:visible">${un ? dailyKey() : t('dailyLocked')}</div>`;
-      if (un) el.addEventListener('click', () => { Sound.ui(); startLevel('daily'); });
+      if (un) el.addEventListener('click', () => { Sound.ui(); startLevel('daily'); }); else el.disabled = true;
       grid.appendChild(el);
     }
     root.appendChild(sec);
   }
 }
-function showCollection() { hideAll(); renderCollection(); $('collectionScreen').classList.remove('hidden'); G.screen = 'collection'; }
+function showCollection() { renderCollection(); openOverlay('collection'); }
 function renderCollection() {
   const grid = $('collectionGrid'); grid.innerHTML = '';
   const list = progress.collection.slice().sort((a, b) => a.ts - b.ts);
@@ -1592,59 +1903,108 @@ function renderCollection() {
   }
 }
 function showComplete() {
-  const r = G.result; hideAll(); $('completeScreen').classList.remove('hidden'); G.screen = 'complete';
+  const r = G.result; hideAll(); G.stack = []; $('completeScreen').classList.remove('hidden'); G.screen = 'complete'; G.returnTo = 'complete';
   if (AUTO) G.bot.timer = 1.4; // let the bot admire the card for a moment
   $('starsBig').innerHTML = starsHtml(r.stars);
-  $('cMoves').textContent = r.moves; $('cPar').textContent = r.par; $('cBest').textContent = r.best ? `${r.best.moves} · ${'★'.repeat(r.best.stars)}` : '—';
+  $('cRecord').classList.toggle('hidden', !r.record);
+  $('cMoves').textContent = r.moves; $('cPar').textContent = r.par; $('cBest').innerHTML = r.best ? `${r.best.moves} <span style="font-size:15px">${starsHtml(r.best.stars)}</span>` : '—';
   $('cNote').textContent = (G.newPiece ? t('newPiece') + '. ' : '') + t('fired');
   const cv = $('completePreview'); cv.getContext('2d').clearRect(0, 0, 256, 256); cv.getContext('2d').drawImage(G.transitPic, 0, 0, 256, 256);
   const last = G.levelIndex === 29 || G.levelIndex === 'daily';
   $('btnNext').classList.toggle('hidden', last || (G.levelIndex !== 'daily' && !isUnlocked(G.levelIndex + 1)));
-  if (G.levelIndex === 29 && completedCount() === 30) toast(t('allDone'));
-  if (G.pendingDaily) { G.pendingDaily = false; progress.dailyToastShown = true; saveProgress(); toast(t('dailyUnlocked')); }
+  focusSoon($('btnNext').classList.contains('hidden') ? 'btnReplay' : 'btnNext');
+  if (G.levelIndex === 29 && completedCount() === 30) toast(t('allDone'), 'good');
+  if (G.pendingDaily) { G.pendingDaily = false; progress.dailyToastShown = true; saveProgress(); toast(t('dailyUnlocked'), 'good'); }
   if (!G.simulating) { setTimeout(() => Sound.star(), 150); if (r.stars > 1) setTimeout(() => Sound.star(), 330); if (r.stars > 2) setTimeout(() => Sound.star(), 510); }
 }
 function nextLevel() { if (G.levelIndex === 'daily' || G.levelIndex >= 29) { showTitle(); return; } startLevel(G.levelIndex + 1); }
 
+// ---- settings (same order as every arena game: volumes, language, quality, fullscreen) ----
+const VOL = [['volMaster', 'master'], ['volMusic', 'music'], ['volSfx', 'sfx']];
+function syncSettingsUI() {
+  for (const [id, k] of VOL) { $(id).value = Math.round(settings[k] * 100); $(id + 'V').textContent = Math.round(settings[k] * 100) + '%'; }
+  $('setLangTr').classList.toggle('on', lang === 'tr'); $('setLangEn').classList.toggle('on', lang === 'en');
+  $('setQLow').classList.toggle('on', LOW); $('setQHigh').classList.toggle('on', !LOW);
+  $('setFull').classList.toggle('on', !!document.fullscreenElement);
+}
+for (const [id, k] of VOL) {
+  $(id).addEventListener('input', () => { settings[k] = $(id).value / 100; $(id + 'V').textContent = $(id).value + '%'; Sound.unlock(); Sound.applyVolumes(); });
+  $(id).addEventListener('change', () => { saveSettings(); if (k !== 'music') Sound.ui(); });
+}
+const START_LOW = LOW;
+function setQuality(q) {
+  settings.quality = q; saveSettings();
+  LOW = q === 'low';
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, LOW ? 1 : 1.5)); resize();
+  renderer.shadowMap.enabled = !LOW; sun.castShadow = !LOW; shadowDirty = true;
+  scene.traverse(o => { if (o.material) for (const m of [].concat(o.material)) m.needsUpdate = true; });
+  dustGeo.setDrawRange(0, LOW ? 80 : DUST);
+  document.documentElement.classList.toggle('lowq', LOW);
+  if (LOW !== START_LOW) toast(t('qualityNote'));
+  syncSettingsUI();
+}
+function toggleFullscreen() {
+  try {
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {});
+  } catch (e) { }
+}
+document.addEventListener('fullscreenchange', () => { syncSettingsUI(); setTimeout(resize, 50); });
+
 // ---- buttons ----
 const on = (id, fn) => $(id).addEventListener('click', e => { e.stopPropagation(); Sound.unlock(); fn(); });
-on('btnPlay', () => { Sound.ui(); startLevel(nextUnfinished()); });
+const assetsGate = () => G.assetsReady;
+on('btnPlay', () => { if (!assetsGate()) return; Sound.ui(); startLevel(0); });
+on('btnContinue', () => { if (!assetsGate()) return; Sound.ui(); startLevel(nextUnfinished()); });
 on('btnLevels', () => { Sound.ui(); showLevels(); });
 on('btnCollection', () => { Sound.ui(); showCollection(); });
-on('btnDaily', () => { if (dailyUnlocked()) { Sound.ui(); startLevel('daily'); } });
-on('btnLevelsClose', () => { Sound.ui(); closeOverlays(); });
-on('btnCollectionClose', () => { Sound.ui(); closeOverlays(); });
-on('btnHowtoOk', () => { Sound.ui(); $('howtoScreen').classList.add('hidden'); G.screen = G.prevScreen === 'playing' || G.pz ? 'playing' : 'title'; if (G.screen === 'playing') $('topbar').classList.remove('hidden'); });
+on('btnDaily', () => { if (dailyUnlocked() && assetsGate()) { Sound.ui(); startLevel('daily'); } });
+on('btnSettings2', () => { Sound.ui(); showSettings(); });
+on('btnLevelsClose', () => { Sound.ui(); closeOverlay(); });
+on('btnCollectionClose', () => { Sound.ui(); closeOverlay(); });
+on('btnHowtoOk', () => { Sound.ui(); closeOverlay(); });
 on('btnHint', () => useHint());
 on('btnUndo', () => undo());
 on('btnRestart', () => { if (G.screen === 'playing') restartLevel(); });
-on('btnHelp', () => { if (G.screen === 'playing') showHowto(G.levelIndex === 'daily' ? 3 : Math.floor(G.levelIndex / 10)); });
+on('btnHelp', () => { if (G.screen === 'playing') showHowto(currentChapter()); });
 on('btnMenu', () => { Sound.ui(); showMenu(); });
 on('btnResume', () => { Sound.ui(); closeOverlays(); });
 on('btnMenuRestart', () => { Sound.ui(); closeOverlays(); restartLevel(); });
+on('btnMenuSettings', () => { Sound.ui(); showSettings(); });
 on('btnMenuLevels', () => { Sound.ui(); showLevels(); });
 on('btnMenuCollection', () => { Sound.ui(); showCollection(); });
+on('btnMenuHelp', () => { Sound.ui(); showHowto(currentChapter()); });
 on('btnMenuTitle', () => { Sound.ui(); showTitle(); });
+on('btnSettingsClose', () => { Sound.ui(); closeOverlay(); });
+on('setLangTr', () => setLang('tr')); on('setLangEn', () => setLang('en'));
+on('setQLow', () => setQuality('low')); on('setQHigh', () => setQuality('high'));
+on('setFull', toggleFullscreen);
 on('btnNext', () => { Sound.ui(); nextLevel(); });
 on('btnReplay', () => { Sound.ui(); startLevel(G.levelIndex); });
 on('btnCompleteLevels', () => { Sound.ui(); showLevels(); });
-function toggleSound() { Sound.setSound(!Sound.soundOn); progress.sound = Sound.soundOn; saveProgress(); syncToggles(); Sound.ui(); }
-function toggleMusic() { Sound.setMusic(!Sound.musicOn); progress.music = Sound.musicOn; saveProgress(); syncToggles(); }
+on('btnCompleteTitle', () => { Sound.ui(); showTitle(); });
+function toggleSound() { Sound.setSound(!Sound.soundOn); settings.soundOn = Sound.soundOn; saveSettings(); syncToggles(); Sound.ui(); }
+function toggleMusic() { Sound.setMusic(!Sound.musicOn); settings.musicOn = Sound.musicOn; saveSettings(); syncToggles(); }
 function syncToggles() { for (const id of ['btnSound', 'btnSound2']) $(id).classList.toggle('off', !Sound.soundOn); for (const id of ['btnMusic', 'btnMusic2']) $(id).classList.toggle('off', !Sound.musicOn); }
 on('btnSound', toggleSound); on('btnSound2', toggleSound); on('btnMusic', toggleMusic); on('btnMusic2', toggleMusic);
 on('btnLang', () => setLang(lang === 'tr' ? 'en' : 'tr')); on('btnLang2', () => setLang(lang === 'tr' ? 'en' : 'tr'));
 
+// keys: P / Esc pause and back, M music, X sound, L language; in play Z undo, H hint, R restart, F flip the hovered tile
 window.addEventListener('keydown', e => {
-  if (e.repeat) return;
+  if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
   Sound.unlock();
   const k = e.key.toLowerCase();
-  if (k === 'escape') {
+  if (k === 'escape' || k === 'p') {
     if (G.screen === 'playing') showMenu();
-    else if (['menu', 'levels', 'collection', 'howto'].includes(G.screen)) { if (G.screen === 'howto') $('btnHowtoOk').click(); else closeOverlays(); }
-    e.preventDefault();
+    else if (G.stack.length) closeOverlay();
+    e.preventDefault(); return;
   }
+  if (e.target && e.target.tagName === 'INPUT' && k !== 'm' && k !== 'x' && k !== 'l') return;
+  if (k === 'm') { toggleMusic(); return; }
+  if (k === 'x') { toggleSound(); return; }
+  if (k === 'l') { setLang(lang === 'tr' ? 'en' : 'tr'); return; }
   if (G.screen !== 'playing') return;
-  if (k === 'z') undo(); else if (k === 'h') useHint(); else if (k === 'r') restartLevel();
+  if (k === 'z') undo(); else if (k === 'h') useHint(); else if (k === 'r') restartLevel(); else if (k === 'f') tryFlip(G.hover);
 });
 
 // ============================================================================
@@ -1670,8 +2030,8 @@ function slotAtLocal(x, z) {
 }
 function tryFlip(tl) {
   if (!tl || G.screen !== 'playing') return;
-  if (tl.fixed) { toast(t('fixedTile')); Sound.deny(); shake(tl); return; }
-  if (!tl.texB) { toast(t('notTwoSided')); Sound.deny(); shake(tl); return; }
+  if (tl.fixed) { toast(t('fixedTile'), 'bad'); Sound.deny(); shake(tl); return; }
+  if (!tl.texB) { toast(t('notTwoSided'), 'bad'); Sound.deny(); shake(tl); return; }
   performMove({ type: 'flip', p: tl.slot });
 }
 function shake(tl) { tl.shake = 0.35; }
@@ -1679,10 +2039,11 @@ const gl = renderer.domElement;
 gl.addEventListener('pointerdown', e => {
   Sound.unlock();
   pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-  if (pointers.size === 2) { const [a, b] = [...pointers.values()]; pinchDist = Math.hypot(a.x - b.x, a.y - b.y); ptr.down = false; ptr.tile = null; ptr.camDrag = false; clearTimeout(ptr.longTimer); return; }
+  // a second finger starts a pinch: cancel any tile drag too, or the tile would stay lifted at the last finger position
+  if (pointers.size === 2) { const [a, b] = [...pointers.values()]; pinchDist = Math.hypot(a.x - b.x, a.y - b.y); ptr.down = false; ptr.tile = null; ptr.camDrag = false; ptr.dragging = false; G.drag = null; clearTimeout(ptr.longTimer); return; }
   if (pointers.size > 1) return;
   gl.setPointerCapture(e.pointerId);
-  ptr.down = true; ptr.sx = ptr.lastX = e.clientX; ptr.sy = ptr.lastY = e.clientY; ptr.moved = false; ptr.dragging = false; ptr.longFired = false; ptr.camDrag = false;
+  ptr.down = true; ptr.sx = ptr.lastX = e.clientX; ptr.sy = ptr.lastY = e.clientY; ptr.moved = false; ptr.dragging = false; ptr.longFired = false; ptr.camDrag = false; ptr.noSwapToasted = false;
   ptr.tile = e.button === 2 ? null : pickTile(e);
   if (e.button === 2) { tryFlip(pickTile(e)); ptr.down = false; return; }
   if (ptr.tile) {
@@ -1719,12 +2080,12 @@ function endPointer(e) {
     const q = p ? slotAtLocal(p.x - boardGroup.position.x, p.z - boardGroup.position.z) : -1;
     if (q >= 0 && q !== tl.slot) {
       const other = G.tileBySlot[q];
-      if (other.fixed) { toast(t('fixedTile')); Sound.deny(); shake(other); }
+      if (other.fixed) { toast(t('fixedTile'), 'bad'); Sound.deny(); shake(other); }
       else performMove({ type: 'swap', a: tl.slot, b: q });
     }
   } else if (ptr.tile && !ptr.moved && !ptr.longFired && G.screen === 'playing') {
     const tl = ptr.tile;
-    if (tl.fixed) { toast(t('fixedTile')); Sound.deny(); shake(tl); }
+    if (tl.fixed) { toast(t('fixedTile'), 'bad'); Sound.deny(); shake(tl); }
     else performMove({ type: 'rot', p: tl.slot });
   }
   ptr.tile = null; ptr.camDrag = false; ptr.dragging = false;
@@ -1740,6 +2101,7 @@ function updateTiles(dt) {
   const k = 1 - Math.exp(-dt * 14), kp = 1 - Math.exp(-dt * 11);
   for (const tl of G.tiles) {
     if (!tl) continue;
+    const p0 = tl.pivot.position, r0 = tl.mesh.rotation, before = p0.x + p0.y * 3.1 + p0.z * 7.3 + r0.x * 11.7 + r0.y * 13.9 + tl.mesh.scale.x * 5.3;
     tl.visAngle += (tl.angle - tl.visAngle) * k;
     let [tx, tz] = slotLocal(tl.slot);
     if (G.drag === tl) { tx = tl.x; tz = tl.z; } else { tl.x += (tx - tl.x) * kp; tl.z += (tz - tl.z) * kp; }
@@ -1760,6 +2122,7 @@ function updateTiles(dt) {
     tl.lift += (lift - tl.lift) * (1 - Math.exp(-dt * 16));
     tl.pivot.position.set(tl.x, 0.06 + tl.lift, tl.z);
     tl.mesh.rotation.set(fx, tl.visAngle, 0);
+    if (Math.abs(before - (p0.x + p0.y * 3.1 + p0.z * 7.3 + r0.x * 11.7 + r0.y * 13.9 + tl.mesh.scale.x * 5.3)) > 1e-4) shadowDirty = true;
   }
 }
 function updateCat(dt) {
@@ -1782,7 +2145,8 @@ function updateEffects(dt) {
     for (let i = 0; i < SPARKS; i++) {
       sparkLife[i] += dt;
       if (sparkLife[i] < 0) { P[i * 3] = KILN_MOUTH.x; P[i * 3 + 1] = -5; P[i * 3 + 2] = KILN_MOUTH.z; continue; }
-      if (sparkLife[i] === dt || sparkLife[i] > 1.2) { sparkLife[i] = 0; P[i * 3] = KILN_MOUTH.x + (Math.random() - 0.5) * 0.5; P[i * 3 + 1] = KILN_MOUTH.y + (Math.random() - 0.5) * 0.3; P[i * 3 + 2] = KILN_MOUTH.z + 0.2; sparkVel[i * 3] = (Math.random() - 0.5) * 1.2; sparkVel[i * 3 + 1] = 1 + Math.random() * 1.8; sparkVel[i * 3 + 2] = 0.6 + Math.random() * 1.2; }
+      const born = sparkLife[i] - dt < 0; // crossed zero this frame (the first wave)
+      if (born || sparkLife[i] > 1.2) { sparkLife[i] = 0; P[i * 3] = KILN_MOUTH.x + (Math.random() - 0.5) * 0.5; P[i * 3 + 1] = KILN_MOUTH.y + (Math.random() - 0.5) * 0.3; P[i * 3 + 2] = KILN_MOUTH.z + 0.2; sparkVel[i * 3] = (Math.random() - 0.5) * 1.2; sparkVel[i * 3 + 1] = 1 + Math.random() * 1.8; sparkVel[i * 3 + 2] = 0.6 + Math.random() * 1.2; }
       P[i * 3] += sparkVel[i * 3] * dt; P[i * 3 + 1] += sparkVel[i * 3 + 1] * dt; P[i * 3 + 2] += sparkVel[i * 3 + 2] * dt; sparkVel[i * 3 + 1] -= 2.5 * dt;
     }
     sparkGeo.attributes.position.needsUpdate = true;
@@ -1801,28 +2165,29 @@ function updateDust() {
 }
 function update(dt) {
   G.time += dt;
+  stepCamera(dt);
+  if (G.seq || G.drag) shadowDirty = true;
   if (G.screen === 'playing' || G.screen === 'completing' || G.screen === 'menu' || G.screen === 'howto' || G.screen === 'levels' || G.screen === 'collection' || G.screen === 'complete') updateTiles(dt);
   updateSequence(dt);
   updateEffects(dt);
-  updateCat(dt);
+  if (catModel) updateCatModel(dt); else updateCat(dt);
   if (AUTO) botUpdate(dt);
 }
 
 // ============================================================================
-//  Auto-play bot (?auto): solves the live puzzle state with the real solver and performs the moves
+//  Auto-play bot (?auto): plans from the live state to the generated solution and performs the moves
 // ============================================================================
 function botUpdate(dt) {
   const B = G.bot; if (B.done) return;
   B.timer -= dt; if (B.timer > 0) return;
   switch (G.screen) {
-    case 'title': { startLevel(nextUnfinished()); B.timer = 0.6; break; }
+    case 'title': { if (G.assetsReady) startLevel(nextUnfinished()); B.timer = 0.6; break; }
     case 'howto': { $('btnHowtoOk').click(); B.timer = 0.3; break; }
-    case 'menu': case 'levels': case 'collection': { closeOverlays(); B.timer = 0.3; break; }
+    case 'menu': case 'levels': case 'collection': case 'settings': { closeOverlays(); B.timer = 0.3; break; }
     case 'playing': {
       if (!B.plan) {
-        const t0 = performance.now(); const sol = solvePuzzle(G.pz, G.slots); B.solveMs = performance.now() - t0;
-        if (!sol) { debugError('BOT: solver failed on level ' + levelKey(G.levelIndex)); B.done = true; return; }
-        B.plan = planMoves(G.pz, G.slots, sol); B.i = 0; B.timer = 0.4; B.solved = 0; break;
+        const t0 = performance.now(); B.plan = planMoves(G.pz, G.slots, homeSolution(G.pz)); B.solveMs = performance.now() - t0;
+        B.i = 0; B.timer = 0.4; break;
       }
       if (B.i < B.plan.length) {
         const m = B.plan[B.i++]; performMove(m);
@@ -1843,14 +2208,14 @@ function botUpdate(dt) {
 // ============================================================================
 //  Debug overlay + fast forward
 // ============================================================================
-const dbg = { fps: 0, frames: 0, acc: 0 };
+const dbg = { fps: 0, frames: 0, acc: 0, shadowFrames: 0, frames2: 0 };
 function debugError(msg) { window.__ciniErrors.push(msg); console.error(msg); renderDebug(); }
 function renderDebug() {
   if (!DEBUG) return;
   const el = $('debug');
   const info = renderer.info.render;
   const lines = [
-    `draw calls ${info.calls}  tris ${info.triangles}  fps ${dbg.fps.toFixed(0)}  px ${renderer.getPixelRatio().toFixed(2)}  ${LOW ? 'LOW' : 'normal'}`,
+    `draw calls ${info.calls}  tris ${info.triangles}  fps ${dbg.fps.toFixed(0)}  px ${renderer.getPixelRatio().toFixed(2)}  ${LOW ? 'LOW' : 'HIGH'}  shadows ${dbg.shadowFrames}/${dbg.frames2}  assets ${G.assets.length}`,
     `screen ${G.screen}  level ${G.pz ? levelKey(G.levelIndex) : '-'}  n ${G.pz ? G.pz.n : '-'}  moves ${G.pz ? moveCount() : 0}/${G.pz ? G.pz.par : 0}  glow ${G.glowCount || 0}  t ${G.time.toFixed(1)}s`,
     AUTO ? `bot plan ${G.bot.plan ? G.bot.i + '/' + G.bot.plan.length : '-'}  solve ${G.bot.solveMs.toFixed(1)}ms  levelsDone ${G.bot.levelsDone || 0}` : 'bot off',
     `collection ${progress.collection.length}  stars ${totalStars()}  textures ${textureCache.size}`,
@@ -1868,12 +2233,14 @@ window.ciniSim = function (seconds) {
 };
 
 let last = performance.now(), running = true;
+window.addEventListener('resize', () => { shadowDirty = true; });
 function frame(now) {
   requestAnimationFrame(frame);
   if (!running) { last = now; return; }
   let dt = (now - last) / 1000; last = now; if (dt > 0.1) dt = 0.1;
   update(dt);
   updateDust();
+  renderer.shadowMap.needsUpdate = shadowDirty; if (shadowDirty) dbg.shadowFrames++; dbg.frames2++; shadowDirty = false;
   renderer.render(scene, camera);
   dbg.frames++; dbg.acc += dt; if (dbg.acc >= 0.5) { dbg.fps = dbg.frames / dbg.acc; dbg.frames = 0; dbg.acc = 0; renderDebug(); }
 }
@@ -1883,16 +2250,16 @@ document.addEventListener('visibilitychange', () => { running = !document.hidden
 //  Boot
 // ============================================================================
 function boot() {
-  loadProgress();
   if (FLAG('fill')) { for (let i = 0; i < 30; i++) { const key = 'L' + (i + 1); const stars = 1 + ((i * 7) % 3); progress.best[key] = { stars, moves: 20 + i }; if (!progress.collection.find(c => c.key === key)) progress.collection.push({ key, idx: i, seed: levelSeed(i), stars, ts: 1700000000000 + i * 1000 }); } }
-  lang = PARAMS.get('lang') || progress.lang || 'tr'; if (!I18N[lang]) lang = 'tr';
-  Sound.setSound(progress.sound !== false); Sound.setMusic(progress.music !== false); syncToggles();
+  lang = PARAMS.get('lang') || settings.lang; if (!I18N[lang]) lang = 'tr';
+  syncToggles();
   paintLogo($('logoBig')); paintLogo($('logoSmall'));
   rebuildWall();
   applyLang();
   if (DEBUG) $('debug').classList.remove('hidden');
   if (FLAG('noanim')) document.documentElement.classList.add('noanim'); // screenshot helper: skip CSS animations
-  if (LOW) toast(t('lowMode'));
+  document.documentElement.classList.toggle('lowq', LOW);
+  if (FLAG('low')) toast(t('lowMode'));
   $('loading').classList.add('hidden');
   const lv = PARAMS.get('level');
   if (lv === 'daily') startLevel('daily');
@@ -1900,10 +2267,16 @@ function boot() {
   else showTitle();
   const sc = PARAMS.get('screen');
   if (sc === 'levels') showLevels(); else if (sc === 'collection') showCollection(); else if (sc === 'howto') showHowto(parseInt(PARAMS.get('ch') || '0', 10));
+  else if (sc === 'settings') showSettings(); else if (sc === 'pause') showMenu();
   const sim = parseFloat(PARAMS.get('sim') || '0');
   if (sim > 0) window.ciniSim(sim);
   renderDebug();
   requestAnimationFrame(frame);
+  // the title shows "Preparing the workshop… n/N" and Play stays disabled until the assets are in (or 8 s passed)
+  Promise.race([loadAssets(), new Promise(r => setTimeout(r, 8000))]).then(() => {
+    try { applyAssets(); } catch (e) { debugError('assets: ' + (e.stack || e)); }
+    assetState.done = true; G.assetsReady = true; updateAssetLine(); renderDebug();
+  });
 }
 try { boot(); } catch (e) { window.__ciniErrors.push('boot: ' + (e.stack || e)); $('loading').innerHTML = '<div style="padding:20px;max-width:600px">' + t('errorLoad') + '<br><small>' + String(e) + '</small></div>'; if (DEBUG) { $('debug').classList.remove('hidden'); renderDebug(); } }
 </script>
