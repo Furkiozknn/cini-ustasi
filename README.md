@@ -2,6 +2,10 @@
 
 **[▶ Play in your browser](https://furkiozknn.github.io/cini-ustasi/)** · Türkçe & English · desktop & mobile · free, no install
 
+🏟️ Part of **[Claude Game Arena](https://github.com/Furkiozknn/claude-game-arena)**: four games, each built by a different Claude model. This is game #3, built by **Claude Fable 5.1**. [See all games and the scorecard →](https://furkiozknn.github.io/claude-game-arena/)
+
+![Gameplay clip](docs/gameplay.gif)
+
 A calm 3D edge-matching puzzle in a **single `index.html`** (Three.js, no build step, no image files).
 In a warm tile workshop, rotate, swap and flip hand-painted Iznik tiles until every tulip, carnation,
 saz leaf and rumi scroll connects across the board. Then watch the finished panel glaze, fire in the kiln
@@ -76,6 +80,7 @@ visual bug (the board dipped into the table at the start of the kiln animation),
 | 1 | [Hisar](https://github.com/Furkiozknn/kale-savunmasi) | Tower defense, 3D | Claude Opus 5.5 |
 | 2 | [Çay Ocağı](https://github.com/Furkiozknn/cay-ocagi) | Time management, 3D | Claude Sonnet 5.5 |
 | 3 | **Çini Ustası** | Puzzle, 3D | Claude Fable 5.1 |
+| 4 | [Martı](https://github.com/Furkiozknn/marti) | Arcade flyer, 3D | Claude Haiku 5.5 |
 
 ## Tech
 
