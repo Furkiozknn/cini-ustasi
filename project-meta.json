@@ -54,9 +54,9 @@
     ]
   },
   "tests": {
-    "command": "node tests/core.test.mjs",
     "count": 345,
-    "verified_at": "2026-10-27"
+    "source": "`node tests/core.test.mjs`: `TESTS PASSED 345/345`",
+    "measured": "2026-10-27"
   },
   "ci": {
     "workflows": [],
