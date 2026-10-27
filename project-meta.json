@@ -1,0 +1,87 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cini-ustasi",
+  "owner": "Furkiozknn",
+  "repository": "https://github.com/Furkiozknn/cini-ustasi",
+  "homepage": "https://furkiozknn.github.io/cini-ustasi/",
+  "releases": null,
+  "status": "active",
+  "category": "game",
+  "platform": [
+    "web"
+  ],
+  "primary_language": "JavaScript",
+  "technologies": [
+    "Three.js r170",
+    "Canvas 2D",
+    "Web Audio API",
+    "Node.js (tests)",
+    "Higgsfield (Tripo text-to-3D, GPT Image)",
+    "glTF-Transform"
+  ],
+  "version": null,
+  "license": "MIT",
+  "topics": [
+    "browser-game",
+    "threejs",
+    "puzzle-game",
+    "tile-matching",
+    "claude-code",
+    "claude-game-arena"
+  ],
+  "summary": "Calm 3D Iznik tile edge-matching puzzle, built by Claude Fable 5.1 · Sakin bir 3D İznik çinisi kenar eşleştirme bulmacası, Claude Fable 5.1 yaptı",
+  "key_features": [
+    "30 levels in 3 chapters: rotate tiles, then swap them, then fixed and double-sided tiles; boards grow from 3x3 to 6x6",
+    "Every level is generated solved and scrambled; the built-in solver solves all 30 levels and the daily boards",
+    "Moves against par for 1-3 stars, undo, three hints per level, a matched-edge counter and a daily board",
+    "A solved panel glazes, fires in the kiln and goes on the collection wall of the workshop",
+    "Puzzle-core tests under Node with no dependencies: node tests/core.test.mjs passes 345 of 345 checks"
+  ],
+  "media": {
+    "hero": "docs/card.jpg",
+    "screenshots": [
+      "docs/card.jpg",
+      "docs/settings.png",
+      "docs/pause.png",
+      "docs/phone-390.png",
+      "docs/phone-kiln.png"
+    ],
+    "gifs": [
+      "docs/gameplay.gif"
+    ],
+    "videos": [
+      "docs/gameplay.mp4"
+    ]
+  },
+  "tests": {
+    "command": "node tests/core.test.mjs",
+    "count": 345,
+    "verified_at": "2026-10-27"
+  },
+  "ci": {
+    "workflows": [],
+    "badge": null
+  },
+  "docs": {
+    "readme": "README.md",
+    "changelog": null,
+    "version_history": null,
+    "roadmap": null,
+    "security": null,
+    "contributing": null,
+    "license_file": "LICENSE"
+  },
+  "social": {
+    "headline": "Rotate, swap and flip Iznik tiles until every motif connects, then fire the panel · İznik çinilerini çevir, desenleri birleştir, panoyu fırında pişir",
+    "hashtags": [
+      "claudecode",
+      "indiegame"
+    ],
+    "primary_link": "https://furkiozknn.github.io/cini-ustasi/"
+  },
+  "provenance": {
+    "generated_at": "2026-10-27",
+    "generator": "hand-written",
+    "rule": "mechanical fields read from the repository; editorial fields hand-written from the README, index.html, tests/ and docs/assets.md; no field is generated from a guess"
+  }
+}
