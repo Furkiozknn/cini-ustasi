@@ -18,6 +18,10 @@
 
 <p align="center"><b>Play online: <a href="https://furkiozknn.github.io/cini-ustasi/">https://furkiozknn.github.io/cini-ustasi/</a></b> (desktop and phone, no install)</p>
 
+<!-- portals:start -->
+<p align="center">Also on: <a href="https://furkiozknn.itch.io/cini-ustasi">itch.io</a></p>
+<!-- portals:end -->
+
 ## Highlights
 
 - **30 levels in 3 chapters.** Chapter 1 is about rotating tiles, chapter 2 adds swapping, chapter 3 adds fixed tiles
@@ -242,3 +246,5 @@ telefonda tarayıcıda oynanır. Claude Fable 5.1 tarafından Claude Code ile te
 ## License
 
 MIT, see [LICENSE](LICENSE).
+
+Like the game? You can support new rounds on [Buy Me a Coffee](https://buymeacoffee.com/furkiozkann). The game stays free.
