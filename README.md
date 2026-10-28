@@ -28,20 +28,32 @@
   widest at the edge, so a matched pair forms one medallion, and matched edges glow gold.
 - **Moves against par.** 1 to 3 stars per level, undo, restart, three hints per level that each fix one tile, a
   matched-edge counter in the top bar and a **daily board** that unlocks after chapter 1.
-- **The kiln sequence.** A solved board glazes with a shine sweep, slides into the glowing kiln, fires with sparks and
-  comes out framed for your collection wall; the camera follows it, also on phones.
-- **A living workshop.** Dust motes in the window light, a view of Lake Iznik, a flickering kiln, glossy glazed tiles
-  and a cat that comes to sit on the stool; oud-like plucks on a Hicaz scale over a soft drone, made with Web Audio.
+- **The kiln is a craft step.** A solved board glazes with a shine sweep and slides into the glowing kiln; there a heat
+  gauge rises and you press **Fire** while the needle is in the glaze band. Inside the band the glass frit melts into a
+  glossy finish, dead centre earns the master glaze, too early or too late comes out matte. The finish is kept on the
+  panel and shows as a sheen on the wall and in the collection (stars and moves are not affected; one click skips it).
+- **Excavation boards.** On odd days of the month the daily board has three weathered tiles: the motif lies under a
+  layer of earth until one edge meets its correct neighbour, then it restores with a shimmer.
+- **Coaching in play, no tutorial wall.** Level 1 pulses the first wrong tile with a one-line tip; the first swap level
+  and the first fixed/double-sided level name the new rule once, over the tile it applies to.
+- **Live star meter.** A thin bar under the top bar counts the moves left before the next star threshold (gold,
+  silver, bronze); crossing one chimes and pops the stars, and a rotation that breaks a matched edge nudges the tile.
+- **Master's gallery.** The collection lists all 30 panels (unsolved ones as outlines) plus your daily boards; pick
+  one to see its name, stars and glaze, and unlock four short craft notes about Iznik tile, one per chapter.
+- **A living workshop.** Dust motes in the window light, a view of Lake Iznik, a flickering kiln, glossy bevelled tiles
+  on lime-plaster grout and a cat that comes to sit on the stool; oud-like plucks on a Hicaz scale over a soft drone,
+  made with Web Audio.
 
 ## How to play
 
 > [!TIP]
 > **Goal:** connect every edge on the board: each motif must meet its twin on the neighbouring tile. Solve the level in
-> as few moves as possible to earn 3 stars, then watch the panel fire in the kiln.
+> as few moves as possible to earn 3 stars, then fire the panel in the kiln at the right heat for a glossy finish.
 
 Click a tile to rotate it by 90 degrees. From chapter 2 on, drag a tile onto another to swap them. In chapter 3 some
 tiles are fixed in place, and double-sided tiles can be flipped with a right-click (or a long press). The top bar shows
-your moves, the level's par and how many edges already match.
+your moves, the level's par, how many edges already match and the star meter. When the board is solved it slides into
+the kiln: press **Fire** (or tap the card, `Enter`, `Space`) while the needle is in the glaze band.
 
 <details>
 <summary><b>More rules</b></summary>
@@ -51,8 +63,13 @@ your moves, the level's par and how many edges already match.
 - Every level starts with three hints. A hint fixes one tile, planned against the board's own generated solution, so it
   is instant and never fails; undoing a hint gives it back.
 - Fixed tiles stay at their home position and cannot be rotated, swapped or flipped.
-- The daily board is a fresh 4x4 puzzle seeded by the date, with rotations and swaps; it unlocks after chapter 1.
-- Solved panels join the collection and the gallery wall of the workshop; your best stars per level are kept.
+- The kiln step rates the finish: matte, glossy (needle in the band) or master glaze (needle in the narrow core).
+  A panel keeps its best finish; skipping the step or letting the needle run to the end gives matte.
+- The daily board is a fresh 4x4 puzzle seeded by the date, with rotations and swaps; it unlocks after chapter 1. On
+  odd days it is an excavation board with three weathered tiles; the solution, hints and par are the same as the plain
+  board for that date.
+- Solved panels join the collection and the gallery wall of the workshop (the wall shows the 12 latest, the collection
+  keeps all of them); your best stars and finish per level are kept.
 
 </details>
 
@@ -64,6 +81,7 @@ your moves, the level's par and how many edges already match.
 | Swap two tiles (chapter 2 on) | drag one onto the other | |
 | Flip a double-sided tile (chapter 3) | right-click / long press | `F` on the hovered tile |
 | Tilt the camera / zoom | drag on the table / wheel or pinch | |
+| Fire the kiln (after a solve) | Fire button or tap the card; Skip | `Enter` / `Space` / `F` |
 | Undo / hint / restart | top bar | `Z` / `H` / `R` |
 | Pause menu | menu button | `P` / `Esc` |
 | Music / effects / language | pause menu, settings | `M` / `X` / `L` |
@@ -83,15 +101,17 @@ threads or fewer.
 | `?debug` | draw calls, fps and JS errors on screen; `window.ciniSim(seconds)` fast-forwards the game |
 | `?sim=N` | fast-forward N seconds before the first frame |
 | `?level=N` / `?level=daily` | jump to a level or the daily board |
+| `?daykey=YYYY-MM-DD` | force the daily board's date (an odd day gives the excavation board) |
 | `?screen=levels` | open a screen: `levels`, `collection`, `howto` (`&ch=N` picks the page), `settings` or `pause` |
 | `?low` | Low graphics for this visit (not saved) |
 | `?noassets` | skip the asset files and use the procedural models and textures |
 | `?lang=en` / `?lang=tr` | language |
 | `?fresh` | start with empty progress and default settings |
 | `?fill` | fill the collection for screenshots (saving disabled) |
-| `?noanim` / `?nohowto` | skip CSS animations / skip the how-to card on a chapter's first level |
+| `?noanim` / `?nohowto` / `?nokiln` | skip CSS animations / skip the coach tips / skip the kiln firing step |
 
-The live state is on `window.cini`.
+The live state is on `window.cini` (with a small test API on `window.cini.api`: `performMove`, `plan`, `lockKiln`,
+`mem`, `calls`, `tileScreenPos`).
 
 </details>
 
@@ -104,23 +124,31 @@ The live state is on `window.cini`.
     <td width="33%"><img src="docs/chapter3-level22-wall.png" alt="Level 22 with fixed and double-sided tiles"><br><sub>Chapter 3: fixed and double-sided tiles</sub></td>
   </tr>
   <tr>
-    <td><img src="docs/kiln-panel-sliding-in.png" alt="The finished panel sliding into the kiln"><br><sub>The panel slides into the kiln</sub></td>
-    <td><img src="docs/level-complete.png" alt="Level complete with three stars"><br><sub>Level complete, three stars</sub></td>
-    <td><img src="docs/collection.png" alt="The collection of finished panels"><br><sub>The collection</sub></td>
+    <td><img src="docs/kiln-firing.png" alt="The kiln firing step: a heat gauge with the glaze band"><br><sub>The kiln step: fire inside the glaze band</sub></td>
+    <td><img src="docs/level-complete.png" alt="Level complete with three stars and a master glaze"><br><sub>Level complete, three stars, master glaze</sub></td>
+    <td><img src="docs/collection.png" alt="The master's gallery with all 30 panels and the craft notes"><br><sub>The master's gallery</sub></td>
   </tr>
 </table>
 
 <details>
-<summary><b>Pause menu, settings and the phone layout</b></summary>
+<summary><b>Coaching, the excavation board, pause, settings and the phone layout</b></summary>
 
 <table>
   <tr>
-    <td width="50%"><img src="docs/pause.png" alt="Pause menu in Turkish"><br><sub>Pause menu</sub></td>
-    <td width="50%"><img src="docs/settings.png" alt="Settings in Turkish"><br><sub>Settings</sub></td>
+    <td width="50%"><img src="docs/coach-level1.png" alt="Level 1 with the one-line coach tip over the first wrong tile"><br><sub>Level 1: the tip points at the first wrong tile</sub></td>
+    <td width="50%"><img src="docs/excavation-board.png" alt="The excavation daily board with three weathered tiles"><br><sub>Excavation board: three weathered tiles</sub></td>
   </tr>
   <tr>
+    <td><img src="docs/kiln-panel-sliding-in.png" alt="The finished panel sliding into the kiln"><br><sub>The panel slides into the kiln</sub></td>
+    <td><img src="docs/pause.png" alt="Pause menu in Turkish"><br><sub>Pause menu</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/settings.png" alt="Settings in Turkish"><br><sub>Settings</sub></td>
     <td><img src="docs/phone-390.png" alt="A 5x5 board on a phone"><br><sub>Phone, level 8</sub></td>
-    <td><img src="docs/phone-kiln.png" alt="Firing on a phone: the camera follows the kiln"><br><sub>Phone, the camera follows the kiln</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/phone-kiln.png" alt="The kiln step on a phone"><br><sub>Phone, the kiln step</sub></td>
+    <td></td>
   </tr>
 </table>
 
@@ -135,10 +163,11 @@ is tested under Node, with no packages to install:
 node tests/core.test.mjs
 ```
 
-It checks all 30 levels and 5 daily boards: deterministic generation, a scrambled start, fixed tiles at home, the home
-solution solves the board, par equals the planned solution's length and earns 3 stars, and the solver finds a solution.
-Current result: `TESTS PASSED 345/345`. Before release, an independent bot run in a real browser also cleared all 30
-levels with 90 of 90 stars and 0 JS errors.
+It checks all 30 levels and 5 daily boards (two of them excavation boards): deterministic generation, a scrambled
+start, fixed tiles at home, the home solution solves the board, par equals the planned solution's length and earns 3
+stars, the solver finds a solution, weathering keeps the start and par, and the glaze bands. Current result:
+`TESTS PASSED 358/358`. The `?auto` bot also clears all 30 levels in a headless browser with 0 JS errors, with and
+without the asset files.
 
 ## Running locally
 
@@ -164,6 +193,25 @@ They were processed with glTF-Transform and sharp (about 1.1 MB in `assets/`). T
 because generated art cannot guarantee that the motifs meet exactly at the edges, and every replaced part keeps its
 procedural version as the fallback. Prompts, sizes and remaining issues: [docs/assets.md](docs/assets.md). A Godot 4
 remake was made in round 2.
+
+### v2 update
+
+Upgraded by **Claude Fable 5.1** with Claude Code from [prompts/cini-ustasi-v2.md](prompts/cini-ustasi-v2.md):
+
+- the how-to overlay is gone; level 1 and the first level of each chapter coach inside the board (`?` still opens the
+  how-to card);
+- the kiln became a craft step with a heat gauge and a glaze rating (matte / glossy / master) kept per panel and drawn
+  as a sheen on the wall and in the collection; old saves load unchanged and get a rating on their next firing;
+- the daily board is an excavation board on odd days, with three weathered tiles that restore on their first matched
+  edge (same solution, so hints, the solver and the bot are unchanged);
+- a live star meter with a chime, a star pop and a "wasted move" nudge;
+- the master's gallery with all 30 panels, a detail box and four craft notes;
+- lime-plaster grout, a bright bevel rim and a glossier glaze on the tiles, a sheen pass when a tile's last edge
+  matches, and the matched-edge glow now updates one preallocated geometry instead of rebuilding one per move;
+- the web font request is gone (system font stack), the load-failure message is bilingual.
+
+The in-game facts (kiln step, excavation intro, craft notes, title line) come from the research pool behind the brief;
+the source of each is noted in a code comment next to the `FACTS` table in `index.html`.
 
 Çini Ustası is part of the **Claude Game Arena** series, where each game is built by a Claude model from one prompt.
 The other games: [Hisar](https://furkiozknn.github.io/kale-savunmasi/) ·

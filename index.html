@@ -11,15 +11,13 @@
 <meta property="og:url" content="https://furkiozknn.github.io/cini-ustasi/">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" href="assets/ui/favicon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
+/* v2: system font stack (no web-font request; the Three.js CDN is the only external request) */
 :root{
   --ink:#2b2a3d; --ink-soft:#5b5a70; --cobalt:#1f4e9c; --cobalt-deep:#16356d; --turq:#1fa3a3; --coral:#d9452b; --emerald:#2e8b57; --gold:#d9a441; --cream:#fbf7ee;
   --glass:rgba(253,249,240,0.66); --glass-strong:rgba(253,249,240,0.86); --glass-border:rgba(255,255,255,0.7);
   --shadow:0 10px 32px rgba(70,40,15,0.20), 0 1px 0 rgba(255,255,255,0.6) inset;
-  --radius:18px; --font:'Nunito', 'Segoe UI', system-ui, sans-serif;
+  --radius:18px; --font:'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
 html,body{margin:0; height:100%; overflow:hidden; background:#2a1d14; font-family:var(--font); color:var(--ink);}
@@ -41,7 +39,7 @@ button{font-family:var(--font); cursor:pointer;}
 .stat{display:flex; flex-direction:column; align-items:center; line-height:1.1;}
 .stat b{font-size:17px; font-weight:800; color:var(--cobalt-deep);}
 .stat span{font-size:11px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.6px;}
-/* stars are inline SVG (the ★ glyph is not in Nunito and rendered grey from a fallback font) */
+/* stars are inline SVG (the ★ glyph renders grey from a fallback font) */
 .stars{display:inline-flex; gap:2px; align-items:center; vertical-align:middle;}
 .stars svg{width:1em; height:1em; display:block; fill:var(--gold); stroke:#a8771f; stroke-width:1.2; stroke-linejoin:round; filter:drop-shadow(0 1px 0 rgba(255,255,255,.7));}
 .stars svg.off{fill:rgba(90,80,70,.22); stroke:rgba(90,80,70,.25); filter:none;}
@@ -58,6 +56,42 @@ button{font-family:var(--font); cursor:pointer;}
 .ibtn.txt{width:auto; padding:0 10px; font-weight:800; font-size:13px; letter-spacing:.5px;}
 .btn:focus-visible, .ibtn:focus-visible, .lcard:focus-visible, .seg button:focus-visible, input[type=range]:focus-visible, .foot a:focus-visible{outline:3px solid var(--turq); outline-offset:2px;}
 .crest{border-radius:0 !important; box-shadow:none !important; filter:drop-shadow(0 6px 10px rgba(40,20,0,.35));}
+/* v2: star meter (moves left until the next star threshold) along the bottom edge of the top bar */
+#meter{position:absolute; left:14px; right:14px; bottom:3px; height:4px; border-radius:2px; background:rgba(60,40,10,.14); overflow:hidden;}
+#meterFill{height:100%; width:100%; border-radius:2px; background:var(--gold); transition:width .25s ease, background .3s ease;}
+#meter.silver #meterFill{background:#b9b4ad;}
+#meter.bronze #meterFill{background:#b4733a;}
+#starsLive.pop svg{animation:starBump .45s cubic-bezier(.2,1,.3,1.4);}
+@keyframes starBump{30%{transform:scale(1.45) rotate(-12deg)}}
+#movesVal.wasted{animation:nudge .4s ease;}
+@keyframes nudge{20%{transform:translateX(-4px)}45%{transform:translateX(4px)}70%{transform:translateX(-2px)}}
+/* v2: coach tip over the board (points at a tile) */
+#coach{position:absolute; left:0; top:0; max-width:min(360px, 86vw); padding:9px 14px; border-radius:14px; font-weight:700; font-size:14px; line-height:1.3; color:var(--cobalt-deep); pointer-events:none; visibility:hidden; transform:translate(-50%, -100%); white-space:normal; text-align:center; border:1px solid rgba(255,255,255,.8); animation:coachIn .4s ease;}
+#coach.pin::after{content:""; position:absolute; left:50%; bottom:-9px; width:16px; height:16px; margin-left:-8px; background:inherit; border-right:1px solid rgba(255,255,255,.8); border-bottom:1px solid rgba(255,255,255,.8); transform:rotate(45deg) scale(.8);}
+@keyframes coachIn{from{opacity:0; transform:translate(-50%, -100%) translateY(6px)}to{opacity:1}}
+/* v2: fact card (small, non-blocking) */
+#factCard{position:absolute; left:50%; bottom:18px; transform:translateX(-50%); max-width:min(520px, 92vw); padding:10px 16px 10px 14px; border-radius:14px; font-size:13px; line-height:1.4; color:var(--ink); display:flex; gap:10px; align-items:flex-start; animation:popIn .4s ease; cursor:pointer;}
+#factCard b{display:block; font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:var(--turq); margin-bottom:2px;}
+#factCard .ic{flex:0 0 30px; height:30px; border-radius:9px; background:rgba(31,163,163,.12); display:flex; align-items:center; justify-content:center; color:var(--turq);}
+#factCard .ic svg{width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
+/* v2: kiln firing step */
+.overlay.bottom{align-items:flex-end; padding-bottom:24px; background:none;}
+#kilnCard{max-width:460px; padding:18px 22px 16px;}
+#kilnCard h2{margin-bottom:2px;}
+#kilnCard p{margin:2px 0 10px;}
+.gauge{position:relative; height:30px; border-radius:15px; background:linear-gradient(90deg, #3a1d12 0%, #8c2f14 30%, #e06a1e 58%, #ffc24a 76%, #fff3c4 100%); box-shadow:0 2px 6px rgba(0,0,0,.25) inset, 0 1px 0 rgba(255,255,255,.6); margin:6px 0 8px; overflow:visible;}
+.gauge .band{position:absolute; top:-5px; bottom:-5px; border-radius:8px; border:2px solid rgba(255,255,255,.9); background:rgba(255,255,255,.14); box-shadow:0 0 0 1px rgba(31,78,156,.3), 0 0 12px rgba(255,236,150,.6);}
+.gauge .core{position:absolute; top:-5px; bottom:-5px; background:rgba(255,255,255,.35); border-radius:4px;}
+.gauge .needle{position:absolute; top:-9px; bottom:-9px; width:4px; margin-left:-2px; border-radius:2px; background:#fff; box-shadow:0 0 0 1px var(--cobalt-deep), 0 0 10px rgba(255,255,255,.9);}
+.gauge .needle::before{content:""; position:absolute; left:50%; top:-7px; margin-left:-6px; border:6px solid transparent; border-top:7px solid var(--cobalt-deep);}
+.gaugeLabels{display:flex; justify-content:space-between; font-size:11px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.8px; padding:0 4px;}
+#kilnResult{min-height:26px; font-weight:800; font-size:18px; color:var(--cobalt-deep); margin:6px 0 4px;}
+#kilnResult.matte{color:#7a5a3a;} #kilnResult.glossy{color:var(--turq);} #kilnResult.master{color:#b8860b;}
+#kilnFact{font-size:12px; color:var(--ink-soft); line-height:1.4; margin:4px 0 8px; text-align:left; border-top:1px dashed rgba(31,78,156,.15); padding-top:8px;}
+.glazeTag{display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:700; padding:2px 8px; border-radius:999px; background:rgba(255,255,255,.7); color:var(--ink-soft);}
+.glazeTag i{width:9px; height:9px; border-radius:50%; background:#b08a68; display:inline-block;}
+.glazeTag.glossy{color:#0f6f6f;} .glazeTag.glossy i{background:linear-gradient(135deg, #fff, #1fa3a3);}
+.glazeTag.master{color:#8a6210;} .glazeTag.master i{background:linear-gradient(135deg, #fff8d6, #d9a441); box-shadow:0 0 6px rgba(217,164,65,.8);}
 
 /* ---------- overlays ---------- */
 .overlay{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:16px; background:radial-gradient(ellipse at center, rgba(40,25,10,.18), rgba(40,25,10,.46)); animation:fadeIn .35s ease;}
@@ -106,13 +140,36 @@ button{font-family:var(--font); cursor:pointer;}
 .lcard .lock{width:22px; height:22px; stroke:currentColor; fill:none; stroke-width:2;}
 
 /* ---------- collection ---------- */
-.cgrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(130px, 1fr)); gap:14px;}
-.piece{display:flex; flex-direction:column; align-items:center; gap:6px;}
-.piece .fr{padding:7px; background:linear-gradient(135deg, #8a5a2b, #c9995a 50%, #8a5a2b); border-radius:6px; box-shadow:0 6px 14px rgba(40,20,0,.3), 0 0 0 1px rgba(255,255,255,.4) inset;}
-.piece canvas{display:block; width:112px; height:112px; border-radius:2px;}
-.piece .cap{font-size:12px; font-weight:700; color:var(--ink); text-align:center;}
-.piece .cap small{display:block; font-size:13px; margin-top:2px;}
+/* v2: master's gallery: all 30 panels (locked ones as outlines), a detail box and four craft notes */
+.cgrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(104px, 1fr)); gap:12px;}
+.piece{display:flex; flex-direction:column; align-items:center; gap:5px; border:0; background:none; padding:4px; border-radius:12px; font-family:var(--font); color:var(--ink); transition:transform .12s;}
+.piece:not(.locked):hover{transform:translateY(-2px);}
+.piece.sel{background:rgba(31,163,163,.14); outline:2px solid var(--turq);}
+.piece:disabled{cursor:default;}
+.piece:focus-visible{outline:3px solid var(--turq); outline-offset:1px;}
+.piece .fr{padding:6px; background:linear-gradient(135deg, #8a5a2b, #c9995a 50%, #8a5a2b); border-radius:6px; box-shadow:0 6px 14px rgba(40,20,0,.3), 0 0 0 1px rgba(255,255,255,.4) inset; width:100%;}
+.piece .fr.gold{background:linear-gradient(135deg, #a4742f, #e2bd7e 50%, #a4742f);}
+.piece canvas{display:block; width:100%; aspect-ratio:1; border-radius:2px;}
+.piece.locked .fr{background:none; box-shadow:none; padding:0;}
+.piece.locked .ph{width:100%; aspect-ratio:1; border-radius:6px; border:2px dashed rgba(31,78,156,.3); display:flex; align-items:center; justify-content:center; color:rgba(31,78,156,.45); font-weight:800; font-size:20px;}
+.piece .cap{font-size:11px; font-weight:700; color:var(--ink); text-align:center; line-height:1.2; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.piece .cap small{display:block; font-size:12px; margin-top:1px;}
+.piece.locked .cap{color:var(--ink-soft);}
+.piece .cap .stars svg{width:.9em; height:.9em;}
 .empty{padding:30px; text-align:center; color:var(--ink-soft);}
+.detail{display:flex; gap:16px; align-items:center; padding:12px 14px; margin:0 0 12px; border-radius:14px; background:rgba(255,255,255,.55); border:1px solid rgba(255,255,255,.8); animation:popIn .3s ease;}
+.detail canvas{width:120px; height:120px; border-radius:3px; box-shadow:0 0 0 5px #a4742f, 0 0 0 7px #e2bd7e, 0 8px 18px rgba(0,0,0,.3); flex:0 0 auto; margin:6px 8px 6px 6px;}
+.detail .info{flex:1 1 auto; min-width:0;}
+.detail .info b{display:block; font-size:18px; color:var(--cobalt-deep); margin-bottom:2px;}
+.detail .info .sub{font-size:12px; color:var(--ink-soft); margin-bottom:6px;}
+.detail .info .line{display:flex; gap:10px; align-items:center; flex-wrap:wrap; font-size:13px;}
+.notes{display:grid; grid-template-columns:repeat(auto-fill, minmax(190px, 1fr)); gap:10px; margin:0 0 14px;}
+.note{padding:10px 12px; border-radius:12px; background:linear-gradient(180deg, rgba(255,255,255,.75), rgba(255,255,255,.45)); border:1px solid rgba(255,255,255,.8); font-size:12px; line-height:1.4; color:var(--ink);}
+.note b{display:block; font-size:11px; letter-spacing:1.1px; text-transform:uppercase; color:var(--turq); margin-bottom:4px;}
+.note.locked{color:var(--ink-soft); background:rgba(255,255,255,.3); border-style:dashed;}
+.note.locked b{color:var(--ink-soft);}
+.subhead{font-size:13px; font-weight:800; color:var(--cobalt-deep); margin:4px 0 8px; display:flex; align-items:center; gap:8px;}
+.subhead small{font-weight:600; color:var(--ink-soft);}
 
 /* ---------- complete card ---------- */
 .starsBig{font-size:56px; margin:4px 0 2px; min-height:64px; display:flex; justify-content:center;}
@@ -188,9 +245,13 @@ kbd{font-family:var(--font); background:#fff; border:1px solid #cfc9bb; border-b
   .lgrid{grid-template-columns:repeat(5, 1fr); gap:7px;}
   .lcard{font-size:16px; border-radius:11px;}
   .lcard .nm{display:none;}
-  .cgrid{grid-template-columns:repeat(2, 1fr);}
-  .scoreRow{gap:18px;}
+  .cgrid{grid-template-columns:repeat(3, 1fr); gap:8px;}
+  .notes{grid-template-columns:1fr 1fr;}
+  .detail canvas{width:84px; height:84px;}
+  .scoreRow{gap:14px;}
   .starsBig{font-size:46px;}
+  #coach{font-size:13px; max-width:78vw;}
+  #factCard{bottom:12px; font-size:12px;}
 }
 @media (pointer:coarse){ .btn{min-height:44px;} .ibtn{min-width:44px; min-height:44px;} }
 @media (max-height:520px){
@@ -222,7 +283,10 @@ kbd{font-family:var(--font); background:#fff; border:1px solid #cfc9bb; border-b
       <button class="ibtn txt" id="btnLang" title="Language">EN</button>
       <button class="ibtn" id="btnMenu" title="Menü (Esc)"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
     </div>
+    <div id="meter" title=""><div id="meterFill"></div></div>
   </div>
+  <div id="coach" class="glass"></div>
+  <div id="factCard" class="glass hidden"><div class="ic"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5.9 1.1 1 1.8l.1.3h4.8l.1-.3c.1-.7.4-1.3 1-1.8A6 6 0 0 0 12 3z"/></svg></div><div><b id="factHead"></b><span id="factText"></span></div></div>
 
   <div id="titleScreen" class="overlay hidden">
     <div class="card glass">
@@ -247,6 +311,7 @@ kbd{font-family:var(--font); background:#fff; border:1px solid #cfc9bb; border-b
         <button class="ibtn txt" id="btnLang2">EN</button>
       </div>
       <div class="tiny" id="progressLine" style="margin-top:10px"></div>
+      <div class="tiny" id="titleFact" style="margin-top:8px; line-height:1.35; max-width:420px; margin-left:auto; margin-right:auto"></div>
       <div class="credit"><a href="https://furkiozknn.github.io/" target="_blank" rel="noopener">Claude Game Arena · built by Claude Fable 5.1 · assets remastered</a></div>
     </div>
   </div>
@@ -261,7 +326,23 @@ kbd{font-family:var(--font); background:#fff; border:1px solid #cfc9bb; border-b
   <div id="collectionScreen" class="overlay hidden">
     <div class="panel glass">
       <header><h2 data-i18n="collection">Koleksiyon</h2><button class="ibtn" id="btnCollectionClose" title="Kapat"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
+      <div id="cDetail" class="detail hidden"><canvas id="cDetailPic" width="224" height="224"></canvas><div class="info"><b id="cDetailName"></b><div class="sub" id="cDetailSub"></div><div class="line" id="cDetailLine"></div></div></div>
+      <div class="subhead" data-i18n="craftNotes">Usta notları</div>
+      <div id="notesRow" class="notes"></div>
+      <div class="subhead"><span data-i18n="gallery">Galeri</span><small id="galleryCount"></small></div>
       <div id="collectionGrid" class="cgrid"></div>
+    </div>
+  </div>
+
+  <div id="kilnScreen" class="overlay bottom hidden">
+    <div class="card glass" id="kilnCard">
+      <h2 data-i18n="kilnTitle">Panoyu fırınla</h2>
+      <p data-i18n="kilnHint">İbre sır bandına girince dokun.</p>
+      <div class="gauge" id="gauge"><div class="band" id="gaugeBand"></div><div class="core" id="gaugeCore"></div><div class="needle" id="gaugeNeedle"></div></div>
+      <div class="gaugeLabels"><span data-i18n="gaugeCold">Soğuk</span><span data-i18n="gaugeBand">Sır bandı</span><span data-i18n="gaugeHot">Çok sıcak</span></div>
+      <div id="kilnResult"></div>
+      <div id="kilnFact"></div>
+      <div class="row"><button class="btn coral" id="btnKilnFire" data-i18n="kilnFire">Ateşle!</button><button class="btn alt small" id="btnKilnSkip" data-i18n="kilnSkip">Geç</button></div>
     </div>
   </div>
 
@@ -306,6 +387,7 @@ kbd{font-family:var(--font); background:#fff; border:1px solid #cfc9bb; border-b
         <div class="stat"><b id="cMoves">0</b><span data-i18n="moves">Hamle</span></div>
         <div class="stat"><b id="cPar">0</b><span data-i18n="par">Par</span></div>
         <div class="stat"><b id="cBest">—</b><span data-i18n="best">En iyi</span></div>
+        <div class="stat"><b id="cGlaze">—</b><span data-i18n="glaze">Sır</span></div>
       </div>
       <p id="cNote" data-i18n="fired">Fırından çıktı ve duvara asıldı.</p>
       <div class="row">
@@ -327,8 +409,10 @@ kbd{font-family:var(--font); background:#fff; border:1px solid #cfc9bb; border-b
 window.__ciniErrors = [];
 window.addEventListener('error', e => { window.__ciniErrors.push(String(e.message || e)); if (window.__ciniShowErr) window.__ciniShowErr(); });
 window.addEventListener('unhandledrejection', e => { window.__ciniErrors.push('Promise: ' + String(e.reason && (e.reason.stack || e.reason.message) || e.reason)); if (window.__ciniShowErr) window.__ciniShowErr(); });
-// If the module (three.js from the CDN) has not started within 20 s, say so instead of spinning forever.
-setTimeout(() => { if (!window.cini) { const l = document.getElementById('loading'); if (l) l.innerHTML = '<div style="padding:20px;max-width:560px;text-align:center;line-height:1.5">Three.js yüklenemedi. İnternet bağlantısı gerekir.<br><small>Three.js could not be loaded. An internet connection is required.</small>' + (window.__ciniErrors.length ? '<br><small style="color:#ffb3a6">' + window.__ciniErrors.join('<br>') + '</small>' : '') + '</div>'; } }, 20000);
+// The loading line follows ?lang before the module runs, so an English visitor never sees Turkish.
+if (/[?&]lang=en\b/.test(location.search)) { const l = document.querySelector('#loading [data-i18n]'); if (l) l.textContent = 'Preparing the workshop…'; }
+// If the module (three.js from the CDN) has not started within 20 s, say so instead of spinning forever (bilingual).
+setTimeout(() => { if (!window.cini) { const l = document.getElementById('loading'); if (l) l.innerHTML = '<div style="padding:20px;max-width:560px;text-align:center;line-height:1.5">Three.js could not be loaded. An internet connection is required.<br>Three.js yüklenemedi. İnternet bağlantısı gerekir.' + (window.__ciniErrors.length ? '<br><small style="color:#ffb3a6">' + window.__ciniErrors.join('<br>') + '</small>' : '') + '</div>'; } }, 20000);
 </script>
 <script type="importmap">
 { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }
@@ -420,6 +504,17 @@ const LEVEL_DEFS = [
   { n: 6, m: 10, shuf: 1, fix: 2, flip: 8 },
 ];
 const DAILY_DEF = { n: 4, m: 5, shuf: 1, daily: true };
+// v2: on odd days of the month the daily board is an "Excavation board": 3 weathered tiles (same solution, see generateLevel)
+const DAILY_EXC_DEF = { n: 4, m: 5, shuf: 1, daily: true, weathered: 3 };
+function excavationDay(key) { return parseInt(key.slice(-2), 10) % 2 === 1; }
+function dailyDefFor(key) { return excavationDay(key) ? DAILY_EXC_DEF : DAILY_DEF; }
+// v2: kiln firing step. The needle rises 0..1; tapping inside the glaze band gives a glossy finish, inside the core a master glaze.
+const GLAZE_BAND = { lo: 0.56, hi: 0.84, coreLo: 0.66, coreHi: 0.74 };
+const GLAZE_RANK = { matte: 0, glossy: 1, master: 2 };
+function glazeFor(pct) { return pct >= GLAZE_BAND.coreLo && pct <= GLAZE_BAND.coreHi ? 'master' : pct >= GLAZE_BAND.lo && pct <= GLAZE_BAND.hi ? 'glossy' : 'matte'; }
+function betterGlaze(a, b) { return (GLAZE_RANK[b] || 0) > (GLAZE_RANK[a] || 0) ? b : (a || b || 'matte'); }
+// inner edge = shared with a neighbour tile (not the outer frame)
+function innerEdge(n, p, k) { const r = (p / n) | 0, c = p % n; return !((k === 0 && r === 0) || (k === 1 && c === n - 1) || (k === 2 && r === n - 1) || (k === 3 && c === 0)); }
 const LEVEL_NAMES = [
   ['İlk Fırça', 'First Brush'], ['Lale Tomurcuğu', 'Tulip Bud'], ['Karanfil Bahçesi', 'Carnation Garden'], ['Saz Yaprakları', 'Saz Leaves'], ['Rumi Kıvrımı', 'Rumi Scroll'],
   ['Turkuaz Şafak', 'Turquoise Dawn'], ['Kobalt Göl', 'Cobalt Lake'], ['Mercan Kıyısı', 'Coral Shore'], ['Zümrüt Orman', 'Emerald Forest'], ['Çırak Sınavı', "Apprentice's Trial"],
@@ -510,6 +605,18 @@ function generateLevel(def, seed) {
   if (isSolved(pz, slots)) { const p = movable[0]; const s = slots.find(s => s.t === p); s.rot = (s.rot + 1) % 4; }
   pz.par = planMoves(pz, slots, homeSolution(pz)).length;
   pz.start = slots.map(s => ({ ...s }));
+  // v2 excavation board: weathered tiles are a rendering state only (the solution, par, hints and the bot are unchanged).
+  // Prefer tiles that start with no correct inner edge, so the player has to earn the first restore.
+  if (def.weathered) {
+    const { matched } = evaluate(pz, slots);
+    const hasInner = new Uint8Array(N);
+    for (const m of matched) if (innerEdge(n, m.p, m.k)) hasInner[m.p] = 1;
+    const cold = [], warm = [];
+    for (let p = 0; p < N; p++) { const t = tiles[slots[p].t]; if (t.fixed) continue; (hasInner[p] ? warm : cold).push(t.id); }
+    const order = shuffle(cold, rng).concat(shuffle(warm, rng));
+    pz.weathered = order.slice(0, def.weathered);
+    for (const id of pz.weathered) tiles[id].weathered = true;
+  }
   return pz;
 }
 
@@ -632,6 +739,15 @@ const I18N = {
     errorLoad: 'Three.js yüklenemedi. İnternet bağlantısı gerekir.', lowMode: 'Düşük grafik modu', locked: 'Kilitli', newPiece: 'Yeni parça koleksiyona eklendi',
     chapterNames: ['Çırak', 'Kalfa', 'Usta'], chapterDesc: ['Çinileri döndür', 'Döndür ve yer değiştir', 'Sabit çiniler, çift yüzlü çiniler, 6×6 panolar'],
     dailyName: 'Günün Çinisi', closeTip: 'Kapat', soundTip: 'Ses', musicTip: 'Müzik', hintTip: 'İpucu (H)', undoTip: 'Geri al (Z)', restartTip: 'Yeniden (R)', helpTip: 'Nasıl oynanır?', menuTip: 'Mola (P / Esc)', soundTip2: 'Ses (X)', musicTip2: 'Müzik (M)', langTip: 'Dil (L)',
+    // v2
+    coachRotate: 'Dokun: çini 90° döner. Komşu kenarlardaki motifler aynı olmalı.', coachSwap: 'Yeni kural: bir çiniyi sürükleyip başka bir çininin üstüne bırak, yer değiştirirler.',
+    coachMaster: 'Yeni kurallar: pirinç çivili çini sabittir. Ok işaretli çini çift yüzlüdür: sağ tık, uzun bas ya da F ile ters çevir.',
+    coachDaily: 'Her gün yeni bir 4×4 pano: döndür, yer değiştir, en az hamleyle bitir.', coachExcavation: 'Kazı panosu: 3 çini toprak altında kalmış. Bir kenarı doğru komşusuna değince motif geri gelir.',
+    excavationName: 'Kazı Panosu', factHead: 'Biliyor muydun?', restored: 'Çini gün yüzüne çıktı', starLost: 'Bir yıldız gitti', meterTip: '{n} hamle sonra yıldız düşer', meterMin: 'En az yıldız',
+    kilnTitle: 'Panoyu fırınla', kilnHint: 'Fırın ısınıyor: ibre sır bandındayken Ateşle.', kilnFire: 'Ateşle!', kilnSkip: 'Geç', gaugeCold: 'Soğuk', gaugeBand: 'Sır bandı', gaugeHot: 'Çok sıcak',
+    glaze: 'Sır', glazeMatte: 'Mat sır', glazeGlossy: 'Parlak sır', glazeMaster: 'Usta sırrı', kilnMissed: 'Sır erimeden çıktı: mat.', kilnOver: 'Fazla pişti: mat.', kilnGlossy: 'Cam frit eridi: parlak!', kilnMaster: 'Tam kıvamında: usta sırrı!', kilnSkipped: 'Fırınlama atlandı: mat.',
+    craftNotes: 'Usta notları', gallery: 'Galeri', noteTitles: ['Çırak notu', 'Kalfa notu', 'Usta notu', 'Mühür notu'], noteLocked: ['1. bölümde bir pano bitir', '2. bölümde bir pano bitir', '3. bölümde bir pano bitir', '30 panonun hepsini bitir'],
+    notSolved: 'Henüz çözülmedi', selectPiece: 'Bir panoya dokun: adı, yıldızları ve sırrı görünsün.', panels: '{n}/30 pano',
     howto: [
       { title: 'Kenarları eşleştir', lines: ['Bir çiniye dokun: 90° döner.', 'Komşu kenarlardaki motifler aynı olmalı: aynı şekil, aynı renk.', 'Kenar şeridi yalnızca dış çerçeveye bakar.', 'Eşleşen kenarlar altın gibi parlar. <kbd>Z</kbd> geri al, <kbd>H</kbd> ipucu, <kbd>R</kbd> yeniden, <kbd>P</kbd> mola.'] },
       { title: 'Yer değiştir', lines: ['Bir çiniyi sürükleyip başka bir çininin üstüne bırak: yer değişirler.', 'Dokunmak yine döndürür. Doğru çiniyi doğru yere koy, sonra çevir.', 'Masaya sürükleyerek bakış açısını, tekerlekle yakınlığı ayarla.'] },
@@ -652,6 +768,15 @@ const I18N = {
     errorLoad: 'Three.js could not be loaded. An internet connection is required.', lowMode: 'Low graphics mode', locked: 'Locked', newPiece: 'New piece added to the collection',
     chapterNames: ['Apprentice', 'Journeyman', 'Master'], chapterDesc: ['Rotate the tiles', 'Rotate and swap', 'Fixed tiles, double-sided tiles, 6×6 boards'],
     dailyName: 'Daily Tile', closeTip: 'Close', soundTip: 'Sound', musicTip: 'Music', hintTip: 'Hint (H)', undoTip: 'Undo (Z)', restartTip: 'Restart (R)', helpTip: 'How to play', menuTip: 'Pause (P / Esc)', soundTip2: 'Sound (X)', musicTip2: 'Music (M)', langTip: 'Language (L)',
+    // v2
+    coachRotate: 'Tap to rotate the tile 90°. Motifs on neighbouring edges must match.', coachSwap: 'New rule: drag a tile onto another tile and they swap places.',
+    coachMaster: 'New rules: a tile with a brass nail is fixed. A tile with an arrow mark is double-sided: right-click, long-press or F to flip it.',
+    coachDaily: 'A new 4×4 board every day: rotate, swap, finish in as few moves as you can.', coachExcavation: 'Excavation board: 3 tiles are buried. Match one edge with its correct neighbour and the motif returns.',
+    excavationName: 'Excavation Board', factHead: 'Did you know?', restored: 'A tile came to light', starLost: 'One star lost', meterTip: 'A star drops in {n} moves', meterMin: 'Lowest star',
+    kilnTitle: 'Fire the panel', kilnHint: 'The kiln is heating: press Fire while the needle is in the glaze band.', kilnFire: 'Fire!', kilnSkip: 'Skip', gaugeCold: 'Cold', gaugeBand: 'Glaze band', gaugeHot: 'Too hot',
+    glaze: 'Glaze', glazeMatte: 'Matte glaze', glazeGlossy: 'Glossy glaze', glazeMaster: 'Master glaze', kilnMissed: 'Out before the glaze melted: matte.', kilnOver: 'Overfired: matte.', kilnGlossy: 'The glass frit melted: glossy!', kilnMaster: 'Just right: master glaze!', kilnSkipped: 'Firing skipped: matte.',
+    craftNotes: "Craft notes", gallery: 'Gallery', noteTitles: ["Apprentice's note", "Journeyman's note", "Master's note", "Seal note"], noteLocked: ['Finish a panel in chapter 1', 'Finish a panel in chapter 2', 'Finish a panel in chapter 3', 'Finish all 30 panels'],
+    notSolved: 'Not solved yet', selectPiece: 'Tap a panel to see its name, stars and glaze.', panels: '{n}/30 panels',
     howto: [
       { title: 'Match the edges', lines: ['Tap a tile: it turns 90°.', 'Motifs on neighbouring edges must be the same: same shape, same colour.', 'The border band only faces the outer frame.', 'Matching edges glow gold. <kbd>Z</kbd> undo, <kbd>H</kbd> hint, <kbd>R</kbd> restart, <kbd>P</kbd> pause.'] },
       { title: 'Swap places', lines: ['Drag a tile onto another tile: they swap places.', 'Tapping still rotates. Put the right tile in the right place, then turn it.', 'Drag on the table to tilt the view, scroll to zoom.'] },
@@ -661,6 +786,24 @@ const I18N = {
   },
 };
 let lang = 'tr';
+// v2 facts: the only in-game facts, copied from the sourced research pool (2026-10-28). One source URL per row.
+const FACTS = [
+  // https://www.afar.com/magazine/not-just-a-souvenir-the-untold-story-of-turkeys-iznik-tiles
+  { tr: 'İznik çinisi kil değil; ağırlıklı olarak öğütülmüş kuvars, az miktarda cam frit ve kilden yapılan "fritware" malzemedir, fırında cam kısım eriyip gövdeyi bağlar.',
+    en: 'Iznik tile is not ordinary clay: it is fritware, made mostly of ground quartz with a little glass frit and clay, where the glass melts in the kiln and binds the body.' },
+  // https://www.frommers.com/destinations/iznik/attractions/the-iznik-foundation/
+  { tr: 'İznik çinisinin yeniden canlanma hikâyesinde İznik Vakfı ve ekonomi profesörü Dr. Işıl Akbaygil öne çıkıyor.',
+    en: "The Iznik Foundation and economics professor Dr. Işıl Akbaygil are central to the story of Iznik tile's revival." },
+  // https://cnnturk.com/turkiye/iznikteki-kazilarda-cini-firinlar-bulundu-670597
+  { tr: 'İznik Çini Fırınları kazısı İstanbul Üniversitesi eliyle 41 yıldır sürüyor ve 11 fırın ateşhanesi sayılıyor (CNN Türk haberi).',
+    en: 'The Iznik tile kiln excavation, run by Istanbul University, is reported to have continued for 41 years and to count 11 kiln fire chambers (CNN Türk report).' },
+  // https://doaj.org/article/09b0e3669a2c4fc3849832c7b03cb047
+  { tr: "Kazıdan çıkan bir tabak 2025'te İznik Müzesi'nde ilk kez sergilendi.",
+    en: 'A plate recovered from the excavation was shown for the first time at the Iznik Museum in 2025.' },
+];
+const fact = i => FACTS[i][lang] || FACTS[i].tr;
+// craft notes in the collection: one fact per chapter, the fourth for finishing all 30 panels
+const NOTE_FACT = [0, 1, 3, 2];
 const t = (k, vars) => { let v = I18N[lang][k] !== undefined ? I18N[lang][k] : I18N.tr[k] !== undefined ? I18N.tr[k] : k; if (vars) for (const x in vars) v = v.replace('{' + x + '}', vars[x]); return v; };
 
 // ============================================================================
@@ -835,8 +978,22 @@ function drawCenterOrnament(ctx, S, kind) {
   ctx.closePath(); ctx.fill();
 }
 
+// v2 excavation: a weathered face is the same motif under a layer of earth: low contrast, sandy veil, hairline cracks
+function weatherTile(ctx, S, rng) {
+  ctx.save();
+  ctx.fillStyle = 'rgba(214,196,160,0.74)'; ctx.fillRect(0, 0, S, S);
+  ctx.fillStyle = 'rgba(120,96,60,0.10)';
+  for (let i = 0; i < 70; i++) { const x = rng() * S, y = rng() * S, r = rng() * 3 * (S / 256) + 0.6; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); }
+  ctx.strokeStyle = 'rgba(90,70,45,0.35)'; ctx.lineWidth = 1.2 * (S / 256); ctx.lineCap = 'round';
+  for (let i = 0; i < 4; i++) {
+    let x = rng() * S, y = rng() * S; ctx.beginPath(); ctx.moveTo(x, y);
+    for (let j = 0; j < 5; j++) { x += (rng() - 0.5) * S * 0.22; y += (rng() - 0.5) * S * 0.22; ctx.lineTo(x, y); }
+    ctx.stroke();
+  }
+  ctx.restore();
+}
 // Paints a tile face into a canvas of TEX_SIZE x (TEX_SIZE + STRIP). kind: 'plain' | 'fixed' | 'flip'
-function paintTile(edges, kind, S, seed) {
+function paintTile(edges, kind, S, seed, weathered) {
   S = S || TEX_SIZE;
   const cv = document.createElement('canvas'); cv.width = S; cv.height = S + STRIP;
   const ctx = cv.getContext('2d');
@@ -845,25 +1002,42 @@ function paintTile(edges, kind, S, seed) {
   glazeBackground(ctx, S, rng);
   for (let k = 0; k < 4; k++) drawEdgeMotif(ctx, S, k, edges[k]);
   drawCenterOrnament(ctx, S, kind);
+  if (weathered) weatherTile(ctx, S, rng);
   return cv;
 }
-function tileTexture(edges, kind, seed) {
-  const key = edges.join(',') + '|' + kind + '|' + TEX_SIZE;
+function tileTexture(edges, kind, seed, weathered) {
+  const key = edges.join(',') + '|' + kind + '|' + TEX_SIZE + (weathered ? '|w' : '');
   let tex = textureCache.get(key);
   if (!tex) {
-    tex = new THREE.CanvasTexture(paintTile(edges, kind, TEX_SIZE, seed));
+    tex = new THREE.CanvasTexture(paintTile(edges, kind, TEX_SIZE, seed, weathered));
     tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = LOW ? 1 : 4;
     tex.generateMipmaps = true; tex.minFilter = THREE.LinearMipmapLinearFilter;
     textureCache.set(key, tex);
   }
   return tex;
 }
-// Composite picture of a solved board (used for the kiln output, the wall and the gallery).
-function paintBoardPicture(pz, size) {
+// v2: the fired finish drawn over a panel picture: matte = plain, glossy = one diagonal sheen, master = a wide sheen plus a thin streak and highlights
+function drawGlaze(ctx, S, glaze) {
+  if (glaze !== 'glossy' && glaze !== 'master') return;
+  const master = glaze === 'master';
+  const g = ctx.createLinearGradient(0, 0, S, S);
+  const a = master ? 0.34 : 0.2;
+  g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(0.3, 'rgba(255,255,255,0)'); g.addColorStop(0.47, `rgba(255,255,255,${a})`); g.addColorStop(0.53, `rgba(255,255,255,${a})`); g.addColorStop(0.7, 'rgba(255,255,255,0)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, S, S);
+  if (master) {
+    const h = ctx.createLinearGradient(0, 0, S, S);
+    h.addColorStop(0.72, 'rgba(255,255,255,0)'); h.addColorStop(0.76, 'rgba(255,255,255,0.28)'); h.addColorStop(0.8, 'rgba(255,255,255,0)');
+    ctx.fillStyle = h; ctx.fillRect(0, 0, S, S);
+    ctx.fillStyle = 'rgba(255,255,255,0.75)';
+    for (const [x, y, r] of [[0.12, 0.1, 0.035], [0.86, 0.78, 0.028], [0.2, 0.84, 0.02]]) { ctx.beginPath(); ctx.ellipse(x * S, y * S, r * S, r * S * 0.45, -0.78, 0, Math.PI * 2); ctx.fill(); }
+  }
+}
+// Composite picture of a solved board (used for the kiln output, the wall and the gallery). glaze: see drawGlaze.
+function paintBoardPicture(pz, size, glaze) {
   const n = pz.n, cell = Math.floor(size / n), S = cell * n;
   const cv = document.createElement('canvas'); cv.width = S; cv.height = S;
   const ctx = cv.getContext('2d');
-  ctx.fillStyle = '#1c2a44'; ctx.fillRect(0, 0, S, S);
+  ctx.fillStyle = '#d8cbb0'; ctx.fillRect(0, 0, S, S); // lime-plaster grout, same as the board base
   const faceSize = Math.min(256, Math.max(64, Math.ceil(cell * 1.2)));
   for (let p = 0; p < n * n; p++) {
     const tl = pz.tiles[p];
@@ -871,6 +1045,7 @@ function paintBoardPicture(pz, size) {
     const r = (p / n) | 0, c = p % n; const gap = Math.max(1, cell * 0.03);
     ctx.drawImage(img, 0, 0, faceSize, faceSize, c * cell + gap / 2, r * cell + gap / 2, cell - gap, cell - gap);
   }
+  drawGlaze(ctx, S, glaze);
   return cv;
 }
 function paintLogo(cv) {
@@ -974,6 +1149,13 @@ const Sound = (() => {
     fire() { if (!ensure() || !soundOn) return; const n = ctx.currentTime; noise(1.8, 'lowpass', 900, 0.5, 0.3, n, null, 200); for (let i = 0; i < 8; i++) noise(0.05, 'highpass', 4000, 1, 0.12, n + 0.2 + Math.random() * 1.3); },
     fanfare() { if (!ensure() || !soundOn) return; const n = ctx.currentTime; const notes = [587.33, 739.99, 880, 1174.66, 1479.98]; notes.forEach((f, i) => { tone(f, n + i * 0.11, 0.9, 0.09, 'triangle'); tone(f * 0.5, n + i * 0.11, 0.9, 0.05, 'sine'); }); tone(1174.66, n + 0.7, 1.6, 0.08, 'sine'); tone(1479.98, n + 0.7, 1.6, 0.06, 'sine'); tone(1760, n + 0.7, 1.6, 0.05, 'sine'); },
     star() { if (!ensure() || !soundOn) return; const n = ctx.currentTime; tone(1567.98, n, 0.4, 0.06, 'sine'); tone(2093, n + 0.05, 0.5, 0.04, 'sine'); },
+    // v2: soft descending chime when a star threshold passes
+    starLost() { if (!ensure() || !soundOn) return; const n = ctx.currentTime; tone(880, n, 0.3, 0.05, 'sine'); tone(659.25, n + 0.16, 0.45, 0.05, 'sine'); },
+    // v2: glaze sheen when a tile's last edge matches, and the restore shimmer of a weathered tile
+    sheen() { if (!ensure() || !soundOn) return; const n = ctx.currentTime; noise(0.35, 'bandpass', 2600, 2.5, 0.08, n, null, 5200); tone(1318.5, n + 0.05, 0.35, 0.03, 'sine'); },
+    // v2: kiln step: the fire tap and the finish rating
+    kilnTap() { if (!ensure() || !soundOn) return; const n = ctx.currentTime; noise(0.5, 'lowpass', 600, 0.6, 0.35, n, null, 150); tone(196, n, 0.3, 0.06, 'triangle'); },
+    glaze(rank) { if (!ensure() || !soundOn) return; const n = ctx.currentTime; const seq = rank === 2 ? [783.99, 987.77, 1174.66, 1567.98] : rank === 1 ? [659.25, 783.99, 987.77] : [392, 349.23]; seq.forEach((f, i) => tone(f, n + i * 0.1, 0.5, 0.06, rank ? 'triangle' : 'sine')); },
     ui() { if (!ensure() || !soundOn) return; const n = ctx.currentTime; tone(1200, n, 0.06, 0.05, 'sine'); },
   };
   return api;
@@ -1235,26 +1417,27 @@ function glowBarTexture() {
 }
 
 // Bevelled tile geometry: top + bevel ring textured, sides + bottom mapped to the white strip.
+// v2: a vertex-colour attribute brightens the outer rim of the bevel (a thin ceramic highlight) and shades the sides.
 function makeTileGeometry(s, h, b) {
-  const pos = [], nor = [], uv = [], idx = [];
+  const pos = [], nor = [], uv = [], col = [], idx = [];
   const half = s / 2, inner = half - b, yb = h - b * 0.8;
   const vStrip = STRIP / (TEX_SIZE + STRIP);
   const uvTop = (x, z) => [0.5 + x / s, vStrip + (0.5 - z / s) * (1 - vStrip)];
-  const add = (p, n, t) => { pos.push(...p); nor.push(...n); uv.push(...t); return pos.length / 3 - 1; };
+  const add = (p, n, t, c) => { pos.push(...p); nor.push(...n); uv.push(...t); c = c || 1; col.push(c, c, c); return pos.length / 3 - 1; };
   // top face
   const t0 = add([-inner, h, -inner], [0, 1, 0], uvTop(-inner, -inner)), t1 = add([inner, h, -inner], [0, 1, 0], uvTop(inner, -inner));
   const t2 = add([inner, h, inner], [0, 1, 0], uvTop(inner, inner)), t3 = add([-inner, h, inner], [0, 1, 0], uvTop(-inner, inner));
   idx.push(t0, t3, t2, t0, t2, t1);
-  // bevel ring: 4 quads
+  // bevel ring: 4 quads, outer rim brighter
   const corners = [[-1, -1], [1, -1], [1, 1], [-1, 1]];
   for (let i = 0; i < 4; i++) {
     const a = corners[i], c = corners[(i + 1) % 4];
     const nx = (a[0] + c[0]) / 2, nz = (a[1] + c[1]) / 2; // outward direction of this side
     const n = new THREE.Vector3(nx, 1.2, nz).normalize().toArray();
-    const i0 = add([a[0] * inner, h, a[1] * inner], n, uvTop(a[0] * inner, a[1] * inner));
-    const i1 = add([c[0] * inner, h, c[1] * inner], n, uvTop(c[0] * inner, c[1] * inner));
-    const o0 = add([a[0] * half, yb, a[1] * half], n, uvTop(a[0] * half, a[1] * half));
-    const o1 = add([c[0] * half, yb, c[1] * half], n, uvTop(c[0] * half, c[1] * half));
+    const i0 = add([a[0] * inner, h, a[1] * inner], n, uvTop(a[0] * inner, a[1] * inner), 1.04);
+    const i1 = add([c[0] * inner, h, c[1] * inner], n, uvTop(c[0] * inner, c[1] * inner), 1.04);
+    const o0 = add([a[0] * half, yb, a[1] * half], n, uvTop(a[0] * half, a[1] * half), 1.42);
+    const o1 = add([c[0] * half, yb, c[1] * half], n, uvTop(c[0] * half, c[1] * half), 1.42);
     idx.push(i0, o0, o1, i0, o1, i1);
   }
   // sides
@@ -1262,17 +1445,18 @@ function makeTileGeometry(s, h, b) {
   for (let i = 0; i < 4; i++) {
     const a = corners[i], c = corners[(i + 1) % 4];
     const n = [(a[0] + c[0]) / 2, 0, (a[1] + c[1]) / 2];
-    const p0 = add([a[0] * half, yb, a[1] * half], n, su), p1 = add([c[0] * half, yb, c[1] * half], n, su);
-    const p2 = add([c[0] * half, 0, c[1] * half], n, su), p3 = add([a[0] * half, 0, a[1] * half], n, su);
+    const p0 = add([a[0] * half, yb, a[1] * half], n, su, 0.92), p1 = add([c[0] * half, yb, c[1] * half], n, su, 0.92);
+    const p2 = add([c[0] * half, 0, c[1] * half], n, su, 0.8), p3 = add([a[0] * half, 0, a[1] * half], n, su, 0.8);
     idx.push(p0, p3, p2, p0, p2, p1);
   }
   // bottom
-  const b0 = add([-half, 0, -half], [0, -1, 0], su), b1 = add([half, 0, -half], [0, -1, 0], su), b2 = add([half, 0, half], [0, -1, 0], su), b3 = add([-half, 0, half], [0, -1, 0], su);
+  const b0 = add([-half, 0, -half], [0, -1, 0], su, 0.8), b1 = add([half, 0, -half], [0, -1, 0], su, 0.8), b2 = add([half, 0, half], [0, -1, 0], su, 0.8), b3 = add([-half, 0, half], [0, -1, 0], su, 0.8);
   idx.push(b0, b2, b3, b0, b1, b2);
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
   g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3));
   g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
   g.setIndex(idx);
   return g;
 }
@@ -1330,7 +1514,8 @@ cat.position.set(5.55, 2.58, -2.5); cat.visible = false; scene.add(cat);
 
 // ---- board group: base, frame, tiles, glow ----
 const boardGroup = new THREE.Group(); boardGroup.position.set(0, TABLE_Y, 0); scene.add(boardGroup);
-const boardBase = new THREE.Mesh(colorize(new THREE.BoxGeometry(BOARD_SIZE + 0.64, 0.06, BOARD_SIZE + 0.64), '#3b2a1e'), lambertVC);
+// v2: warm lime-plaster grout between the tiles (was a near-black base)
+const boardBase = new THREE.Mesh(colorize(new THREE.BoxGeometry(BOARD_SIZE + 0.64, 0.06, BOARD_SIZE + 0.64), '#d6c7a8', 0.04), lambertVC);
 boardBase.position.y = 0.03; boardBase.receiveShadow = true; boardBase.castShadow = true; boardGroup.add(boardBase);
 const frameTex = bandTexture();
 const frameGroup = new THREE.Group(); boardGroup.add(frameGroup);
@@ -1346,9 +1531,25 @@ const frameGroup = new THREE.Group(); boardGroup.add(frameGroup);
 }
 const glowTex = glowBarTexture();
 const glowMat = new THREE.MeshBasicMaterial({ map: glowTex, transparent: true, opacity: 0.85, depthWrite: false, color: '#ffd27a' });
-const glowMesh = new THREE.Mesh(new THREE.BufferGeometry(), glowMat); glowMesh.renderOrder = 2; boardGroup.add(glowMesh);
+// v2: one preallocated glow geometry sized for the largest board (6x6 = 84 edges); updateGlow() writes positions in place
+const GLOW_MAX = edgeTotal(6);
+const glowGeo = new THREE.BufferGeometry();
+{
+  const uvs = new Float32Array(GLOW_MAX * 8), index = new Uint16Array(GLOW_MAX * 6);
+  for (let q = 0; q < GLOW_MAX; q++) {
+    uvs.set([0, 0, 1, 0, 1, 1, 0, 1], q * 8);
+    const v = q * 4; index.set([v, v + 2, v + 1, v, v + 3, v + 2], q * 6);
+  }
+  const posAttr = new THREE.BufferAttribute(new Float32Array(GLOW_MAX * 12), 3); posAttr.setUsage(THREE.DynamicDrawUsage);
+  glowGeo.setAttribute('position', posAttr); glowGeo.setAttribute('uv', new THREE.BufferAttribute(uvs, 2)); glowGeo.setIndex(new THREE.BufferAttribute(index, 1));
+  glowGeo.setDrawRange(0, 0);
+}
+const glowMesh = new THREE.Mesh(glowGeo, glowMat); glowMesh.renderOrder = 2; glowMesh.frustumCulled = false; boardGroup.add(glowMesh);
 const sweep = new THREE.Mesh(new THREE.PlaneGeometry(0.7, BOARD_SIZE * 1.7), new THREE.MeshBasicMaterial({ map: glowTex, transparent: true, opacity: 0, depthWrite: false, color: '#ffffff', blending: THREE.AdditiveBlending }));
 sweep.rotation.x = -Math.PI / 2; sweep.rotation.z = 0.5; sweep.position.y = 0.25; sweep.renderOrder = 3; boardGroup.add(sweep);
+// v2: one-pass glaze sheen that sweeps over a tile when its last edge matches (one shared mesh, a queue of tiles)
+const tileSweep = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: glowTex, transparent: true, opacity: 0, depthWrite: false, color: '#ffffff', blending: THREE.AdditiveBlending }));
+tileSweep.rotation.x = -Math.PI / 2; tileSweep.rotation.z = 0.7; tileSweep.renderOrder = 3; tileSweep.visible = false; boardGroup.add(tileSweep);
 
 // ---- wall gallery (atlas + merged frames) ----
 const ATLAS_CELL = LOW ? 128 : 256;
@@ -1504,10 +1705,14 @@ function updateCatModel(dt) {
 // ============================================================================
 //  Progress (localStorage)
 // ============================================================================
-const levelKey = idx => idx === 'daily' ? 'D' + dailyKey() : 'L' + (idx + 1);
+// v2: ?daykey=YYYY-MM-DD forces the daily board's date (testing the excavation variant on an odd day)
+const DAYKEY = /^\d{4}-\d{2}-\d{2}$/.test(PARAMS.get('daykey') || '') ? PARAMS.get('daykey') : null;
+const todayKey = () => DAYKEY || dailyKey();
+const levelKey = idx => idx === 'daily' ? 'D' + todayKey() : 'L' + (idx + 1);
 const isUnlocked = idx => idx === 'daily' ? dailyUnlocked() : idx === 0 || !!progress.best['L' + idx];
 function dailyUnlocked() { for (let i = 0; i < 10; i++) if (!progress.best['L' + (i + 1)]) return false; return true; }
-function levelDisplayName(idx) { return idx === 'daily' ? t('dailyName') : LEVEL_NAMES[idx][lang === 'tr' ? 0 : 1]; }
+const dailyName = key => t(excavationDay(key) ? 'excavationName' : 'dailyName');
+function levelDisplayName(idx) { return idx === 'daily' ? dailyName(todayKey()) : LEVEL_NAMES[idx][lang === 'tr' ? 0 : 1]; }
 function totalStars() { let s = 0; for (let i = 0; i < 30; i++) { const b = progress.best['L' + (i + 1)]; if (b) s += b.stars; } return s; }
 function completedCount() { let c = 0; for (let i = 0; i < 30; i++) if (progress.best['L' + (i + 1)]) c++; return c; }
 function nextUnfinished() { for (let i = 0; i < 30; i++) if (!progress.best['L' + (i + 1)]) return i; return 29; }
@@ -1520,9 +1725,17 @@ const G = {
   tiles: [], tileBySlot: [], meshes: [], pitch: 1, tileSize: 1, tileH: 0.1, hover: null, drag: null, seq: null, bot: { plan: null, i: 0, timer: 0.8, done: false, solveMs: 0 },
   pendingDaily: false, matchedCount: 0, returnTo: 'title', catState: { phase: 'hidden', t: 0, next: 3 },
   progress: null, settings, assets: [], assetsReady: false,
+  // v2: coach tip, kiln firing step, tile sheen queue
+  coach: null, kiln: null, sheen: null, sheenQueue: [], fullByTile: [],
 };
 G.progress = progress;
 window.cini = G;
+// v2: a small test API on window.cini.api (used by the headless checks; the bot and the player use the same performMove)
+G.api = {
+  performMove: m => performMove(m), undo: () => undo(), hint: () => useHint(), lockKiln: skipped => lockKiln(!!skipped),
+  plan: () => planMoves(G.pz, G.slots, homeSolution(G.pz)), wallCount: () => wallList().length, mem: () => ({ ...renderer.info.memory }), calls: () => renderer.info.render.calls,
+  tileScreenPos(id) { const tl = G.tiles[id]; if (!tl) return null; const v = new THREE.Vector3(tl.x, 0.06 + G.tileH, tl.z).applyMatrix4(boardGroup.matrixWorld).project(camera); return [(v.x * 0.5 + 0.5) * window.innerWidth, (-v.y * 0.5 + 0.5) * window.innerHeight]; },
+};
 const shared = { geo: null, geoKey: '' };
 
 function moveCount() { let m = 0; for (const h of G.history) m += h.type === 'hint' ? h.moves.length : 1; return m; }
@@ -1545,22 +1758,34 @@ function buildTiles(withIntro) {
     const kind = td.fixed ? 'fixed' : td.faces.length > 1 ? 'flip' : 'plain';
     const texA = tileTexture(td.faces[0], kind, 100 + td.id);
     const texB = td.faces.length > 1 ? tileTexture(td.faces[1], kind, 200 + td.id) : null;
-    const mat = new THREE.MeshStandardMaterial({ map: s.face ? texB : texA, roughness: 0.32, metalness: 0.02 });
+    // v2 excavation: a weathered tile shows its earth-covered face until one inner edge matches (see checkRestores)
+    const texW = td.weathered ? tileTexture(td.faces[0], kind, 100 + td.id, true) : null;
+    const mat = new THREE.MeshStandardMaterial({ map: texW || (s.face ? texB : texA), roughness: 0.26, metalness: 0.02, vertexColors: true, envMapIntensity: 1.3 });
     const mesh = new THREE.Mesh(shared.geo, mat); mesh.castShadow = true; mesh.receiveShadow = true;
     const pivot = new THREE.Group(); pivot.add(mesh); boardGroup.add(pivot);
     const [x, z] = slotLocal(p);
-    const tl = { id: td.id, slot: p, pivot, mesh, mat, texA, texB, angle: -s.rot * Math.PI / 2, visAngle: -s.rot * Math.PI / 2, x, z, lift: 0, jump: 1, flip: null, intro: withIntro ? -(p * 0.03) : 1, fixed: td.fixed };
+    const tl = { id: td.id, slot: p, pivot, mesh, mat, texA, texB, texW, weathered: !!td.weathered, angle: -s.rot * Math.PI / 2, visAngle: -s.rot * Math.PI / 2, x, z, lift: 0, jump: 1, flip: null, intro: withIntro ? -(p * 0.03) : 1, fixed: td.fixed };
     tl.visAngle = tl.angle; mesh.userData.tile = tl;
     pivot.position.set(x, 0.06, z); mesh.rotation.y = tl.angle;
     G.tiles[td.id] = tl; G.meshes.push(mesh); G.tileBySlot[p] = tl;
   }
-  G.matchedCount = evaluate(pz, G.slots).matched.length;
+  const ev = evaluate(pz, G.slots);
+  G.matchedCount = ev.matched.length;
+  G.fullByTile = fullTiles(ev.matched); G.sheen = null; G.sheenQueue = []; tileSweep.visible = false;
   updateGlow(); shadowDirty = true;
 }
+// v2: which tiles (by id) have all four edges matched, from an evaluate() result
+function fullTiles(matched) {
+  const n = G.pz.n, cnt = new Uint8Array(n * n), out = [];
+  for (const m of matched) cnt[m.p]++;
+  for (let p = 0; p < n * n; p++) out[G.tileBySlot[p].id] = cnt[p] === 4;
+  return out;
+}
+const GLOW_CORNERS = [[-1, -1], [1, -1], [1, 1], [-1, 1]]; // same order as the preallocated uvs (0,0 1,0 1,1 0,1)
 function updateGlow() {
   const { matched } = evaluate(G.pz, G.slots);
-  const n = G.pz.n, s = G.tileSize, th = G.tileH, w = Math.max(0.1, G.pitch * 0.26);
-  const pos = [], uv = [], idx = [];
+  const s = G.tileSize, th = G.tileH, w = Math.max(0.1, G.pitch * 0.26);
+  const pos = glowGeo.attributes.position.array;
   let v = 0;
   for (const m of matched) {
     const [cx, cz] = slotLocal(m.p);
@@ -1571,15 +1796,11 @@ function updateGlow() {
     // corners: along axis (ax,az) length L, across = perpendicular width w
     const px = az, pz2 = ax; // perpendicular
     const y = 0.06 + th + 0.006;
-    const c = [[-1, -1], [1, -1], [1, 1], [-1, 1]];
-    for (const [a, b] of c) { pos.push(ex + ax * a * L / 2 + px * b * w / 2, y, ez + az * a * L / 2 + pz2 * b * w / 2); uv.push(a > 0 ? 1 : 0, b > 0 ? 1 : 0); }
-    idx.push(v, v + 2, v + 1, v, v + 3, v + 2); v += 4;
+    for (const [a, b] of GLOW_CORNERS) { pos[v++] = ex + ax * a * L / 2 + px * b * w / 2; pos[v++] = y; pos[v++] = ez + az * a * L / 2 + pz2 * b * w / 2; }
   }
-  const g = new THREE.BufferGeometry();
-  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-  g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
-  g.setIndex(idx);
-  glowMesh.geometry.dispose(); glowMesh.geometry = g; glowMesh.visible = matched.length > 0;
+  glowGeo.attributes.position.needsUpdate = true;
+  glowGeo.setDrawRange(0, matched.length * 6);
+  glowMesh.visible = matched.length > 0;
   G.glowCount = matched.length;
 }
 
@@ -1606,7 +1827,7 @@ function performMove(m) {
   if (G.screen !== 'playing') return;
   if (m.type === 'hint') { for (const x of m.moves) applyPrimitive(x, false); } else applyPrimitive(m, false);
   G.history.push(m);
-  afterChange();
+  afterChange(false, m);
 }
 function undo() {
   if (G.screen !== 'playing') return;
@@ -1617,13 +1838,39 @@ function undo() {
   toast(t('undone'));
   afterChange(true);
 }
-function afterChange(isUndo) {
-  const before = G.matchedCount;
+function afterChange(isUndo, move) {
+  const before = G.matchedCount, starsBefore = starsFor(moveCount() - (isUndo ? 0 : move.type === 'hint' ? move.moves.length : 1), G.pz.par);
+  const ev = evaluate(G.pz, G.slots);
   updateGlow();
   G.matchedCount = G.glowCount;
   if (!isUndo && G.matchedCount > before && !G.simulating) Sound.match(G.matchedCount - before);
+  // v2: a tile whose last edge just matched gets a glaze sheen pass
+  const full = fullTiles(ev.matched);
+  if (!isUndo) for (let id = 0; id < full.length; id++) if (full[id] && !G.fullByTile[id]) G.sheenQueue.push(id);
+  G.fullByTile = full;
+  if (G.pz.weathered) checkRestores(ev.matched);
+  // v2: move feedback: a soft chime and a star pop when a star threshold passes, a gentle shake for a rotation that un-matched an edge
+  if (!isUndo && move.type !== 'hint') {
+    const starsNow = starsFor(moveCount(), G.pz.par);
+    if (starsNow < starsBefore) { if (!G.simulating) { Sound.starLost(); toast(t('starLost')); } bump('starsLive', 'pop'); }
+    if (move.type === 'rot' && G.matchedCount < before) { const tl = G.tileBySlot[move.p]; if (tl) tl.shake = 0.22; bump('movesVal', 'wasted'); }
+  }
   updateHUD();
-  if (!isUndo && isSolved(G.pz, G.slots)) onSolved();
+  if (G.coach && !isUndo && (G.coach.until === 'move' || (G.coach.key === 'coachSwap' && move.type === 'swap') || (G.coach.key === 'coachMaster' && move.type === 'flip'))) hideCoach();
+  if (!isUndo && ev.solved) onSolved();
+}
+function bump(id, cls) { const el = $(id); el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
+// v2 excavation: a weathered tile is restored once one of its inner edges matches its neighbour
+function checkRestores(matched) {
+  const n = G.pz.n;
+  for (const m of matched) {
+    if (!innerEdge(n, m.p, m.k)) continue;
+    const tl = G.tileBySlot[m.p];
+    if (!tl.weathered) continue;
+    tl.weathered = false; tl.mat.map = G.slots[m.p].face ? tl.texB : tl.texA; tl.mat.needsUpdate = true;
+    tl.sparkle = 1.3; G.sheenQueue.push(tl.id);
+    if (!G.simulating) { Sound.sheen(); toast(t('restored'), 'good'); }
+  }
 }
 function useHint() {
   if (G.screen !== 'playing') return;
@@ -1653,10 +1900,10 @@ function restartLevel() {
 
 // ---- level flow ----
 function startLevel(idx) {
-  const def = idx === 'daily' ? DAILY_DEF : LEVEL_DEFS[idx];
-  const seed = idx === 'daily' ? dailySeed(dailyKey()) : levelSeed(idx);
+  const def = idx === 'daily' ? dailyDefFor(todayKey()) : LEVEL_DEFS[idx];
+  const seed = idx === 'daily' ? dailySeed(todayKey()) : levelSeed(idx);
   G.levelIndex = idx; G.pz = generateLevel(def, seed); G.pz.key = levelKey(idx);
-  G.slots = G.pz.start.map(s => ({ ...s })); G.history = []; G.hints = 3; G.seq = null;
+  G.slots = G.pz.start.map(s => ({ ...s })); G.history = []; G.hints = 3; G.seq = null; G.kiln = null;
   G.bot.plan = null; G.bot.i = 0; G.bot.timer = 0.6;
   TEX_SIZE = LOW ? 128 : 256; CAM.focus.set(0, 0, 0);
   G.stack = [];
@@ -1664,10 +1911,46 @@ function startLevel(idx) {
   buildTiles(true);
   hideAll(); $('topbar').classList.remove('hidden');
   G.screen = 'playing'; updateHUD();
+  // v2: no how-to overlay; the first level of each chapter coaches inside the board (seenHowto remembers which tips were shown)
   const ch = idx === 'daily' ? 3 : Math.floor(idx / 10);
   const first = idx === 'daily' || idx % 10 === 0;
-  if (first && !progress.seenHowto[ch] && !FLAG('nohowto')) { progress.seenHowto[ch] = true; saveProgress(); showHowto(ch); }
+  if (idx === 'daily' && G.pz.weathered) { showCoach('coachExcavation', G.pz.weathered[0], 9); showFact(2); }
+  else if (first && !progress.seenHowto[ch] && !FLAG('nohowto')) {
+    progress.seenHowto[ch] = true; saveProgress();
+    const S = G.slots;
+    if (ch === 0) { const p = S.findIndex(s => s.rot !== 0); showCoach('coachRotate', p >= 0 ? S[p].t : null, 'move'); }
+    else if (ch === 1) { const p = S.findIndex((s, i) => s.t !== i); showCoach('coachSwap', p >= 0 ? S[p].t : null, 10); }
+    else if (ch === 2) { const tl = G.pz.tiles.find(x => x.faces.length > 1) || G.pz.tiles.find(x => x.fixed); showCoach('coachMaster', tl ? tl.id : null, 12); }
+    else showCoach('coachDaily', null, 7);
+  }
 }
+// ---- v2 coach tips: a one-line banner pinned over a tile (or centred under the top bar) ----
+function showCoach(key, tileId, until) {
+  const el = $('coach'); el.textContent = t(key); el.classList.toggle('pin', tileId !== null && tileId !== undefined);
+  G.coach = { key, tileId, until, t: 0 };
+  el.style.visibility = 'hidden'; el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';
+}
+function hideCoach() { if (!G.coach) return; const tl = G.tiles[G.coach.tileId]; if (tl && !tl.sparkle) tl.mat.emissive.setScalar(0); G.coach = null; $('coach').style.visibility = 'hidden'; }
+const _coachV = new THREE.Vector3();
+function placeCoach() {
+  const c = G.coach, el = $('coach');
+  if (!c || G.screen !== 'playing') { el.style.visibility = 'hidden'; return; }
+  const tl = c.tileId !== null && c.tileId !== undefined ? G.tiles[c.tileId] : null;
+  let x, y;
+  if (tl) {
+    _coachV.set(tl.x, 0.06 + G.tileH, tl.z - G.tileSize * 0.45).applyMatrix4(boardGroup.matrixWorld).project(camera);
+    x = (_coachV.x * 0.5 + 0.5) * window.innerWidth; y = (-_coachV.y * 0.5 + 0.5) * window.innerHeight - 14;
+  } else { x = window.innerWidth / 2; y = Math.min(window.innerHeight * 0.3, $('topbar').getBoundingClientRect().bottom + 60); }
+  const w = el.offsetWidth || 200; x = clamp(x, w / 2 + 8, window.innerWidth - w / 2 - 8);
+  el.style.left = x + 'px'; el.style.top = y + 'px'; el.style.visibility = 'visible';
+}
+// ---- v2 fact card (small, non-blocking; tapping it closes it) ----
+let factTimer = null;
+function showFact(i) {
+  $('factHead').textContent = t('factHead'); $('factText').textContent = fact(i);
+  $('factCard').classList.remove('hidden'); clearTimeout(factTimer); factTimer = setTimeout(hideFact, 12000);
+}
+function hideFact() { $('factCard').classList.add('hidden'); clearTimeout(factTimer); }
 function onSolved() {
   G.screen = 'completing';
   G.drag = null; G.hover = null;
@@ -1683,18 +1966,57 @@ function onSolved() {
     if (!wallList().includes(entry)) entry.ts = Date.now();
   }
   saveProgress();
-  G.result = { moves, par, stars, best: progress.best[key], record: improved && !!prev };
+  G.result = { moves, par, stars, best: progress.best[key], record: improved && !!prev, glaze: entry.glaze || null };
   G.seq = { phase: 'glow', t: 0 };
-  G.transitPic = paintBoardPicture(G.pz, 256);
+  G.transitPic = paintBoardPicture(G.pz, 256, entry.glaze);
+  hideCoach(); hideFact();
   if (!G.simulating) Sound.match(3);
   if (idx10Done()) G.pendingDaily = true;
 }
 function idx10Done() { return G.levelIndex === 9 && dailyUnlocked() && !progress.dailyToastShown; }
 
+// ---- v2 kiln firing step: the needle rises while the panel is in the kiln; Fire inside the glaze band for a better finish ----
+const KILN_RISE = 3.2; // seconds for the needle to cross the gauge
+function openKilnStep() {
+  G.kiln = { t: 0, pct: 0, locked: false, result: null, wait: 0 };
+  $('kilnResult').textContent = ''; $('kilnResult').className = '';
+  $('gaugeBand').style.left = GLAZE_BAND.lo * 100 + '%'; $('gaugeBand').style.width = (GLAZE_BAND.hi - GLAZE_BAND.lo) * 100 + '%';
+  $('gaugeCore').style.left = GLAZE_BAND.coreLo * 100 + '%'; $('gaugeCore').style.width = (GLAZE_BAND.coreHi - GLAZE_BAND.coreLo) * 100 + '%';
+  $('gaugeNeedle').style.left = '0%';
+  $('kilnFact').innerHTML = `<b style="color:var(--turq)">${t('factHead')}</b> ${fact(0)}`;
+  $('btnKilnFire').disabled = false;
+  $('kilnScreen').classList.remove('hidden'); G.screen = 'kiln'; focusSoon('btnKilnFire');
+}
+function lockKiln(skipped) {
+  const k = G.kiln; if (!k || k.locked) return;
+  k.locked = true; k.wait = 0;
+  k.result = skipped ? 'matte' : glazeFor(k.pct);
+  const msg = skipped ? 'kilnSkipped' : k.result === 'master' ? 'kilnMaster' : k.result === 'glossy' ? 'kilnGlossy' : k.pct > GLAZE_BAND.hi ? 'kilnOver' : 'kilnMissed';
+  $('kilnResult').textContent = t(msg); $('kilnResult').className = k.result; $('btnKilnFire').disabled = true;
+  if (!G.simulating) { if (!skipped) Sound.kilnTap(); setTimeout(() => Sound.glaze(GLAZE_RANK[k.result]), skipped ? 0 : 250); }
+  if (!skipped) CAM.shake = Math.max(CAM.shake, 0.35);
+}
+function finishKiln(glaze) {
+  const entry = progress.collection.find(c => c.key === G.pz.key);
+  if (entry) { entry.glaze = betterGlaze(entry.glaze, glaze); saveProgress(); pictureCache.delete(entry.key + '|' + ATLAS_CELL); pictureCache.delete(entry.key + '|224'); }
+  G.result.glaze = entry ? entry.glaze : glaze;
+  G.transitPic = paintBoardPicture(G.pz, 256, G.result.glaze);
+  $('kilnScreen').classList.add('hidden'); G.kiln = null; G.screen = 'completing';
+}
+
 // completion sequence driven by game time
 const SEQ = { glow: 1.0, shine: 1.3, tokiln: 1.7, fire: 1.5, out: 1.9 };
 function updateSequence(dt) {
   const q = G.seq; if (!q) return;
+  // the kiln step holds the 'fire' phase open until the player fires or skips (?auto and the fast-forward skip it)
+  if (G.kiln) {
+    const k = G.kiln; k.t += dt;
+    if (!k.locked) { k.pct = Math.min(1, k.t / KILN_RISE); $('gaugeNeedle').style.left = (k.pct * 100).toFixed(1) + '%'; if (k.pct >= 1) lockKiln(false); }
+    else { k.wait += dt; if (k.wait >= 1.1) finishKiln(k.result); }
+    kilnLight.intensity = 2.2 + k.pct * 2.5 + Math.sin(q.t * 40) * 0.6 + Math.sin(q.t * 23) * 0.4; kilnGlow.scale.setScalar(1.2 + k.pct * 0.6 + Math.sin(q.t * 30) * 0.12);
+    q.t = Math.min(q.t + dt, SEQ.fire * 0.8); // keep the sparks alive, never finish the phase while the step is up
+    return;
+  }
   q.t += dt; const dur = SEQ[q.phase]; const u = clamp(q.t / dur, 0, 1);
   if (q.phase === 'glow') {
     glowMat.opacity = 0.85 + 0.15 * Math.sin(q.t * 12);
@@ -1716,7 +2038,11 @@ function updateSequence(dt) {
     const tilt = easeInOut(clamp((u - 0.3) / 0.45, 0, 1));
     boardGroup.rotation.z = Math.sin(u * Math.PI) * 0.15 * tilt; boardGroup.rotation.x = 0.4 * tilt;
     kilnLight.intensity = 1.4 + u * 2.5; kilnGlow.scale.setScalar(1 + u * 0.6);
-    if (u >= 1) { q.phase = 'fire'; q.t = 0; boardGroup.visible = false; sparks.visible = true; for (let i = 0; i < SPARKS; i++) sparkLife[i] = -Math.random() * 0.8; CAM.shake = 0.6; if (!G.simulating) Sound.fire(); }
+    if (u >= 1) {
+      q.phase = 'fire'; q.t = 0; boardGroup.visible = false; sparks.visible = true; for (let i = 0; i < SPARKS; i++) sparkLife[i] = -Math.random() * 0.8; CAM.shake = 0.6; if (!G.simulating) Sound.fire();
+      if (!AUTO && !G.simulating && !FLAG('nokiln')) openKilnStep();
+      else finishKiln(G.result.glaze || 'matte'); // auto-skipped: an unrated panel comes out matte, a rated one keeps its finish
+    }
   } else if (q.phase === 'fire') {
     kilnLight.intensity = 3.5 + Math.sin(q.t * 40) * 0.8 + Math.sin(q.t * 23) * 0.5; kilnGlow.scale.setScalar(1.6 + Math.sin(q.t * 30) * 0.15);
     if (u >= 1) {
@@ -1750,8 +2076,8 @@ const pictureCache = new Map();
 function pictureFor(entry, size) {
   const k = entry.key + '|' + size; let cv = pictureCache.get(k);
   if (!cv) {
-    const def = entry.idx === 'daily' ? DAILY_DEF : LEVEL_DEFS[entry.idx];
-    const pz = generateLevel(def, entry.seed); cv = paintBoardPicture(pz, size); pictureCache.set(k, cv);
+    const def = entry.idx === 'daily' ? dailyDefFor(entry.key.slice(1)) : LEVEL_DEFS[entry.idx];
+    const pz = generateLevel(def, entry.seed); cv = paintBoardPicture(pz, size, entry.glaze); pictureCache.set(k, cv);
     if (pictureCache.size > 60) pictureCache.delete(pictureCache.keys().next().value);
   }
   return cv;
@@ -1789,7 +2115,7 @@ function rebuildWall() {
 const OVERLAYS = { levels: 'levelScreen', collection: 'collectionScreen', howto: 'howtoScreen', menu: 'menuScreen', settings: 'settingsScreen' };
 const BASES = ['title', 'playing', 'completing', 'complete'];
 G.stack = [];
-function hideAll() { for (const id of ['titleScreen', 'completeScreen', ...Object.values(OVERLAYS)]) $(id).classList.add('hidden'); }
+function hideAll() { for (const id of ['titleScreen', 'completeScreen', 'kilnScreen', ...Object.values(OVERLAYS)]) $(id).classList.add('hidden'); hideFact(); hideCoach(); }
 const STAR_PATH = 'M12 2.6l2.9 6 6.5.8-4.8 4.5 1.2 6.5L12 17.2l-5.8 3.2 1.2-6.5L2.6 9.4l6.5-.8z';
 const starSvg = lit => `<svg viewBox="0 0 24 24" class="${lit ? '' : 'off'}" aria-hidden="true"><path d="${STAR_PATH}"/></svg>`;
 function starsHtml(s) { let h = `<span class="stars" role="img" aria-label="${s}/3">`; for (let i = 0; i < 3; i++) h += starSvg(i < s); return h + '</span>'; }
@@ -1797,11 +2123,18 @@ function updateHUD() {
   if (!G.pz) return;
   const idx = G.levelIndex;
   $('lvlName').textContent = levelDisplayName(idx);
-  $('lvlSub').textContent = idx === 'daily' ? dailyKey() : `${t('chapter')} ${Math.floor(idx / 10) + 1} · ${t('level')} ${idx + 1} · ${G.pz.n}×${G.pz.n}`;
+  $('lvlSub').textContent = idx === 'daily' ? `${todayKey()} · ${G.pz.n}×${G.pz.n}` : `${t('chapter')} ${Math.floor(idx / 10) + 1} · ${t('level')} ${idx + 1} · ${G.pz.n}×${G.pz.n}`;
   const m = moveCount(); $('movesVal').textContent = m; $('parVal').textContent = G.pz.par;
   $('edgesVal').textContent = `${G.matchedCount}/${edgeTotal(G.pz.n)}`;
   $('starsLive').innerHTML = starsHtml(starsFor(m, G.pz.par));
   $('hintBadge').textContent = G.hints; $('btnHint').classList.toggle('off', G.hints <= 0);
+  // v2 star meter: how many moves are left before the next star threshold (gold = 3-star zone, silver = 2, bronze = 1)
+  const par = G.pz.par, thr2 = Math.ceil(par * 1.6) + 2, meter = $('meter');
+  let frac = 1, cls = 'bronze', left = 0;
+  if (m <= par) { frac = (par - m + 1) / (par + 1); cls = ''; left = par - m + 1; }
+  else if (m <= thr2) { frac = (thr2 - m + 1) / (thr2 - par + 1); cls = 'silver'; left = thr2 - m + 1; }
+  meter.className = cls; $('meterFill').style.width = (frac * 100).toFixed(1) + '%';
+  meter.title = left ? t('meterTip', { n: left }) : t('meterMin');
 }
 function applyLang() {
   document.documentElement.lang = lang;
@@ -1812,6 +2145,7 @@ function applyLang() {
   const hasSave = completedCount() > 0;
   $('btnContinue').classList.toggle('hidden', !hasSave); $('btnPlay').classList.toggle('hidden', hasSave);
   $('progressLine').innerHTML = `${completedCount()}/30 · ${totalStars()} <span class="stars">${starSvg(true)}</span>`;
+  $('titleFact').innerHTML = `<b style="color:var(--turq)">${t('factHead')}</b> ${fact(parseInt(todayKey().slice(-2), 10) % FACTS.length)}`;
   $('btnDaily').disabled = !dailyUnlocked(); $('btnDaily').title = dailyUnlocked() ? '' : t('dailyLocked');
   syncSettingsUI(); updateAssetLine();
   updateHUD();
@@ -1879,29 +2213,57 @@ function renderLevels() {
       grid.appendChild(el);
     }
     if (ch === 0) {
-      const un = dailyUnlocked(); const b = progress.best['D' + dailyKey()];
+      const un = dailyUnlocked(); const b = progress.best['D' + todayKey()];
       const el = document.createElement('button'); el.className = 'lcard daily' + (un ? '' : ' locked');
-      el.innerHTML = `<div style="font-size:14px">${t('dailyName')}</div><div class="st">${starsHtml(b ? b.stars : 0)}</div><div class="nm" style="visibility:visible">${un ? dailyKey() : t('dailyLocked')}</div>`;
+      el.innerHTML = `<div style="font-size:14px">${dailyName(todayKey())}</div><div class="st">${starsHtml(b ? b.stars : 0)}</div><div class="nm" style="visibility:visible">${un ? todayKey() : t('dailyLocked')}</div>`;
       if (un) el.addEventListener('click', () => { Sound.ui(); startLevel('daily'); }); else el.disabled = true;
       grid.appendChild(el);
     }
     root.appendChild(sec);
   }
 }
-function showCollection() { renderCollection(); openOverlay('collection'); }
+function showCollection() { G.selPiece = null; renderCollection(); openOverlay('collection'); }
+// v2 master's gallery: all 30 panels (locked ones as outlines) plus the daily boards, a detail box for the selected panel
+// and four craft notes (one per chapter, the last for all 30 panels)
+const glazeName = g => t(g === 'master' ? 'glazeMaster' : g === 'glossy' ? 'glazeGlossy' : 'glazeMatte');
+const glazeTag = g => `<span class="glazeTag ${g || 'matte'}"><i></i>${glazeName(g)}</span>`;
+const entryName = e => e.idx === 'daily' ? `${dailyName(e.key.slice(1))} ${e.key.slice(1)}` : `${e.idx + 1}. ${levelDisplayName(e.idx)}`;
+function noteUnlocked(i) { if (i === 3) return completedCount() === 30; for (let l = i * 10; l < i * 10 + 10; l++) if (progress.best['L' + (l + 1)]) return true; return false; }
 function renderCollection() {
+  const notes = $('notesRow'); notes.innerHTML = '';
+  for (let i = 0; i < 4; i++) {
+    const un = noteUnlocked(i); const d = document.createElement('div'); d.className = 'note' + (un ? '' : ' locked');
+    d.innerHTML = `<b>${t('noteTitles')[i]}</b>${un ? fact(NOTE_FACT[i]) : t('noteLocked')[i]}`; notes.appendChild(d);
+  }
   const grid = $('collectionGrid'); grid.innerHTML = '';
-  const list = progress.collection.slice().sort((a, b) => a.ts - b.ts);
-  if (!list.length) { grid.innerHTML = `<div class="empty" style="grid-column:1/-1">${t('emptyCollection')}</div>`; return; }
-  for (const e of list) {
-    const d = document.createElement('div'); d.className = 'piece';
-    const fr = document.createElement('div'); fr.className = 'fr';
-    const cv = document.createElement('canvas'); cv.width = 224; cv.height = 224; cv.getContext('2d').drawImage(pictureFor(e, 224), 0, 0, 224, 224);
-    fr.appendChild(cv); d.appendChild(fr);
-    const name = e.idx === 'daily' ? `${t('dailyName')} ${e.key.slice(1)}` : `${e.idx + 1}. ${levelDisplayName(e.idx)}`;
-    const cap = document.createElement('div'); cap.className = 'cap'; cap.innerHTML = `${name}<small>${starsHtml(e.stars)}</small>`; d.appendChild(cap);
+  const byKey = {}; for (const e of progress.collection) byKey[e.key] = e;
+  $('galleryCount').textContent = t('panels', { n: completedCount() });
+  const cells = []; for (let i = 0; i < 30; i++) cells.push(byKey['L' + (i + 1)] || { idx: i, locked: true });
+  for (const e of progress.collection.slice().sort((a, b) => a.ts - b.ts)) if (e.idx === 'daily') cells.push(e);
+  for (const e of cells) {
+    const d = document.createElement('button'); d.className = 'piece' + (e.locked ? ' locked' : '') + (G.selPiece === e.key ? ' sel' : '');
+    if (e.locked) {
+      d.innerHTML = `<div class="fr"><div class="ph">${e.idx + 1}</div></div><div class="cap">${levelDisplayName(e.idx)}<small>${starsHtml(0)}</small></div>`;
+      d.title = t('notSolved'); d.disabled = true;
+    } else {
+      const fr = document.createElement('div'); fr.className = 'fr' + (e.stars === 3 ? ' gold' : '');
+      const cv = document.createElement('canvas'); cv.width = 160; cv.height = 160; cv.getContext('2d').drawImage(pictureFor(e, 224), 0, 0, 160, 160);
+      fr.appendChild(cv); d.appendChild(fr);
+      const cap = document.createElement('div'); cap.className = 'cap'; cap.innerHTML = `${entryName(e)}<small>${starsHtml(e.stars)}</small>`; d.appendChild(cap);
+      d.title = entryName(e);
+      d.addEventListener('click', () => { Sound.ui(); G.selPiece = e.key; renderCollection(); });
+    }
     grid.appendChild(d);
   }
+  const sel = progress.collection.find(e => e.key === G.selPiece);
+  $('cDetail').classList.toggle('hidden', !sel);
+  if (sel) {
+    $('cDetailPic').getContext('2d').drawImage(pictureFor(sel, 224), 0, 0, 224, 224);
+    $('cDetailName').textContent = entryName(sel);
+    const b = progress.best[sel.key];
+    $('cDetailSub').textContent = sel.idx === 'daily' ? `${t('dailyName')} · 4×4` : `${t('chapter')} ${Math.floor(sel.idx / 10) + 1} · ${t('chapterNames')[Math.floor(sel.idx / 10)]} · ${LEVEL_DEFS[sel.idx].n}×${LEVEL_DEFS[sel.idx].n}`;
+    $('cDetailLine').innerHTML = `${starsHtml(sel.stars)} <span>${b ? `${t('best')}: ${b.moves} ${t('moves').toLowerCase()}` : ''}</span> ${glazeTag(sel.glaze)}`;
+  } else if (!progress.collection.length) grid.insertAdjacentHTML('afterbegin', `<div class="empty" style="grid-column:1/-1; padding:12px">${t('emptyCollection')}</div>`);
 }
 function showComplete() {
   const r = G.result; hideAll(); G.stack = []; $('completeScreen').classList.remove('hidden'); G.screen = 'complete'; G.returnTo = 'complete';
@@ -1909,6 +2271,7 @@ function showComplete() {
   $('starsBig').innerHTML = starsHtml(r.stars);
   $('cRecord').classList.toggle('hidden', !r.record);
   $('cMoves').textContent = r.moves; $('cPar').textContent = r.par; $('cBest').innerHTML = r.best ? `${r.best.moves} <span style="font-size:15px">${starsHtml(r.best.stars)}</span>` : '—';
+  $('cGlaze').innerHTML = glazeTag(r.glaze);
   $('cNote').textContent = (G.newPiece ? t('newPiece') + '. ' : '') + t('fired');
   const cv = $('completePreview'); cv.getContext('2d').clearRect(0, 0, 256, 256); cv.getContext('2d').drawImage(G.transitPic, 0, 0, 256, 256);
   const last = G.levelIndex === 29 || G.levelIndex === 'daily';
@@ -1984,6 +2347,11 @@ on('btnNext', () => { Sound.ui(); nextLevel(); });
 on('btnReplay', () => { Sound.ui(); startLevel(G.levelIndex); });
 on('btnCompleteLevels', () => { Sound.ui(); showLevels(); });
 on('btnCompleteTitle', () => { Sound.ui(); showTitle(); });
+// v2: kiln step (the whole card fires, the small button skips) and the fact card closes on tap
+on('btnKilnFire', () => lockKiln(false));
+on('btnKilnSkip', () => lockKiln(true));
+$('kilnCard').addEventListener('pointerdown', e => { if (e.target.closest('button')) return; Sound.unlock(); lockKiln(false); });
+on('factCard', hideFact);
 function toggleSound() { Sound.setSound(!Sound.soundOn); settings.soundOn = Sound.soundOn; saveSettings(); syncToggles(); Sound.ui(); }
 function toggleMusic() { Sound.setMusic(!Sound.musicOn); settings.musicOn = Sound.musicOn; saveSettings(); syncToggles(); }
 function syncToggles() { for (const id of ['btnSound', 'btnSound2']) $(id).classList.toggle('off', !Sound.soundOn); for (const id of ['btnMusic', 'btnMusic2']) $(id).classList.toggle('off', !Sound.musicOn); }
@@ -2001,6 +2369,7 @@ window.addEventListener('keydown', e => {
     e.preventDefault(); return;
   }
   if (e.target && e.target.tagName === 'INPUT' && k !== 'm' && k !== 'x' && k !== 'l') return;
+  if (G.kiln && (k === ' ' || k === 'enter' || k === 'f')) { lockKiln(false); e.preventDefault(); return; }
   if (k === 'm') { toggleMusic(); return; }
   if (k === 'x') { toggleSound(); return; }
   if (k === 'l') { setLang(lang === 'tr' ? 'en' : 'tr'); return; }
@@ -2120,6 +2489,7 @@ function updateTiles(dt) {
     }
     if (tl.shake > 0) { tl.shake -= dt; fx += Math.sin(tl.shake * 60) * 0.08 * (tl.shake / 0.35); }
     if (tl.sparkle > 0) { tl.sparkle -= dt * 1.2; tl.mat.emissive.setRGB(0.5 * tl.sparkle, 0.4 * tl.sparkle, 0.1 * tl.sparkle); if (tl.sparkle <= 0) tl.mat.emissive.setScalar(0); }
+    else if (G.coach && G.coach.tileId === tl.id && G.screen === 'playing') { const p = 0.16 + 0.13 * Math.sin(G.time * 5); tl.mat.emissive.setRGB(p * 0.9, p * 0.7, p * 0.2); } // v2 coach: the target tile pulses gold
     tl.lift += (lift - tl.lift) * (1 - Math.exp(-dt * 16));
     tl.pivot.position.set(tl.x, 0.06 + tl.lift, tl.z);
     tl.mesh.rotation.set(fx, tl.visAngle, 0);
@@ -2164,11 +2534,24 @@ function updateDust() {
   }
   dustGeo.attributes.position.needsUpdate = true;
 }
+// v2: one shared additive streak sweeps across the next tile in the queue (0.45 s each)
+function updateSheen(dt) {
+  if (!G.sheen && G.sheenQueue.length) { const tl = G.tiles[G.sheenQueue.shift()]; if (tl) { G.sheen = { tl, t: 0 }; if (!G.simulating) Sound.sheen(); } }
+  const s = G.sheen; if (!s) { if (tileSweep.visible) tileSweep.visible = false; return; }
+  s.t += dt / 0.45; const u = Math.min(1, s.t), tl = s.tl, sz = G.tileSize, w = Math.sin(u * Math.PI);
+  tileSweep.visible = true; tileSweep.scale.set(sz * 0.3, sz * 1.3, 1);
+  tileSweep.position.set(tl.x + lerp(-sz * 0.55, sz * 0.55, u), 0.06 + tl.lift + G.tileH + 0.012, tl.z + lerp(-sz * 0.25, sz * 0.25, u));
+  tileSweep.material.opacity = w * 0.85;
+  if (!(tl.sparkle > 0) && !(G.coach && G.coach.tileId === tl.id)) tl.mat.emissive.setRGB(0.22 * w, 0.2 * w, 0.14 * w);
+  if (u >= 1) { G.sheen = null; tileSweep.visible = false; if (!(tl.sparkle > 0)) tl.mat.emissive.setScalar(0); }
+}
 function update(dt) {
   G.time += dt;
   stepCamera(dt);
   if (G.seq || G.drag) shadowDirty = true;
   if (G.screen === 'playing' || G.screen === 'completing' || G.screen === 'menu' || G.screen === 'howto' || G.screen === 'levels' || G.screen === 'collection' || G.screen === 'complete') updateTiles(dt);
+  if (G.screen === 'playing') updateSheen(dt);
+  if (G.coach && typeof G.coach.until === 'number' && G.screen === 'playing') { G.coach.t += dt; if (G.coach.t >= G.coach.until) hideCoach(); }
   updateSequence(dt);
   updateEffects(dt);
   if (catModel) updateCatModel(dt); else updateCat(dt);
@@ -2219,7 +2602,7 @@ function renderDebug() {
     `draw calls ${info.calls}  tris ${info.triangles}  fps ${dbg.fps.toFixed(0)}  px ${renderer.getPixelRatio().toFixed(2)}  ${LOW ? 'LOW' : 'HIGH'}  shadows ${dbg.shadowFrames}/${dbg.frames2}  assets ${G.assets.length}`,
     `screen ${G.screen}  level ${G.pz ? levelKey(G.levelIndex) : '-'}  n ${G.pz ? G.pz.n : '-'}  moves ${G.pz ? moveCount() : 0}/${G.pz ? G.pz.par : 0}  glow ${G.glowCount || 0}  t ${G.time.toFixed(1)}s`,
     AUTO ? `bot plan ${G.bot.plan ? G.bot.i + '/' + G.bot.plan.length : '-'}  solve ${G.bot.solveMs.toFixed(1)}ms  levelsDone ${G.bot.levelsDone || 0}` : 'bot off',
-    `collection ${progress.collection.length}  stars ${totalStars()}  textures ${textureCache.size}`,
+    `collection ${progress.collection.length}  stars ${totalStars()}  textures ${textureCache.size}  geometries ${renderer.info.memory.geometries}  gpuTex ${renderer.info.memory.textures}`,
   ];
   const errs = window.__ciniErrors;
   el.innerHTML = lines.join('\n') + (errs.length ? '\n<span class="err">ERRORS (' + errs.length + '):\n' + errs.slice(-4).map(e => String(e).slice(0, 200)).join('\n') + '</span>' : '\nerrors: 0');
@@ -2243,6 +2626,7 @@ function frame(now) {
   updateDust();
   renderer.shadowMap.needsUpdate = shadowDirty; if (shadowDirty) dbg.shadowFrames++; dbg.frames2++; shadowDirty = false;
   renderer.render(scene, camera);
+  if (G.coach) placeCoach();
   dbg.frames++; dbg.acc += dt; if (dbg.acc >= 0.5) { dbg.fps = dbg.frames / dbg.acc; dbg.frames = 0; dbg.acc = 0; renderDebug(); }
 }
 document.addEventListener('visibilitychange', () => { running = !document.hidden; if (document.hidden) Sound.pause(); else { Sound.resume(); last = performance.now(); } });
@@ -2251,7 +2635,7 @@ document.addEventListener('visibilitychange', () => { running = !document.hidden
 //  Boot
 // ============================================================================
 function boot() {
-  if (FLAG('fill')) { for (let i = 0; i < 30; i++) { const key = 'L' + (i + 1); const stars = 1 + ((i * 7) % 3); progress.best[key] = { stars, moves: 20 + i }; if (!progress.collection.find(c => c.key === key)) progress.collection.push({ key, idx: i, seed: levelSeed(i), stars, ts: 1700000000000 + i * 1000 }); } }
+  if (FLAG('fill')) { for (let i = 0; i < 30; i++) { const key = 'L' + (i + 1); const stars = 1 + ((i * 7) % 3); progress.best[key] = { stars, moves: 20 + i }; if (!progress.collection.find(c => c.key === key)) progress.collection.push({ key, idx: i, seed: levelSeed(i), stars, ts: 1700000000000 + i * 1000, glaze: ['matte', 'glossy', 'master'][(i * 5) % 3] }); } }
   lang = PARAMS.get('lang') || settings.lang; if (!I18N[lang]) lang = 'tr';
   syncToggles();
   paintLogo($('logoBig')); paintLogo($('logoSmall'));

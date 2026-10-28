@@ -6,14 +6,19 @@ import { dirname, join } from 'node:path';
 
 const html = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', 'index.html'), 'utf8');
 const src = html.slice(html.indexOf('// ==== CORE BEGIN ===='), html.indexOf('// ==== CORE END ===='));
-const core = new Function(src + '\nreturn { LEVEL_DEFS, DAILY_DEF, generateLevel, levelSeed, dailySeed, homeSolution, planMoves, isSolved, solvePuzzle, starsFor, edgeTotal, evaluate };')();
+const core = new Function(src + '\nreturn { LEVEL_DEFS, DAILY_DEF, DAILY_EXC_DEF, dailyDefFor, excavationDay, innerEdge, glazeFor, betterGlaze, generateLevel, levelSeed, dailySeed, homeSolution, planMoves, isSolved, solvePuzzle, starsFor, edgeTotal, evaluate };')();
 
 let passed = 0, failed = 0;
 const check = (ok, msg) => { if (ok) passed++; else { failed++; console.error('FAIL', msg); } };
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
 const boards = core.LEVEL_DEFS.map((def, i) => ['L' + (i + 1), def, core.levelSeed(i)]);
-for (const d of ['2026-01-01', '2026-06-15', '2026-10-20', '2026-10-21', '2027-02-28']) boards.push(['D' + d, core.DAILY_DEF, core.dailySeed(d)]);
+// v2: odd days of the month are excavation boards (3 weathered tiles, same solution); dailyDefFor picks the variant
+for (const d of ['2026-01-01', '2026-06-15', '2026-10-20', '2026-10-21', '2027-02-28']) boards.push(['D' + d, core.dailyDefFor(d), core.dailySeed(d)]);
+check(core.excavationDay('2026-10-21') && !core.excavationDay('2026-10-20'), 'odd day = excavation');
+check(core.dailyDefFor('2026-10-21') === core.DAILY_EXC_DEF && core.dailyDefFor('2026-10-20') === core.DAILY_DEF, 'dailyDefFor picks the variant');
+check(core.glazeFor(0.7) === 'master' && core.glazeFor(0.6) === 'glossy' && core.glazeFor(0.3) === 'matte' && core.glazeFor(0.9) === 'matte', 'glaze bands');
+check(core.betterGlaze(undefined, 'glossy') === 'glossy' && core.betterGlaze('master', 'matte') === 'master' && core.betterGlaze(undefined, undefined) === 'matte', 'betterGlaze keeps the best finish');
 
 for (const [name, def, seed] of boards) {
   const pz = core.generateLevel(def, seed);
@@ -36,6 +41,14 @@ for (const [name, def, seed] of boards) {
     else cur[m.p].rot = (cur[m.p].rot + 1) % 4;
   }
   check(core.isSolved(pz, cur), `${name}: plan solves the board`);
+  if (def.weathered) {
+    check(pz.weathered.length === def.weathered && pz.weathered.every(id => pz.tiles[id].weathered && !pz.tiles[id].fixed), `${name}: ${def.weathered} weathered tiles`);
+    // the excavation variant must not change the scramble: same start as the plain daily board for that date
+    check(same(core.generateLevel(core.DAILY_DEF, seed).start, pz.start) && core.generateLevel(core.DAILY_DEF, seed).par === pz.par, `${name}: weathering keeps the start and par`);
+    const { matched } = core.evaluate(pz, pz.start);
+    const warm = new Set(matched.filter(m => core.innerEdge(n, m.p, m.k)).map(m => pz.start[m.p].t));
+    check(pz.weathered.every(id => !warm.has(id)), `${name}: weathered tiles start with no correct inner edge`);
+  }
   const t0 = performance.now(); const sol = core.solvePuzzle(pz, pz.start);
   check(!!sol && core.isSolved(pz, sol), `${name}: solver finds a solution (${(performance.now() - t0).toFixed(0)} ms)`);
 }
