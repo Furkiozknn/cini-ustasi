@@ -254,7 +254,7 @@ kbd{font-family:var(--font); background:#fff; border:1px solid var(--cobalt); bo
   #topbar{padding:4px 6px 8px; gap:6px; top:6px; left:6px; right:6px; border-width:7px; border-image-width:7px;}
   #topbar > .rumi{display:none;}
   #topbar .logo span{display:none;}
-  #topbar .mid{order:3; flex:1 0 100%; justify-content:space-between; padding:4px 2px 0;}
+  #topbar .mid{order:3; flex:1 0 100%; justify-content:space-between; padding:4px 2px 8px;}
   #lvlName{max-width:40vw; font-size:14px;}
   #topbar .right{gap:6px;}
   #topbar .right .wideOnly{display:none;}
@@ -373,7 +373,7 @@ kbd{font-family:var(--font); background:#fff; border:1px solid var(--cobalt); bo
   </div>
 
   <div id="howtoScreen" class="overlay hidden">
-    <div class="card glass howto">
+    <div class="card tilePanel howto">
       <h2 id="howtoTitle"></h2>
       <ul id="howtoList"></ul>
       <button class="btn" id="btnHowtoOk" data-i18n="start">Başla</button>
@@ -391,7 +391,7 @@ kbd{font-family:var(--font); background:#fff; border:1px solid var(--cobalt); bo
   </div>
 
   <div id="settingsScreen" class="overlay dim hidden">
-    <div class="card glass settings">
+    <div class="card tilePanel settings">
       <h2 data-i18n="settings">Ayarlar</h2>
       <div class="srow"><label for="volMaster" data-i18n="masterVolume">Ana ses</label><input type="range" id="volMaster" min="0" max="100" step="5"><output id="volMasterV"></output></div>
       <div class="srow"><label for="volMusic" data-i18n="musicVolume">Müzik</label><input type="range" id="volMusic" min="0" max="100" step="5"><output id="volMusicV"></output></div>
