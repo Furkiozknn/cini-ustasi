@@ -425,7 +425,6 @@ setTimeout(() => { if (!window.cini) { const l = document.getElementById('loadin
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 // ============================================================================
 //  Utilities
@@ -1190,8 +1189,9 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.shadowMap.autoUpdate = false; renderer.shadowMap.needsUpdate = true;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 const scene = new THREE.Scene();
-scene.background = new THREE.Color('#5a3b26');
-scene.fog = new THREE.Fog('#5a3b26', 16, 30);
+// redesign palette: Iznik cobalt #1F3A93, turquoise #1BA3A0, coral #C0392B, sage #6E8B3D, glaze white #F7F4EC on warm walnut
+scene.background = new THREE.Color('#3a2316');
+scene.fog = new THREE.Fog('#3a2316', 14, 28);
 const camera = new THREE.PerspectiveCamera(46, 1, 0.1, 60);
 // focus: extra look-target offset eased per frame; the kiln sequence pans it toward the kiln and the gallery slot
 // (fully in portrait, where the kiln is outside the frustum, at 0.22 in landscape). Like Godot's CameraRig.
@@ -1230,14 +1230,17 @@ function resize() {
 window.addEventListener('resize', resize);
 
 // ---- lights ----
-const hemi = new THREE.HemisphereLight('#ffe7c4', '#5a3a28', 0.9); scene.add(hemi);
-const sun = new THREE.DirectionalLight('#ffd9a6', 2.0);
+// redesign lighting: warm afternoon window light (the one shadow caster), a cool sky fill from the window side so the
+// left faces of the props read, and the kiln as a warm point light that answers it from the right
+const hemi = new THREE.HemisphereLight('#ffe0b8', '#3d2214', 0.8); scene.add(hemi);
+const sun = new THREE.DirectionalLight('#ffd09a', 2.3);
 sun.position.set(-5.5, 8, -2.5); sun.target.position.set(0.5, 1, 0.5); scene.add(sun); scene.add(sun.target);
 sun.castShadow = !LOW;
 sun.shadow.mapSize.set(1024, 1024);
 sun.shadow.camera.left = -4.2; sun.shadow.camera.right = 4.2; sun.shadow.camera.top = 4.2; sun.shadow.camera.bottom = -4.2;
 sun.shadow.camera.near = 2; sun.shadow.camera.far = 22; sun.shadow.bias = -0.0006; sun.shadow.normalBias = 0.02;
-const kilnLight = new THREE.PointLight('#ff8a2a', 1.4, 7, 1.6); kilnLight.position.copy(KILN_MOUTH).add(new THREE.Vector3(0, 0.1, 0.5)); scene.add(kilnLight);
+const skyFill = new THREE.DirectionalLight('#9fc0ff', 0.4); skyFill.position.set(-9, 3.5, 3); scene.add(skyFill);
+const kilnLight = new THREE.PointLight('#ff7a22', 2.0, 8, 1.5); kilnLight.position.copy(KILN_MOUTH).add(new THREE.Vector3(0, 0.1, 0.5)); scene.add(kilnLight);
 
 
 // ---- geometry helpers (vertex coloured, merged) ----
@@ -1269,28 +1272,38 @@ function mergeToMesh(list, mat, opts) {
   return mesh;
 }
 const lambertVC = new THREE.MeshLambertMaterial({ vertexColors: true });
+// redesign: glazed ceramics (bowls, jars, plates, vases) share one env-lit material so they catch the window and kiln
+const ceramicVC = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.3, metalness: 0, envMapIntensity: 0.9 });
+function lathe(list, profile, seg, x, y, z, sc, colors) {
+  // profile: [[r, h], ...] bottom to top; colors: one hex or an array of bands from bottom to top
+  const pts = profile.map(p => new THREE.Vector2(p[0] * sc, p[1] * sc));
+  const g = new THREE.LatheGeometry(pts, seg || 16); g.translate(x, y, z);
+  const hexes = [].concat(colors); const n = g.attributes.position.count; const arr = new Float32Array(n * 3);
+  const top = Math.max(...profile.map(p => p[1])) * sc * 1.001;
+  for (let i = 0; i < n; i++) { const yy = (g.attributes.position.getY(i) - y) / top; const c = hexes.length === 1 ? _c.set(hexes[0]) : _c.set(hexes[Math.min(hexes.length - 1, Math.floor(yy * hexes.length))]); arr[i * 3] = c.r; arr[i * 3 + 1] = c.g; arr[i * 3 + 2] = c.b; }
+  g.setAttribute('color', new THREE.BufferAttribute(arr, 3)); list.push(g); return g;
+}
+const BOWL = [[0, 0], [0.12, 0], [0.2, 0.05], [0.26, 0.14], [0.28, 0.2], [0.26, 0.21], [0.18, 0.1], [0.1, 0.04], [0, 0.04]];
+const JAR = [[0, 0], [0.12, 0], [0.17, 0.08], [0.16, 0.26], [0.09, 0.34], [0.1, 0.42], [0, 0.43]];
+const VASE = [[0, 0], [0.16, 0], [0.22, 0.08], [0.2, 0.3], [0.1, 0.42], [0.12, 0.52], [0, 0.53]];
+const EWER = [[0, 0], [0.1, 0], [0.15, 0.1], [0.12, 0.3], [0.05, 0.36], [0.07, 0.46], [0, 0.47]];
 
 // The room is built as a few merged vertex-coloured meshes. The parts a generated asset can replace (floor, walls,
 // kilim, kiln, paint set) are separate meshes, so the procedural version can be hidden when the asset arrives.
 function buildRoom() {
-  const L = [], F = [], W = [], K = [], R = [];
-  // floor: terracotta tiles with slight variation
-  for (let x = -8; x < 8; x++) for (let z = -5; z < 7; z++) {
-    const g = new THREE.PlaneGeometry(1, 1); g.rotateX(-Math.PI / 2); g.translate(x + 0.5, 0, z + 0.5);
-    colorize(g, (x + z) % 2 ? '#a9603f' : '#b56b47', 0.1); F.push(g);
-  }
-  // grout lines (thin boxes) for a hand-laid look
-  for (let x = -8; x <= 8; x++) box(F, 0.03, 0.005, 12, x, 0.003, 1, '#7a4530');
-  for (let z = -5; z <= 7; z++) box(F, 16, 0.005, 0.03, 0, 0.003, z, '#7a4530');
+  const L = [], W = [], K = [], R = [], C = [];
   // walls
   box(W, 12.4, 5.2, 0.2, 0, 2.6, WALL_Z - 0.1, '#ecdfc3', 0.03);
   box(W, 0.2, 5.2, 12, -6.1, 2.6, 1, '#dfd0b0', 0.03);
   box(W, 0.2, 5.2, 12, 6.1, 2.6, 1, '#e4d5b6', 0.03);
-  // skirting
-  box(L, 12.4, 0.18, 0.06, 0, 0.09, WALL_Z + 0.03, '#6e4a2e');
-  box(L, 0.06, 0.18, 12, -5.97, 0.09, 1, '#6e4a2e');
-  box(L, 0.06, 0.18, 12, 5.97, 0.09, 1, '#6e4a2e');
-  // window on the back wall (left): frame + sill + mullions
+  // skirting and the walnut rail that caps the tile dado (the dado itself is a textured plane, see buildDado)
+  box(L, 12.4, 0.18, 0.06, 0, 0.09, WALL_Z + 0.03, '#4a2d1a');
+  box(L, 0.06, 0.18, 12, -5.97, 0.09, 1, '#4a2d1a');
+  box(L, 0.06, 0.18, 12, 5.97, 0.09, 1, '#4a2d1a');
+  box(L, 12.4, 0.05, 0.07, 0, 0.885, WALL_Z + 0.035, '#5a3a22');
+  box(L, 0.07, 0.05, 12, -5.965, 0.885, 1, '#5a3a22');
+  box(L, 0.07, 0.05, 12, 5.965, 0.885, 1, '#5a3a22');
+  // window on the back wall (left): frame + sill + mullions, cobalt curtains tied back on both sides
   const wx = WINDOW.x, wy = WINDOW.y, ww = WINDOW.w, wh = WINDOW.h, wz = WALL_Z + 0.02;
   box(L, ww + 0.3, 0.14, 0.16, wx, wy + wh / 2 + 0.07, wz, '#f7f0e0');
   box(L, ww + 0.3, 0.16, 0.26, wx, wy - wh / 2 - 0.08, wz + 0.06, '#f7f0e0');
@@ -1298,11 +1311,40 @@ function buildRoom() {
   box(L, 0.14, wh, 0.16, wx + ww / 2 + 0.07, wy, wz, '#f7f0e0');
   box(L, 0.07, wh, 0.1, wx, wy, wz + 0.02, '#f7f0e0');
   box(L, ww, 0.07, 0.1, wx, wy, wz + 0.02, '#f7f0e0');
-  // a small potted plant on the sill
-  cyl(L, 0.12, 0.09, 0.2, wx - 0.9, wy - wh / 2 + 0.1, wz + 0.1, '#b86a45');
-  for (let i = 0; i < 5; i++) { const a = i / 5 * Math.PI * 2; box(L, 0.16, 0.05, 0.08, wx - 0.9 + Math.cos(a) * 0.1, wy - wh / 2 + 0.26 + (i % 2) * 0.05, wz + 0.1 + Math.sin(a) * 0.08, '#4f8a4a', { ry: a }); }
+  cyl(L, 0.03, 0.03, ww + 0.9, wx, wy + wh / 2 + 0.3, wz + 0.1, '#5a3a22', { rz: Math.PI / 2, seg: 8 });
+  for (const s of [-1, 1]) {
+    const cx = wx + s * (ww / 2 + 0.3);
+    box(L, 0.26, 0.9, 0.12, cx, wy + wh / 2 - 0.15, wz + 0.1, '#1f3a93', 0.08);
+    box(L, 0.16, 0.5, 0.1, cx + s * 0.06, wy - 0.35, wz + 0.1, '#1f3a93', 0.08);
+    box(L, 0.2, 0.6, 0.12, cx + s * 0.1, wy - 0.95, wz + 0.1, '#1f3a93', 0.08);
+    box(L, 0.2, 0.08, 0.14, cx + s * 0.04, wy - 0.62, wz + 0.1, '#d9a441');
+  }
+  // potted plants on the sill
+  for (const [px, hex] of [[wx - 0.9, '#b86a45'], [wx + 0.95, '#6e8b3d']]) {
+    cyl(L, 0.12, 0.09, 0.2, px, wy - wh / 2 + 0.1, wz + 0.1, hex === '#6e8b3d' ? '#f0e6cf' : hex);
+    for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2; box(L, 0.17, 0.05, 0.08, px + Math.cos(a) * 0.1, wy - wh / 2 + 0.25 + (i % 2) * 0.06, wz + 0.1 + Math.sin(a) * 0.08, i % 2 ? '#4f8a4a' : '#6e8b3d', { ry: a }); }
+  }
   // two wooden ledges on the back wall for the finished panels
   for (const gy of GALLERY.y) { box(L, 5.9, 0.05, 0.14, 0.55, gy - GALLERY.size / 2 - 0.1, WALL_Z + 0.07, '#8a5a32', 0.05); for (const bx of [-2.1, 0.55, 3.2]) box(L, 0.08, 0.14, 0.1, bx, gy - GALLERY.size / 2 - 0.2, WALL_Z + 0.05, '#6e4526'); }
+  // cabinet under the window: walnut carcass, two shelves of bowls and jars, glaze jars on top
+  {
+    const cx = -4.0, z0 = WALL_Z + 0.24, w = 2.4, d = 0.46;
+    box(L, w, 0.06, d, cx, 1.82, z0, '#5a3a22', 0.05);
+    box(L, w, 0.05, d, cx, 1.36, z0, '#5a3a22', 0.05);
+    box(L, w, 0.05, d, cx, 0.95, z0, '#5a3a22', 0.05);
+    box(L, 0.06, 0.92, d, cx - w / 2 + 0.03, 1.39, z0, '#4a2d1a'); box(L, 0.06, 0.92, d, cx + w / 2 - 0.03, 1.39, z0, '#4a2d1a');
+    box(L, w, 0.92, 0.03, cx, 1.39, z0 - d / 2 + 0.015, '#3f2817');
+    const bowls = [[-0.9, '#1f3a93', '#f6f1e4'], [-0.35, '#17807e', '#f6f1e4'], [0.25, '#c0392b', '#f6f1e4'], [0.85, '#6e8b3d', '#f6f1e4']];
+    for (const [dx, hex, lip] of bowls) lathe(C, BOWL, 16, cx + dx, 1.39, z0 + 0.02, 0.8, [hex, hex, hex, lip]);
+    for (const [dx, hex] of [[-0.75, '#f6f1e4'], [-0.15, '#1f3a93'], [0.45, '#17807e'], [0.95, '#c0392b']]) lathe(C, JAR, 14, cx + dx, 0.975, z0 + 0.02, 0.8, [hex, '#f6f1e4', hex, '#f6f1e4']);
+    for (const [dx, hex, sc] of [[-1.0, '#17807e', 0.9], [-0.3, '#f6f1e4', 1.0]]) lathe(C, EWER, 14, cx + dx, 1.85, z0 - 0.02, sc, [hex, hex, '#f6f1e4', hex]);
+    // a stack of fired tiles and a mortar with a pestle on the cabinet top (the leaning display tiles sit between them)
+    for (let i = 0; i < 5; i++) box(L, 0.34, 0.03, 0.34, cx + 0.1, 1.865 + i * 0.032, z0 + 0.02, i % 2 ? '#f3eee0' : '#e9e2cf', { ry: (i - 2) * 0.05 });
+    lathe(C, [[0, 0], [0.14, 0], [0.18, 0.12], [0.16, 0.16], [0.1, 0.1], [0, 0.1]], 14, cx + 0.9, 1.85, z0 + 0.06, 1, '#9a8a7a');
+    cyl(L, 0.02, 0.025, 0.26, cx + 0.92, 2.02, z0 + 0.04, '#6e4526', { rz: 0.9, seg: 6 });
+  }
+  // hanging plates above the gallery (faces are a textured mesh, see buildPlates): rims and nails
+  for (const px of PLATE_X) { box(L, 0.03, 0.05, 0.02, px, 3.42, WALL_Z + 0.01, '#4a2d1a'); cyl(C, 0.33, 0.3, 0.05, px, 3.05, WALL_Z + 0.025, '#efe7d3', { rx: Math.PI / 2, seg: 28 }); }
   // kilim rug on the left wall
   const rz = KILIM.z, ry0 = KILIM.y - 0.9;
   for (let i = 0; i < 9; i++) box(R, 0.04, 0.2, 1.6, -5.95, ry0 + i * 0.2, rz, ['#a33b2a', '#e0b85a', '#1f4e9c', '#a33b2a', '#f1e7d0'][i % 5]);
@@ -1313,23 +1355,17 @@ function buildRoom() {
     for (const bz of [-3.7, -1.3]) box(L, 0.5, 0.06, 0.08, 5.72, sy - 0.2, bz, '#6e4526', { rz: 0.5 });
   }
   // plates standing on the shelves (white with coloured rims); the rims share the disc's tilt and sit on its front face
-  const plates = [[-3.6, 3.45, '#1f4e9c'], [-2.8, 3.45, '#1fa3a3'], [-2.0, 3.45, '#d9452b'], [-1.25, 3.45, '#2e8b57'], [-3.85, 2.55, '#2e8b57']];
+  const plates = [[-3.6, 3.45, '#1f3a93'], [-2.8, 3.45, '#17807e'], [-2.0, 3.45, '#c0392b'], [-1.25, 3.45, '#6e8b3d'], [-3.85, 2.55, '#6e8b3d']];
   for (const [pz, py, rim] of plates) {
-    cyl(L, 0.3, 0.3, 0.035, 5.55, py + 0.33, pz, '#f6f1e4', { rz: Math.PI / 2 - 0.22, seg: 24 });
+    cyl(C, 0.3, 0.3, 0.035, 5.55, py + 0.33, pz, '#f6f1e4', { rz: Math.PI / 2 - 0.22, seg: 24 });
     for (const [r, tube, x] of [[0.28, 0.025, 5.52], [0.14, 0.02, 5.515]]) {
-      const tr = new THREE.TorusGeometry(r, tube, 6, 24); tr.rotateY(-Math.PI / 2); tr.rotateZ(-0.22); tr.translate(x, py + 0.33, pz); colorize(tr, rim); L.push(tr);
+      const tr = new THREE.TorusGeometry(r, tube, 6, 24); tr.rotateY(-Math.PI / 2); tr.rotateZ(-0.22); tr.translate(x, py + 0.33, pz); colorize(tr, rim); C.push(tr);
     }
   }
-  // vases (lathe), banded colours
-  const vaseProfile = [[0, 0], [0.16, 0], [0.22, 0.08], [0.2, 0.3], [0.1, 0.42], [0.12, 0.52], [0, 0.53]];
-  const vases = [[-1.15, 2.55, '#1f4e9c', 1.0], [-1.6, 3.45, '#1fa3a3', 0.7], [-3.95, 3.45, '#d9452b', 0.75], [-0.95, 3.45, '#f6f1e4', 0.9]];
-  for (const [vz, vy, hex, sc] of vases) {
-    const pts = vaseProfile.map(p => new THREE.Vector2(p[0] * sc, p[1] * sc));
-    const g = new THREE.LatheGeometry(pts, 18); g.translate(5.6, vy + 0.03, vz);
-    const n = g.attributes.position.count; const arr = new Float32Array(n * 3); const c1 = new THREE.Color(hex), c2 = new THREE.Color('#f6f1e4');
-    for (let i = 0; i < n; i++) { const y = g.attributes.position.getY(i) - vy; const band = Math.floor(y / (0.09 * sc)) % 2 === 0; const c = band ? c1 : c2; arr[i * 3] = c.r; arr[i * 3 + 1] = c.g; arr[i * 3 + 2] = c.b; }
-    g.setAttribute('color', new THREE.BufferAttribute(arr, 3)); L.push(g);
-  }
+  // vases, bowls and jars on the shelves (banded colours); the lower shelf keeps a lane clear for the cat
+  for (const [vz, vy, hex, sc] of [[-1.15, 2.55, '#1f3a93', 1.0], [-1.6, 3.45, '#17807e', 0.7], [-3.95, 3.45, '#c0392b', 0.75], [-0.95, 3.45, '#f6f1e4', 0.9]]) lathe(C, VASE, 18, 5.6, vy + 0.03, vz, sc, [hex, '#f6f1e4', hex, '#f6f1e4', hex]);
+  for (const [vz, hex] of [[-3.3, '#1f3a93'], [-2.4, '#c0392b']]) lathe(C, BOWL, 16, 5.6, 3.48, vz, 0.75, [hex, hex, hex, '#f6f1e4']);
+  lathe(C, JAR, 14, 5.6, 2.58, -4.0, 0.8, ['#17807e', '#f6f1e4', '#17807e', '#f6f1e4']);
   // kiln: stone base, brick body, dome, chimney, mouth
   const k = KILN_POS;
   box(K, 2.1, 0.2, 2.1, k.x, 0.1, k.z, '#6f5a4c', 0.06);
@@ -1342,18 +1378,58 @@ function buildRoom() {
   box(K, 0.9, 0.7, 0.3, k.x, 0.95, k.z + 0.75, '#1a0c06');
   for (let i = 0; i < 7; i++) { const a = Math.PI * (i / 6); box(K, 0.16, 0.14, 0.12, k.x + Math.cos(a) * 0.52, 0.95 + Math.sin(a) * 0.42 + 0.05, k.z + 0.86, '#c98a62', { rz: a - Math.PI / 2 }); }
   box(K, 1.2, 0.08, 0.5, k.x, 0.56, k.z + 1.0, '#6f5a4c');
-  // a log pile next to the kiln
+  // a log pile next to the kiln, iron tools leaning on the right wall, quartz sacks and a glaze bucket
   for (let i = 0; i < 5; i++) cyl(L, 0.1, 0.1, 0.9, k.x - 1.35 + (i % 3) * 0.22, 0.1 + Math.floor(i / 3) * 0.19, k.z + 0.3, '#7a5236', { rx: Math.PI / 2, seg: 8 });
-  // table legs + apron
-  for (const [lx, lz] of [[-2.95, -2.0], [2.95, -2.0], [-2.95, 2.0], [2.95, 2.0]]) box(L, 0.16, 0.92, 0.16, lx, 0.46, lz, '#6e4526', 0.05);
-  box(L, 6.1, 0.14, 0.08, 0, 0.84, 2.07, '#6e4526'); box(L, 6.1, 0.14, 0.08, 0, 0.84, -2.07, '#6e4526');
-  box(L, 0.08, 0.14, 4.1, -3.0, 0.84, 0, '#6e4526'); box(L, 0.08, 0.14, 4.1, 3.0, 0.84, 0, '#6e4526');
-  // a stool at the front
+  for (let i = 0; i < 3; i++) { cyl(L, 0.018, 0.018, 1.7, 5.85 - i * 0.02, 0.85, -1.2 + i * 0.16, '#3a3634', { rz: 0.16, rx: -0.03, seg: 6 }); }
+  box(L, 0.1, 0.05, 0.14, 5.72, 1.72, -1.2, '#3a3634'); box(L, 0.05, 0.22, 0.05, 5.72, 1.6, -1.04, '#3a3634');
+  for (const [sx, sz, sc] of [[5.5, -0.95, 1], [5.55, -0.45, 0.9], [5.05, -0.7, 0.85]]) { const sg = new THREE.SphereGeometry(0.3 * sc, 12, 8); sg.scale(1, 0.72, 1); sg.translate(sx, 0.2 * sc, sz); colorize(sg, '#d6c6a5', 0.06); L.push(sg); cyl(L, 0.05, 0.08, 0.12, sx, 0.42 * sc, sz, '#bfae8e', { seg: 8 }); }
+  cyl(L, 0.2, 0.17, 0.3, 3.35, 0.15, -1.75, '#6d7b86', { seg: 14 }); cyl(L, 0.17, 0.17, 0.02, 3.35, 0.3, -1.75, '#8fb6c4', { seg: 14 });
+  // table legs + apron, carved walnut
+  for (const [lx, lz] of [[-2.95, -2.0], [2.95, -2.0], [-2.95, 2.0], [2.95, 2.0]]) { box(L, 0.16, 0.92, 0.16, lx, 0.46, lz, '#4a2d1a', 0.05); box(L, 0.22, 0.08, 0.22, lx, 0.06, lz, '#3f2817'); }
+  box(L, 6.1, 0.14, 0.08, 0, 0.84, 2.07, '#4a2d1a'); box(L, 6.1, 0.14, 0.08, 0, 0.84, -2.07, '#4a2d1a');
+  box(L, 0.08, 0.14, 4.1, -3.0, 0.84, 0, '#4a2d1a'); box(L, 0.08, 0.14, 4.1, 3.0, 0.84, 0, '#4a2d1a');
+  // a stool at the front with a cushion
   cyl(L, 0.3, 0.26, 0.06, STOOL.x, STOOL.y - 0.03, STOOL.z, '#8a5a32', { seg: 12 });
+  cyl(L, 0.27, 0.27, 0.05, STOOL.x, STOOL.y + 0.025, STOOL.z, '#c0392b', { seg: 12, jitter: 0.06 });
   for (let i = 0; i < 3; i++) { const a = i / 3 * Math.PI * 2 + 0.4; cyl(L, 0.04, 0.04, 0.6, STOOL.x + Math.cos(a) * 0.2, 0.3, STOOL.z + Math.sin(a) * 0.2, '#6e4526', { seg: 6 }); }
+  // an oil lamp on a wall bracket between the gallery and the kiln
+  box(L, 0.05, 0.05, 0.22, 3.55, 3.3, WALL_Z + 0.11, '#3a3634'); cyl(L, 0.06, 0.04, 0.05, 3.55, 3.32, WALL_Z + 0.2, '#3a3634', { seg: 8 });
+  lathe(C, [[0, 0], [0.07, 0], [0.09, 0.08], [0.05, 0.14], [0.03, 0.2], [0, 0.2]], 10, 3.55, 3.345, WALL_Z + 0.2, 1, '#d9a441');
   const out = {};
-  for (const [name, list] of [['main', L], ['floor', F], ['walls', W], ['kiln', K], ['kilim', R]]) { const m = mergeToMesh(list, lambertVC); m.receiveShadow = true; scene.add(m); out[name] = m; }
+  for (const [name, list, mat] of [['main', L, lambertVC], ['walls', W, lambertVC], ['kiln', K, lambertVC], ['kilim', R, lambertVC], ['ceramics', C, ceramicVC]]) { const m = mergeToMesh(list, mat); m.receiveShadow = true; m.castShadow = name === 'ceramics'; scene.add(m); out[name] = m; }
+  // floor: a glazed-tile plane (textured, see paintFloor); the generated terracotta image is composited in when it loads
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(16, 12).rotateX(-Math.PI / 2).translate(0, 0, 1), new THREE.MeshStandardMaterial({ map: floorTexture(), roughness: 0.55, metalness: 0, envMapIntensity: 0.45 }));
+  floor.receiveShadow = true; scene.add(floor); out.floor = floor;
   return out;
+}
+const PLATE_X = [-1.45, -0.1, 1.25, 2.6];
+// tile dado along the three walls, a strip of painted tiles under the walnut rail
+function buildDado() {
+  const tex = dadoTexture(); const mat = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.28, metalness: 0, envMapIntensity: 0.8 });
+  const parts = [];
+  const strip = (len, repeat) => { const g = new THREE.PlaneGeometry(len, 0.7); const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setX(i, uv.getX(i) * repeat); return g; };
+  parts.push(strip(12.4, 12.4 / 2.8).translate(0, 0.53, WALL_Z + 0.012));
+  parts.push(strip(11.2, 4).rotateY(Math.PI / 2).translate(-6.088, 0.53, 1.4));
+  parts.push(strip(11.2, 4).rotateY(-Math.PI / 2).translate(6.088, 0.53, 1.4));
+  const m = new THREE.Mesh(mergeGeometries(parts), mat); m.receiveShadow = true; scene.add(m); return m;
+}
+// the hanging plates' painted faces: one atlas, one mesh
+function buildPlates() {
+  const tex = plateAtlas(PLATE_X.length); const parts = [];
+  PLATE_X.forEach((px, i) => { const g = new THREE.CircleGeometry(0.31, 28); const uv = g.attributes.uv; for (let k = 0; k < uv.count; k++) uv.setX(k, (uv.getX(k) + i) / PLATE_X.length); g.translate(px, 3.05, WALL_Z + 0.056); parts.push(g); });
+  const m = new THREE.Mesh(mergeGeometries(parts), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.25, metalness: 0, envMapIntensity: 1.0 })); scene.add(m); return m;
+}
+// display tiles leaning on the shelves and the cabinet: boxes whose front face maps to one atlas cell
+function buildDisplayTiles() {
+  const tex = displayTileAtlas(); const parts = []; const vStrip = STRIP / ((LOW ? 64 : 128) + STRIP);
+  // [x, y, z, yaw (0 faces +z, -PI/2 faces -x), cell]
+  const spots = [[5.52, 2.58, -3.65, -Math.PI / 2, 0], [5.52, 2.58, -1.45, -Math.PI / 2, 1], [-3.5, 1.85, WALL_Z + 0.3, 0, 2], [-4.65, 1.85, WALL_Z + 0.3, 0, 3], [2.98, TABLE_Y, -1.95, 0.35, 1]];
+  for (const [x, y, z, yaw, cell] of spots) {
+    const g = new THREE.BoxGeometry(0.34, 0.34, 0.03); const uv = g.attributes.uv;
+    for (let i = 0; i < uv.count; i++) { const face = Math.floor(i / 4); if (face === 4) uv.setXY(i, (uv.getX(i) + cell) / 4, vStrip + uv.getY(i) * (1 - vStrip)); else uv.setXY(i, (cell + 0.5) / 4, vStrip * 0.5); }
+    g.translate(0, 0.17, 0); g.rotateX(-0.18); g.rotateY(yaw); g.translate(x, y, z); parts.push(g);
+  }
+  const m = new THREE.Mesh(mergeGeometries(parts), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.25, metalness: 0, envMapIntensity: 1.1 })); m.castShadow = true; scene.add(m); return m;
 }
 function buildTableProps() {
   const L = [], P = [];
@@ -1420,6 +1496,116 @@ function glowBarTexture() {
   const tex = new THREE.CanvasTexture(cv); return tex;
 }
 
+// ---- redesign: painted canvas textures for the workshop (floor, tile dado, plates, display tiles, kilim, sketch) ----
+function noiseDots(ctx, S, n, rgba, rMax, rng) { ctx.fillStyle = rgba; for (let i = 0; i < n; i++) { const x = rng() * S, y = rng() * S, r = rng() * rMax + 0.4; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); } }
+// glazed floor: 2x2 large terracotta tiles per repeat with turquoise lozenge inserts at the corners (the classic Ottoman
+// "taşlık" floor), on the generated terracotta image when it has loaded, else on a painted terracotta base
+function paintFloor(baseImg) {
+  const S = LOW ? 256 : 512, cv = floorCanvas || document.createElement('canvas'); cv.width = S; cv.height = S; const ctx = cv.getContext('2d'); const rng = mulberry32(31);
+  if (baseImg) ctx.drawImage(baseImg, 0, 0, S, S);
+  else {
+    ctx.fillStyle = '#a95d3e'; ctx.fillRect(0, 0, S, S);
+    for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++) { ctx.fillStyle = ['#b3643f', '#a55a3b', '#ad6243', '#b0623d'][(i * 2 + j)]; ctx.fillRect(i * S / 2, j * S / 2, S / 2, S / 2); }
+    noiseDots(ctx, S, 900, 'rgba(70,30,15,0.10)', 2.2 * S / 512, rng); noiseDots(ctx, S, 500, 'rgba(255,200,160,0.08)', 2 * S / 512, rng);
+  }
+  const u = S / 512, half = S / 2;
+  // soft wear toward the tile centres (a waxed, walked-on sheen)
+  for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++) { const g = ctx.createRadialGradient(i * half + half / 2, j * half + half / 2, 10 * u, i * half + half / 2, j * half + half / 2, half * 0.7); g.addColorStop(0, 'rgba(255,225,190,0.10)'); g.addColorStop(1, 'rgba(60,25,10,0.12)'); ctx.fillStyle = g; ctx.fillRect(i * half, j * half, half, half); }
+  // grout
+  ctx.fillStyle = '#6b3f2b'; for (const p of [0, half, S - 3 * u]) { ctx.fillRect(p - 3 * u, 0, 6 * u, S); ctx.fillRect(0, p - 3 * u, S, 6 * u); }
+  // glazed inserts at the tile corners: turquoise lozenge with a cobalt dot and a white highlight
+  for (const [cx, cy] of [[0, 0], [half, 0], [0, half], [half, half], [S, 0], [S, half], [0, S], [half, S], [S, S]]) {
+    const r = 34 * u;
+    ctx.fillStyle = '#17807e'; ctx.beginPath(); ctx.moveTo(cx, cy - r); ctx.lineTo(cx + r, cy); ctx.lineTo(cx, cy + r); ctx.lineTo(cx - r, cy); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#0f5a5a'; ctx.lineWidth = 3 * u; ctx.stroke();
+    ctx.fillStyle = '#1f3a93'; ctx.beginPath(); ctx.arc(cx, cy, 9 * u, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.beginPath(); ctx.ellipse(cx - 9 * u, cy - 11 * u, 7 * u, 3.5 * u, -0.7, 0, Math.PI * 2); ctx.fill();
+  }
+  return cv;
+}
+let floorCanvas = null;
+function floorTexture() {
+  floorCanvas = paintFloor(null);
+  const tex = new THREE.CanvasTexture(floorCanvas); tex.colorSpace = THREE.SRGBColorSpace; tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(8, 6); tex.anisotropy = LOW ? 1 : 4;
+  return tex;
+}
+// wall dado: a strip of 8x2 tiles that wraps seamlessly (the left and right outer edges share their motifs)
+function dadoTexture() {
+  const C = LOW ? 64 : 128, cols = 8, rows = 2; const cv = document.createElement('canvas'); cv.width = C * cols; cv.height = C * rows; const ctx = cv.getContext('2d');
+  const rng = mulberry32(77); const pal = pickPalette(rng, 6); const pick = () => pal[(rng() * pal.length) | 0];
+  const H = [[], [], []], V = [[], []];
+  for (let c = 0; c < cols; c++) { H[0][c] = 0; H[2][c] = 0; H[1][c] = pick(); }
+  for (let r = 0; r < rows; r++) { for (let c = 0; c <= cols; c++) V[r][c] = pick(); V[r][cols] = V[r][0]; }
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+    const img = paintTile([H[r][c], V[r][c + 1], H[r + 1][c], V[r][c]], 'plain', C, 300 + r * cols + c);
+    ctx.drawImage(img, 0, 0, C, C, c * C, r * C, C, C);
+  }
+  const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.anisotropy = LOW ? 1 : 4;
+  return tex;
+}
+// hanging plates: a rosette of six edge motifs pointing at the centre inside a cobalt lozenge rim
+function plateAtlas(n) {
+  const C = LOW ? 128 : 256; const cv = document.createElement('canvas'); cv.width = C * n; cv.height = C; const ctx = cv.getContext('2d');
+  const combos = [[1, 'cobalt'], [3, 'coral'], [4, 'turquoise'], [0, 'emerald'], [2, 'cobalt']];
+  for (let i = 0; i < n; i++) {
+    const [shape, colName] = combos[i % combos.length]; const col = PAL[colName]; const cx = i * C + C / 2, cy = C / 2, u = C / 256;
+    ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, C / 2 - 1, 0, Math.PI * 2); ctx.clip();
+    const g = ctx.createRadialGradient(cx - 20 * u, cy - 24 * u, 10 * u, cx, cy, C / 2); g.addColorStop(0, '#fffdf6'); g.addColorStop(1, '#ebe4d2'); ctx.fillStyle = g; ctx.fillRect(i * C, 0, C, C);
+    ctx.lineWidth = 14 * u; ctx.strokeStyle = PAL.cobalt.fill; ctx.beginPath(); ctx.arc(cx, cy, C / 2 - 9 * u, 0, Math.PI * 2); ctx.stroke();
+    ctx.lineWidth = 3 * u; ctx.strokeStyle = PAL.turquoise.fill; ctx.beginPath(); ctx.arc(cx, cy, C / 2 - 19 * u, 0, Math.PI * 2); ctx.stroke();
+    ctx.fillStyle = '#fbf7ee'; for (let k = 0; k < 20; k++) { const a = k / 20 * Math.PI * 2, r = C / 2 - 9 * u; const x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r; ctx.beginPath(); ctx.moveTo(x + Math.cos(a) * 5 * u, y + Math.sin(a) * 5 * u); ctx.lineTo(x + Math.cos(a + Math.PI / 2) * 3.5 * u, y + Math.sin(a + Math.PI / 2) * 3.5 * u); ctx.lineTo(x - Math.cos(a) * 5 * u, y - Math.sin(a) * 5 * u); ctx.lineTo(x - Math.cos(a + Math.PI / 2) * 3.5 * u, y - Math.sin(a + Math.PI / 2) * 3.5 * u); ctx.closePath(); ctx.fill(); }
+    for (let k = 0; k < 6; k++) {
+      ctx.save(); ctx.translate(cx, cy); ctx.rotate(k / 6 * Math.PI * 2); ctx.translate(0, -(C / 2 - 26 * u)); ctx.scale(0.42 * u, 0.42 * u);
+      SHAPE_FN[SHAPES[shape]](ctx, 256, col); ctx.restore();
+    }
+    ctx.fillStyle = col.dark; ctx.beginPath(); for (let k = 0; k < 16; k++) { const a = k / 16 * Math.PI * 2, r = (k % 2 ? 7 : 16) * u; ctx.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r); } ctx.closePath(); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.beginPath(); ctx.ellipse(cx - 46 * u, cy - 56 * u, 30 * u, 12 * u, -0.8, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
+  const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = LOW ? 1 : 4; return tex;
+}
+// display tiles leaning on the shelves: four painted faces side by side, each with the white strip below for the other faces
+function displayTileAtlas() {
+  const C = LOW ? 64 : 128; const cv = document.createElement('canvas'); cv.width = C * 4; cv.height = C + STRIP; const ctx = cv.getContext('2d');
+  const sets = [[1, 6, 11, 16], [0, 2, 7, 12], [17, 3, 0, 8], [0, 13, 18, 0]];
+  sets.forEach((e, i) => ctx.drawImage(paintTile(e, 'plain', C, 400 + i), i * C, 0));
+  const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = LOW ? 1 : 4; return tex;
+}
+// floor kilim: cream ground, coral and cobalt bands, a chain of hooked lozenges
+function kilimTexture() {
+  const W = 256, H = 512; const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const ctx = cv.getContext('2d');
+  ctx.fillStyle = '#e9dcc2'; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#b8352a'; ctx.fillRect(0, 0, W, 30); ctx.fillRect(0, H - 30, W, 30); ctx.fillRect(0, 0, 22, H); ctx.fillRect(W - 22, 0, 22, H);
+  ctx.fillStyle = '#1f3a93'; ctx.fillRect(22, 30, W - 44, 10); ctx.fillRect(22, H - 40, W - 44, 10);
+  for (let i = 0; i < 4; i++) { const cy = 90 + i * 110, r = 44; ctx.fillStyle = i % 2 ? '#1f3a93' : '#b8352a'; ctx.beginPath(); ctx.moveTo(W / 2, cy - r); ctx.lineTo(W / 2 + r, cy); ctx.lineTo(W / 2, cy + r); ctx.lineTo(W / 2 - r, cy); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#e9dcc2'; ctx.beginPath(); ctx.moveTo(W / 2, cy - r * 0.45); ctx.lineTo(W / 2 + r * 0.45, cy); ctx.lineTo(W / 2, cy + r * 0.45); ctx.lineTo(W / 2 - r * 0.45, cy); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#6e8b3d'; ctx.beginPath(); ctx.arc(W / 2, cy, 8, 0, Math.PI * 2); ctx.fill(); for (const s of [-1, 1]) { ctx.fillStyle = '#17807e'; ctx.beginPath(); ctx.moveTo(W / 2 + s * 70, cy - 18); ctx.lineTo(W / 2 + s * 88, cy); ctx.lineTo(W / 2 + s * 70, cy + 18); ctx.lineTo(W / 2 + s * 52, cy); ctx.closePath(); ctx.fill(); } }
+  ctx.fillStyle = 'rgba(0,0,0,0.08)'; const rng = mulberry32(5); for (let i = 0; i < 1800; i++) ctx.fillRect(rng() * W, rng() * H, 1.5, 1.5);
+  const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; return tex;
+}
+// the master's pencil sketch on the table: a tulip and a carnation drawn in grey ink on cream paper
+function sketchTexture() {
+  const S = 256; const cv = document.createElement('canvas'); cv.width = S; cv.height = S; const ctx = cv.getContext('2d');
+  ctx.fillStyle = '#f3ecd9'; ctx.fillRect(0, 0, S, S); ctx.strokeStyle = 'rgba(80,70,60,0.12)'; for (let i = 1; i < 6; i++) { ctx.beginPath(); ctx.moveTo(0, i * S / 6); ctx.lineTo(S, i * S / 6); ctx.stroke(); }
+  // the motifs are drawn on a transparent layer with transparent fills, then every stroke is tinted pencil grey
+  const lay = document.createElement('canvas'); lay.width = S; lay.height = S; const lc = lay.getContext('2d');
+  const grey = { fill: 'rgba(0,0,0,0)', dark: 'rgba(0,0,0,0)', light: '#fff' };
+  for (const [k, fn] of [[0, drawTulip], [2, drawCarnation], [1, drawRumi], [3, drawSaz]]) { lc.save(); lc.translate(S / 2, S / 2); lc.rotate(k * Math.PI / 2); lc.translate(0, -S / 2); lc.scale(0.5, 0.5); lc.translate(0, 70); fn(lc, 256, grey); lc.restore(); }
+  lc.globalCompositeOperation = 'source-atop'; lc.fillStyle = 'rgba(70,60,80,0.8)'; lc.fillRect(0, 0, S, S);
+  ctx.drawImage(lay, 0, 0);
+  const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; return tex;
+}
+// procedural reflection environment: warm plaster all round, a bright window patch to the left (-x) and the kiln's
+// orange glow to the right (+x), a dark terracotta floor below. Lights the gloss of the tiles and ceramics.
+function workshopEnvTexture() {
+  const W = 256, H = 128; const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const ctx = cv.getContext('2d');
+  const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#5a3d2a'); g.addColorStop(0.42, '#c9ab84'); g.addColorStop(0.55, '#b8946c'); g.addColorStop(1, '#3a2114'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  const blob = (x, y, rx, ry, c0, c1) => { const r = ctx.createRadialGradient(x, y, 0, x, y, rx); r.addColorStop(0, c0); r.addColorStop(1, c1); ctx.save(); ctx.translate(x, y); ctx.scale(1, ry / rx); ctx.translate(-x, -y); ctx.fillStyle = r; ctx.fillRect(x - rx, y - rx, rx * 2, rx * 2); ctx.restore(); };
+  // window (direction -x is u = 0 / 1 in three's equirect mapping): wraps over the seam
+  for (const x of [0, W]) blob(x, H * 0.4, 40, 26, 'rgba(255,248,230,1)', 'rgba(255,240,210,0)');
+  // kiln glow (+x is u = 0.5), a little below the horizon
+  blob(W * 0.5, H * 0.58, 26, 18, 'rgba(255,140,50,0.95)', 'rgba(255,120,40,0)');
+  const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; tex.mapping = THREE.EquirectangularReflectionMapping; return tex;
+}
+
 // Bevelled tile geometry: top + bevel ring textured, sides + bottom mapped to the white strip.
 // v2: a vertex-colour attribute brightens the outer rim of the bevel (a thin ceramic highlight) and shades the sides.
 function makeTileGeometry(s, h, b) {
@@ -1467,9 +1653,15 @@ function makeTileGeometry(s, h, b) {
 
 // ---- build the static world ----
 const room = buildRoom();
+const dado = buildDado(), platesMesh = buildPlates(), displayTiles = buildDisplayTiles();
 const props = buildTableProps();
-const tableTop = new THREE.Mesh(new THREE.BoxGeometry(6.4, 0.16, 4.6), new THREE.MeshStandardMaterial({ map: woodTexture(), roughness: 0.75, metalness: 0 }));
+const tableTop = new THREE.Mesh(new THREE.BoxGeometry(6.4, 0.16, 4.6), new THREE.MeshStandardMaterial({ map: woodTexture(), roughness: 0.6, metalness: 0, envMapIntensity: 0.5 }));
 tableTop.position.set(0, TABLE_Y - 0.08, 0); tableTop.receiveShadow = true; tableTop.castShadow = false; scene.add(tableTop);
+// floor kilim runner by the stool and the master's sketch on the table (the kilim asset texture replaces the runner's painting)
+const runner = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 3.2).rotateX(-Math.PI / 2).rotateY(0.06).translate(-4.4, 0.006, 1.6), new THREE.MeshLambertMaterial({ map: kilimTexture() }));
+runner.receiveShadow = true; scene.add(runner);
+const sketch = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.5).rotateX(-Math.PI / 2).rotateY(-0.25).translate(-2.62, TABLE_Y + 0.004, -0.45), new THREE.MeshLambertMaterial({ map: sketchTexture() }));
+scene.add(sketch);
 // window glass (warm sky); in front of the wall face (z -4.2), behind the frame bars (front at z -4.10)
 const glass = (() => {
   const cv = document.createElement('canvas'); cv.width = 64; cv.height = 64; const ctx = cv.getContext('2d');
@@ -1479,13 +1671,50 @@ const glass = (() => {
   return m;
 })();
 {
-  // soft light shaft from the window toward the table
-  const shaft = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 7.5), new THREE.MeshBasicMaterial({ color: '#ffe3b0', transparent: true, opacity: 0.07, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }));
-  shaft.position.set(-2.2, 2.4, -1.6); shaft.rotation.set(-0.9, 0.35, 0.3); scene.add(shaft);
+  // two soft light shafts from the window toward the table, and a warm bloom halo around the window itself
+  const shaftMat = new THREE.MeshBasicMaterial({ color: '#ffe3b0', transparent: true, opacity: 0.07, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide });
+  const shaft = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 7.5), shaftMat); shaft.position.set(-2.2, 2.4, -1.6); shaft.rotation.set(-0.9, 0.35, 0.3); scene.add(shaft);
+  const shaft2 = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 7.0), shaftMat); shaft2.position.set(-3.1, 2.2, -1.2); shaft2.rotation.set(-0.95, 0.5, 0.25); scene.add(shaft2);
+  const halo = new THREE.Mesh(new THREE.PlaneGeometry(WINDOW.w * 1.9, WINDOW.h * 1.9), new THREE.MeshBasicMaterial({ map: softSprite(64), color: '#ffd9a0', transparent: true, opacity: 0.45, depthWrite: false, blending: THREE.AdditiveBlending, fog: false }));
+  halo.position.set(WINDOW.x, WINDOW.y, WALL_Z + 0.06); scene.add(halo);
 }
-// kiln glow (mouth) + sparks
+// kiln glow (mouth), flames and sparks
 const kilnGlow = new THREE.Mesh(new THREE.PlaneGeometry(1.0, 0.8), new THREE.MeshBasicMaterial({ map: softSprite(64), color: '#ff9a3c', transparent: true, opacity: 0.9, depthWrite: false, blending: THREE.AdditiveBlending }));
 kilnGlow.position.set(KILN_MOUTH.x, KILN_MOUTH.y, KILN_MOUTH.z + 0.1); scene.add(kilnGlow);
+// redesign: tongues of flame as additive points with a per-particle colour (white-yellow at birth, deep red at death);
+// `heat` 0..1 sets how many are alive and how high they rise (idle ember fire vs. the firing step)
+const FLAMES = LOW ? 36 : 72;
+const flameGeo = new THREE.BufferGeometry();
+const flamePos = new Float32Array(FLAMES * 3), flameCol = new Float32Array(FLAMES * 3), flameLife = new Float32Array(FLAMES), flameVel = new Float32Array(FLAMES * 3), flameSeed = new Float32Array(FLAMES);
+for (let i = 0; i < FLAMES; i++) { flameLife[i] = -Math.random() * 0.8; flameSeed[i] = Math.random() * 100; flamePos[i * 3 + 1] = -5; }
+flameGeo.setAttribute('position', new THREE.BufferAttribute(flamePos, 3).setUsage(THREE.DynamicDrawUsage));
+flameGeo.setAttribute('color', new THREE.BufferAttribute(flameCol, 3).setUsage(THREE.DynamicDrawUsage));
+const flames = new THREE.Points(flameGeo, new THREE.PointsMaterial({ map: softSprite(32), vertexColors: true, size: 0.26, transparent: true, opacity: 1, depthWrite: false, blending: THREE.AdditiveBlending }));
+flames.frustumCulled = false; scene.add(flames);
+let flameHeat = 0.35;
+const _fc0 = new THREE.Color('#fff4b0'), _fc1 = new THREE.Color('#ff8a1e'), _fc2 = new THREE.Color('#5a0a00');
+function updateFlames(dt) {
+  const P = flamePos, Cc = flameCol, h = flameHeat, alive = Math.ceil(FLAMES * (0.35 + 0.65 * h));
+  for (let i = 0; i < FLAMES; i++) {
+    if (i >= alive) { if (flameLife[i] >= 0) { flameLife[i] = -0.1; P[i * 3 + 1] = -5; } continue; }
+    flameLife[i] += dt;
+    const dur = 0.45 + 0.35 * h;
+    if (flameLife[i] >= dur) {
+      flameLife[i] = -Math.random() * 0.15; P[i * 3 + 1] = -5; continue;
+    }
+    if (flameLife[i] < 0) { Cc[i * 3] = Cc[i * 3 + 1] = Cc[i * 3 + 2] = 0; continue; }
+    if (flameLife[i] - dt < 0) { // born this frame
+      P[i * 3] = KILN_MOUTH.x + (Math.random() - 0.5) * 0.5; P[i * 3 + 1] = KILN_MOUTH.y - 0.3; P[i * 3 + 2] = KILN_MOUTH.z - 0.25 + Math.random() * 0.2;
+      flameVel[i * 3] = (Math.random() - 0.5) * 0.3; flameVel[i * 3 + 1] = 0.9 + Math.random() * 0.8 + h * 1.2; flameVel[i * 3 + 2] = (Math.random() - 0.5) * 0.2;
+    }
+    const u = flameLife[i] / dur, s = flameSeed[i];
+    P[i * 3] += (flameVel[i * 3] + Math.sin(G.time * 9 + s) * 0.25) * dt; P[i * 3 + 1] += flameVel[i * 3 + 1] * dt; P[i * 3 + 2] += flameVel[i * 3 + 2] * dt;
+    const c = u < 0.4 ? _c.copy(_fc0).lerp(_fc1, u / 0.4) : _c.copy(_fc1).lerp(_fc2, (u - 0.4) / 0.6);
+    const fade = u > 0.75 ? (1 - u) / 0.25 : 1;
+    Cc[i * 3] = c.r * fade; Cc[i * 3 + 1] = c.g * fade; Cc[i * 3 + 2] = c.b * fade;
+  }
+  flameGeo.attributes.position.needsUpdate = true; flameGeo.attributes.color.needsUpdate = true;
+}
 const SPARKS = 50;
 const sparkGeo = new THREE.BufferGeometry(); sparkGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(SPARKS * 3), 3));
 const sparks = new THREE.Points(sparkGeo, new THREE.PointsMaterial({ map: softSprite(32), color: '#ffb060', size: 0.09, transparent: true, opacity: 0.95, depthWrite: false, blending: THREE.AdditiveBlending }));
@@ -1530,8 +1759,14 @@ const frameGroup = new THREE.Group(); boardGroup.add(frameGroup);
   const geoV = new THREE.BoxGeometry(BOARD_SIZE, 0.08, w); geoV.rotateY(Math.PI / 2);
   for (const [g, x, z, along] of [[geoH, 0, -off, len], [geoH, 0, off, len], [geoV, -off, 0, BOARD_SIZE], [geoV, off, 0, BOARD_SIZE]]) {
     const tex = frameTex.clone(); tex.needsUpdate = true; tex.repeat.set(along / 0.55, 1);
-    const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ map: tex, roughness: 0.4 })); m.position.set(x, 0.1, z); m.castShadow = true; m.receiveShadow = true; frameGroup.add(m);
+    const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ map: tex, roughness: 0.32, envMapIntensity: 1.2 })); m.position.set(x, 0.1, z); m.castShadow = true; m.receiveShadow = true; frameGroup.add(m);
   }
+  // redesign: a carved walnut rim outside the tile band, with brass corner studs (one merged mesh)
+  const R = [], o = off + w / 2 + 0.11, ln = BOARD_SIZE + 2 * w + 0.44;
+  box(R, ln, 0.1, 0.22, 0, 0.07, -o, '#4a2d1a', 0.05); box(R, ln, 0.1, 0.22, 0, 0.07, o, '#4a2d1a', 0.05);
+  box(R, 0.22, 0.1, ln - 0.44, -o, 0.07, 0, '#4a2d1a', 0.05); box(R, 0.22, 0.1, ln - 0.44, o, 0.07, 0, '#4a2d1a', 0.05);
+  for (const sx of [-1, 1]) for (const sz of [-1, 1]) cyl(R, 0.05, 0.05, 0.03, sx * o, 0.13, sz * o, '#d9a441', { seg: 10 });
+  const rim = mergeToMesh(R, lambertVC, { shadow: true }); frameGroup.add(rim);
 }
 const glowTex = glowBarTexture();
 const glowMat = new THREE.MeshBasicMaterial({ map: glowTex, transparent: true, opacity: 0.85, depthWrite: false, color: '#ffd27a' });
@@ -1640,9 +1875,9 @@ function tiled(tex, repeatX, repeatY, color) {
 // swap in whatever has loaded; anything missing keeps its procedural mesh
 function applyAssets() {
   const A = loadedAssets, used = [];
-  if (A['tex:floor']) {
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(16, 12).rotateX(-Math.PI / 2).translate(0, 0, 1), tiled(A['tex:floor'], 8, 6));
-    m.receiveShadow = true; scene.add(m); room.floor.visible = false; used.push('floor');
+  if (A['tex:floor'] && A['tex:floor'].image) {
+    // the generated terracotta becomes the base of the glazed floor: repainted with the grout and the lozenge inserts
+    paintFloor(A['tex:floor'].image); room.floor.material.map.needsUpdate = true; A['tex:floor'].dispose(); used.push('floor');
   }
   if (A['tex:plaster']) {
     const L = [];
@@ -1659,6 +1894,8 @@ function applyAssets() {
     // a plane facing +X just in front of the left wall (inner face x -6.0); its +u runs toward -z, i.e. left to right as seen from the room
     const m = new THREE.Mesh(new THREE.PlaneGeometry(KILIM.w, KILIM.h).rotateY(Math.PI / 2).translate(-5.975, KILIM.y, KILIM.z), new THREE.MeshLambertMaterial({ map: A['tex:kilim'] }));
     m.receiveShadow = true; scene.add(m); room.kilim.visible = false; used.push('kilim');
+    // the floor runner is woven from the same kilim
+    runner.material.map.dispose(); runner.material.map = A['tex:kilim']; runner.material.needsUpdate = true;
   }
   if (A['tex:pano']) {
     const pm = new THREE.PMREMGenerator(renderer), tex = A['tex:pano']; tex.mapping = THREE.EquirectangularReflectionMapping;
@@ -1685,9 +1922,11 @@ function applyAssets() {
 // the background stays the room colour; Lambert materials ignore it, the tiles, frame and table pick it up
 function setEnvironment(tex) {
   if (scene.environment) scene.environment.dispose();
-  scene.environment = tex; scene.environmentIntensity = 0.45;
+  scene.environment = tex; scene.environmentIntensity = 0.55;
 }
-{ const pm = new THREE.PMREMGenerator(renderer); setEnvironment(pm.fromScene(new RoomEnvironment(), 0.04).texture); pm.dispose(); }
+// redesign: the procedural fallback is a painted workshop panorama (warm plaster, a bright window, the kiln glow) instead of
+// three's neutral RoomEnvironment, so the glaze reflects something that belongs to the room even with ?noassets
+{ const pm = new THREE.PMREMGenerator(renderer); setEnvironment(pm.fromEquirectangular(workshopEnvTexture()).texture); pm.dispose(); }
 
 // sitting cat model on the stool: appears, sits and breathes, turns its head now and then, leaves
 let catModel = null;
@@ -1764,7 +2003,7 @@ function buildTiles(withIntro) {
     const texB = td.faces.length > 1 ? tileTexture(td.faces[1], kind, 200 + td.id) : null;
     // v2 excavation: a weathered tile shows its earth-covered face until one inner edge matches (see checkRestores)
     const texW = td.weathered ? tileTexture(td.faces[0], kind, 100 + td.id, true) : null;
-    const mat = new THREE.MeshStandardMaterial({ map: texW || (s.face ? texB : texA), roughness: 0.26, metalness: 0.02, vertexColors: true, envMapIntensity: 1.3 });
+    const mat = new THREE.MeshStandardMaterial({ map: texW || (s.face ? texB : texA), roughness: 0.2, metalness: 0.02, vertexColors: true, envMapIntensity: 1.6 });
     const mesh = new THREE.Mesh(shared.geo, mat); mesh.castShadow = true; mesh.receiveShadow = true;
     const pivot = new THREE.Group(); pivot.add(mesh); boardGroup.add(pivot);
     const [x, z] = slotLocal(p);
@@ -2511,7 +2750,11 @@ function updateCat(dt) {
 function updateEffects(dt) {
   const T = G.time;
   // kiln flicker
-  if (!G.seq) { kilnLight.intensity = 1.3 + Math.sin(T * 9.1) * 0.12 + Math.sin(T * 23.7) * 0.08 + Math.sin(T * 3.3) * 0.1; kilnGlow.material.opacity = 0.75 + Math.sin(T * 11) * 0.1; }
+  if (!G.seq) { kilnLight.intensity = 1.8 + Math.sin(T * 9.1) * 0.16 + Math.sin(T * 23.7) * 0.1 + Math.sin(T * 3.3) * 0.12; kilnGlow.material.opacity = 0.75 + Math.sin(T * 11) * 0.1; }
+  // flames: a low ember fire while playing, roaring while the panel is in the kiln
+  const heatTarget = G.seq && (G.seq.phase === 'fire' || G.kiln) ? 1 : G.seq && G.seq.phase === 'tokiln' ? 0.7 : 0.3;
+  flameHeat += (heatTarget - flameHeat) * (1 - Math.exp(-dt * 3));
+  if (!G.simulating) updateFlames(dt);
   // glow pulse
   if (!G.seq) glowMat.opacity = 0.72 + Math.sin(T * 2.2) * 0.12;
   // sparks
