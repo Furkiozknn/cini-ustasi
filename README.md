@@ -217,6 +217,25 @@ Upgraded by **Claude Fable 5.1** with Claude Code from [prompts/cini-ustasi-v2.m
 The in-game facts (kiln step, excavation intro, craft notes, title line) come from the research pool behind the brief;
 the source of each is noted in a code comment next to the `FACTS` table in `index.html`.
 
+### Redesign (2026-11)
+
+A visual pass by **Claude Fable 5.1** with Claude Code; the puzzle core, levels, par, stars, bot, saves and flags are
+unchanged. Art direction: an İznik palette (cobalt `#1F3A93`, turquoise `#1BA3A0`, coral `#C0392B`, sage `#6E8B3D`,
+glaze white `#F7F4EC`) in a warm, lamp-lit workshop, with every panel framed like a tile.
+
+![Level 22 before and after the redesign](docs/redesign-before-after.png)
+
+- Lighting: a warm key light with a lamp glow over the table and a cooler fill from the window; the kiln mouth lights
+  its surroundings and sheds a plume of ember particles.
+- Environment: a glazed terracotta floor with turquoise inserts, a tile dado along the walls, a paint cabinet with glaze
+  bowls, plates and a pitcher on the shelves, a brick kiln base and firing tools, the cat on its stool.
+- UI skin: tile-bordered panels with rumi spandrels in the corners (SVG) for the title, pause, settings, how-to, level
+  and collection screens, the kiln step and the level-complete card; a tile band as the top bar with the star meter
+  under it; cobalt primary and cream secondary buttons; the phone portrait and landscape layouts were re-checked.
+- Measured on an Intel UHD 620 at 1280x720: 60 fps before and after; draw calls 46 -> 58 on level 10, 37 -> 49 on
+  level 22, 21 -> 32 on the title. The `?auto` bot clears all 30 levels with 0 JS errors with and without the asset
+  files; `?lang=en` checked, and the low-quality path is the one the phone shots use.
+
 Çini Ustası is part of the **Claude Game Arena** series, where each game is built by a Claude model from one prompt.
 The other games: [Hisar](https://furkiozknn.github.io/kale-savunmasi/) ·
 [Çay Ocağı](https://furkiozknn.github.io/cay-ocagi/) · [Martı](https://furkiozknn.github.io/marti/) ·
