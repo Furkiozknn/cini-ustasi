@@ -19,7 +19,7 @@
 <p align="center"><b>Play online: <a href="https://furkiozknn.github.io/cini-ustasi/">https://furkiozknn.github.io/cini-ustasi/</a></b> (desktop and phone, no install)</p>
 
 <!-- portals:start -->
-<p align="center">Also on: <a href="https://furkiozknn.itch.io/cini-ustasi">itch.io</a></p>
+<p align="center">Also on: <a href="https://furkiozknn.itch.io/cini-ustasi">itch.io</a> &middot; <a href="https://playgama.ai/play/3w2c2uyo35qj3q">Playgama</a></p>
 <!-- portals:end -->
 
 ## Highlights
