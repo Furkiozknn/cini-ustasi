@@ -283,6 +283,18 @@ kbd{font-family:var(--font); background:#fff; border:1px solid var(--cobalt); bo
   .card h1{font-size:30px;} .logoBig{width:70px; height:70px;}
   .card{padding:16px 22px;} .card p{margin:4px 0 8px;} .srow{padding:4px 0; min-height:44px;}
 }
+
+/* compact single-row top bar on short landscape phones (drafted by Gemini 3.5 Flash Lite via ai-router, reviewed) */
+@media (max-height:500px) and (orientation:landscape){
+  #topbar{height:52px;padding:4px 8px;gap:8px;flex-wrap:nowrap}
+  #topbar .logo{font-size:14px;gap:4px}
+  #topbar .logo canvas{width:24px;height:24px}
+  #topbar .mid{gap:6px;flex:1 1 auto;min-width:0}
+  #topbar .right{gap:4px;flex-wrap:nowrap}
+  #lvlSub{display:none}
+  #topbar .ibtn{width:40px;height:40px;min-width:40px;min-height:40px}
+  #topbar .ibtn svg{width:18px;height:18px}
+}
 </style>
 <script data-goatcounter="https://furkiozknn.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
