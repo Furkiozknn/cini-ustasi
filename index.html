@@ -58,7 +58,7 @@ button{font-family:var(--font); cursor:pointer;}
 #starsLive{display:inline-flex; height:22px; align-items:center;}
 #starsLive svg{width:18px; height:18px;}
 #topbar .right{display:flex; align-items:center; gap:6px; margin-left:auto; flex-wrap:nowrap;}
-.ibtn{position:relative; width:40px; height:40px; border-radius:8px; border:1.5px solid var(--cobalt); background:linear-gradient(180deg, #fffdf8, #f0ebdc); color:var(--cobalt); display:inline-flex; align-items:center; justify-content:center; transition:transform .12s, background .12s, color .12s; padding:0; box-shadow:0 2px 0 var(--cobalt-deep), 0 3px 6px rgba(20,43,110,.18);}
+.ibtn{position:relative; width:40px; height:40px; min-width:44px; min-height:44px; border-radius:8px; border:1.5px solid var(--cobalt); background:linear-gradient(180deg, #fffdf8, #f0ebdc); color:var(--cobalt); display:inline-flex; align-items:center; justify-content:center; transition:transform .12s, background .12s, color .12s; padding:0; box-shadow:0 2px 0 var(--cobalt-deep), 0 3px 6px rgba(20,43,110,.18);}
 .ibtn:hover{background:linear-gradient(180deg, #3b5bc4, var(--cobalt)); color:#fff; transform:translateY(-1px);}
 .ibtn:active{transform:translateY(1px); box-shadow:0 1px 0 var(--cobalt-deep);}
 .ibtn svg{width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
@@ -66,7 +66,8 @@ button{font-family:var(--font); cursor:pointer;}
 .ibtn.off::after{content:""; position:absolute; left:9px; right:9px; top:50%; height:2px; background:#c1444a; transform:rotate(-35deg); border-radius:2px;}
 .ibtn .badge{position:absolute; top:-6px; right:-6px; min-width:18px; height:18px; padding:0 5px; border-radius:9px; background:var(--coral); color:#fff; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; box-shadow:0 1px 3px rgba(0,0,0,.25);}
 .ibtn.txt{width:auto; padding:0 10px; font-weight:800; font-size:13px; letter-spacing:.5px;}
-.btn:focus-visible, .ibtn:focus-visible, .lcard:focus-visible, .seg button:focus-visible, input[type=range]:focus-visible, .foot a:focus-visible, .credit a:focus-visible{outline:3px solid var(--turq-deep); outline-offset:2px;}
+/* a11y: #fff inner/outer halo so the focus ring contrasts over turquoise, cobalt and walnut surfaces */
+.btn:focus-visible, .ibtn:focus-visible, .lcard:focus-visible, .seg button:focus-visible, input[type=range]:focus-visible, .foot a:focus-visible, .credit a:focus-visible{outline:3px solid var(--turq-deep); outline-offset:2px; box-shadow:0 0 0 2px #fff, 0 0 0 6px #fff;}
 .crest{border-radius:0 !important; box-shadow:none !important; filter:drop-shadow(0 6px 10px rgba(40,20,0,.35));}
 /* v2: star meter (moves left until the next star threshold) along the bottom edge of the top bar */
 #meter{position:absolute; left:14px; right:14px; bottom:6px; height:5px; border-radius:2px; background:rgba(31,58,147,.14); overflow:hidden;}
@@ -168,7 +169,7 @@ button{font-family:var(--font); cursor:pointer;}
 .piece:not(.locked):hover{transform:translateY(-2px);}
 .piece.sel{background:rgba(27,163,160,.14); outline:2px solid var(--turq-deep);}
 .piece:disabled{cursor:default;}
-.piece:focus-visible{outline:3px solid var(--turq-deep); outline-offset:1px;}
+.piece:focus-visible{outline:3px solid var(--turq-deep); outline-offset:2px; box-shadow:0 0 0 2px #fff, 0 0 0 6px #fff;}
 .piece .fr{padding:6px; background:linear-gradient(135deg, #8a5a2b, #c9995a 50%, #8a5a2b); border-radius:6px; box-shadow:0 6px 14px rgba(40,20,0,.3), 0 0 0 1px rgba(255,255,255,.4) inset; width:100%;}
 .piece .fr.gold{background:linear-gradient(135deg, #a4742f, #e2bd7e 50%, #a4742f);}
 .piece canvas{display:block; width:100%; aspect-ratio:1; border-radius:2px;}
@@ -250,6 +251,11 @@ kbd{font-family:var(--font); background:#fff; border:1px solid var(--cobalt); bo
 
 .noanim *{animation:none !important; transition:none !important;}
 .noanim .starsBig svg{opacity:1; transform:none;}
+/* a11y: disable motion on #meterFill, #kilnCard and all UI animations when reduced motion is preferred */
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after, #meterFill, #kilnCard{animation:none !important; transition:none !important;}
+  .starsBig svg{opacity:1; transform:none;}
+}
 @media (max-width:640px){
   #topbar{padding:4px 6px 8px; gap:6px; top:6px; left:6px; right:6px; border-width:7px; border-image-width:7px;}
   #topbar > .rumi{display:none;}
@@ -292,7 +298,7 @@ kbd{font-family:var(--font); background:#fff; border:1px solid var(--cobalt); bo
   #topbar .mid{gap:6px;flex:1 1 auto;min-width:0}
   #topbar .right{gap:4px;flex-wrap:nowrap}
   #lvlSub{display:none}
-  #topbar .ibtn{width:40px;height:40px;min-width:40px;min-height:40px}
+  #topbar .ibtn{width:44px;height:44px;min-width:44px;min-height:44px}
   #topbar .ibtn svg{width:18px;height:18px}
 }
 </style>
@@ -312,14 +318,14 @@ kbd{font-family:var(--font); background:#fff; border:1px solid var(--cobalt); bo
       <div class="stat"><b id="starsLive"></b><span data-i18n="stars">Yıldız</span></div>
     </div>
     <div class="right">
-      <button class="ibtn" id="btnHint" data-tip="hint" title="İpucu (H)"><svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 17l.7 1.8 1.8.7-1.8.7L19 22l-.7-1.8-1.8-.7 1.8-.7z"/></svg><span class="badge" id="hintBadge">3</span></button>
-      <button class="ibtn" id="btnUndo" title="Geri al (Z)"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg></button>
-      <button class="ibtn" id="btnRestart" title="Yeniden (R)"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button>
-      <button class="ibtn wideOnly" id="btnHelp" title="Nasıl oynanır?"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.8.4-1 .9-1 1.7"/><path d="M12 17h.01"/></svg></button>
-      <button class="ibtn" id="btnSound" title="Ses"><svg viewBox="0 0 24 24"><path d="M4 10v4h3l4 3V7L7 10z"/><path d="M15 9.5a4 4 0 0 1 0 5"/><path d="M17.5 7a7 7 0 0 1 0 10"/></svg></button>
-      <button class="ibtn wideOnly" id="btnMusic" title="Müzik"><svg viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg></button>
-      <button class="ibtn txt" id="btnLang" title="Language">EN</button>
-      <button class="ibtn" id="btnMenu" title="Menü (Esc)"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      <button class="ibtn" id="btnHint" data-tip="hint" title="İpucu (H)" aria-label="İpucu (H)"><svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 17l.7 1.8 1.8.7-1.8.7L19 22l-.7-1.8-1.8-.7 1.8-.7z"/></svg><span class="badge" id="hintBadge">3</span></button>
+      <button class="ibtn" id="btnUndo" title="Geri al (Z)" aria-label="Geri al (Z)"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg></button>
+      <button class="ibtn" id="btnRestart" title="Yeniden (R)" aria-label="Yeniden (R)"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button>
+      <button class="ibtn wideOnly" id="btnHelp" title="Nasıl oynanır?" aria-label="Nasıl oynanır?"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.8.4-1 .9-1 1.7"/><path d="M12 17h.01"/></svg></button>
+      <button class="ibtn" id="btnSound" title="Ses (X)" aria-label="Ses (X)"><svg viewBox="0 0 24 24"><path d="M4 10v4h3l4 3V7L7 10z"/><path d="M15 9.5a4 4 0 0 1 0 5"/><path d="M17.5 7a7 7 0 0 1 0 10"/></svg></button>
+      <button class="ibtn wideOnly" id="btnMusic" title="Müzik (M)" aria-label="Müzik (M)"><svg viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg></button>
+      <button class="ibtn txt" id="btnLang" title="Dil (L)" aria-label="Dil (L)">EN</button>
+      <button class="ibtn" id="btnMenu" title="Mola (P / Esc)" aria-label="Mola (P / Esc)"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
     </div>
     <div id="meter" title=""><div id="meterFill"></div></div>
   </div>
@@ -343,10 +349,10 @@ kbd{font-family:var(--font); background:#fff; border:1px solid var(--cobalt); bo
       </div>
       <div class="assetLine" id="assetLine"></div>
       <div class="foot">
-        <button class="ibtn" id="btnSound2" title="Ses"><svg viewBox="0 0 24 24"><path d="M4 10v4h3l4 3V7L7 10z"/><path d="M15 9.5a4 4 0 0 1 0 5"/><path d="M17.5 7a7 7 0 0 1 0 10"/></svg></button>
-        <button class="ibtn" id="btnMusic2" title="Müzik"><svg viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg></button>
-        <button class="ibtn" id="btnSettings2" title="Ayarlar"><svg viewBox="0 0 24 24"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg></button>
-        <button class="ibtn txt" id="btnLang2">EN</button>
+        <button class="ibtn" id="btnSound2" title="Ses (X)" aria-label="Ses (X)"><svg viewBox="0 0 24 24"><path d="M4 10v4h3l4 3V7L7 10z"/><path d="M15 9.5a4 4 0 0 1 0 5"/><path d="M17.5 7a7 7 0 0 1 0 10"/></svg></button>
+        <button class="ibtn" id="btnMusic2" title="Müzik (M)" aria-label="Müzik (M)"><svg viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg></button>
+        <button class="ibtn" id="btnSettings2" title="Ayarlar" aria-label="Ayarlar"><svg viewBox="0 0 24 24"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg></button>
+        <button class="ibtn txt" id="btnLang2" title="Dil (L)" aria-label="Dil (L)">EN</button>
       </div>
       <div class="tiny" id="progressLine" style="margin-top:10px"></div>
       <div class="tiny" id="titleFact" style="margin-top:8px; line-height:1.35; max-width:420px; margin-left:auto; margin-right:auto"></div>
@@ -356,14 +362,14 @@ kbd{font-family:var(--font); background:#fff; border:1px solid var(--cobalt); bo
 
   <div id="levelScreen" class="overlay hidden">
     <div class="panel tilePanel">
-      <header><h2 data-i18n="levels">Bölümler</h2><button class="ibtn" id="btnLevelsClose" title="Kapat"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
+      <header><h2 data-i18n="levels">Bölümler</h2><button class="ibtn" id="btnLevelsClose" title="Kapat" aria-label="Kapat"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
       <div id="chapters"></div>
     </div>
   </div>
 
   <div id="collectionScreen" class="overlay hidden">
     <div class="panel tilePanel">
-      <header><h2 data-i18n="collection">Koleksiyon</h2><button class="ibtn" id="btnCollectionClose" title="Kapat"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
+      <header><h2 data-i18n="collection">Koleksiyon</h2><button class="ibtn" id="btnCollectionClose" title="Kapat" aria-label="Kapat"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
       <div id="cDetail" class="detail hidden"><canvas id="cDetailPic" width="224" height="224"></canvas><div class="info"><b id="cDetailName"></b><div class="sub" id="cDetailSub"></div><div class="line" id="cDetailLine"></div></div></div>
       <div class="subhead" data-i18n="craftNotes">Usta notları</div>
       <div id="notesRow" class="notes"></div>
@@ -2425,7 +2431,8 @@ function applyLang() {
   document.documentElement.lang = lang;
   document.querySelectorAll('[data-i18n]').forEach(el => { el.innerHTML = t(el.dataset.i18n); });
   for (const [id, k] of [['btnHint', 'hintTip'], ['btnUndo', 'undoTip'], ['btnRestart', 'restartTip'], ['btnHelp', 'helpTip'], ['btnSound', 'soundTip2'], ['btnMusic', 'musicTip2'], ['btnMenu', 'menuTip'], ['btnLang', 'langTip'], ['btnSound2', 'soundTip2'], ['btnMusic2', 'musicTip2'], ['btnLang2', 'langTip'], ['btnSettings2', 'settingsTip'], ['btnLevelsClose', 'closeTip'], ['btnCollectionClose', 'closeTip']]) $(id).title = t(k);
-  for (const id of ['btnSound', 'btnMusic', 'btnMenu', 'btnHint', 'btnUndo', 'btnRestart', 'btnHelp', 'btnSound2', 'btnMusic2', 'btnSettings2', 'btnLevelsClose', 'btnCollectionClose']) $(id).setAttribute('aria-label', $(id).title);
+  // a11y: include btnLang and btnLang2 in localized aria-labels alongside the icon buttons
+  for (const id of ['btnSound', 'btnMusic', 'btnMenu', 'btnHint', 'btnUndo', 'btnRestart', 'btnHelp', 'btnLang', 'btnSound2', 'btnMusic2', 'btnSettings2', 'btnLang2', 'btnLevelsClose', 'btnCollectionClose']) $(id).setAttribute('aria-label', $(id).title);
   $('btnLang').textContent = lang === 'tr' ? 'EN' : 'TR'; $('btnLang2').textContent = lang === 'tr' ? 'EN' : 'TR';
   const hasSave = completedCount() > 0;
   $('btnContinue').classList.toggle('hidden', !hasSave); $('btnPlay').classList.toggle('hidden', hasSave);
