@@ -301,6 +301,29 @@ kbd{font-family:var(--font); background:#fff; border:1px solid var(--cobalt); bo
   #topbar .ibtn{width:40px;height:40px;min-width:40px;min-height:40px} /* landscape phones: 44px overflows the bar (kept at 40, lead QA 2026-11-03) */
   #topbar .ibtn svg{width:18px;height:18px}
 }
+
+/* result card fitting for short landscape screens (max-height: 500px) */
+@media (max-height:500px){
+  #completeScreen{padding:8px;}
+  #completeCard{
+    max-height:calc(100vh - 16px);
+    overflow-y:auto;
+    padding:10px 16px;
+    max-width:560px;
+  }
+  #completeCard h2{font-size:20px; margin:0 0 4px;}
+  #completeCard h2::after{margin:3px auto 0; width:36px; height:2px;}
+  #completeCard .starsBig{font-size:32px; min-height:36px; margin:0 0 2px;}
+  #completeCard .starsBig .stars{gap:4px;}
+  #completeCard .record{font-size:11px; padding:2px 8px; margin:1px 0 2px;}
+  #completeCard canvas.preview{width:80px; height:80px; margin:4px auto 6px; box-shadow:0 0 0 4px #a4742f, 0 0 0 6px #e2bd7e, 0 6px 12px rgba(0,0,0,.3);}
+  #completeCard .scoreRow{margin:2px 0 4px; gap:16px;}
+  #completeCard .scoreRow .stat b{font-size:16px;}
+  #completeCard .scoreRow .stat span{font-size:10px;}
+  #completeCard #cNote{margin:2px 0 6px; font-size:12px; line-height:1.2;}
+  #completeCard .row{gap:3px; margin-top:2px;}
+  #completeCard .btn{min-width:105px; padding:7px 12px; font-size:13px; margin:2px;}
+}
 </style>
 <script data-goatcounter="https://furkiozknn.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
