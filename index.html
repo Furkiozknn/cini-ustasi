@@ -1199,7 +1199,8 @@ const Sound = (() => {
     get soundOn() { return soundOn; }, get musicOn() { return musicOn; },
     unlock() { if (ensure() && musicOn) api.startMusic(); },
     setSound(v) { soundOn = v; if (ctx) sfxBus.gain.setTargetAtTime(sfxGain(), ctx.currentTime, 0.02); },
-    setMusic(v) { musicOn = v; if (!ctx) return; if (v) api.startMusic(); musicBus.gain.setTargetAtTime(musicGain(), ctx.currentTime, 0.3); },
+    // clear background schedule interval when music is turned off to prevent timer leak
+    setMusic(v) { musicOn = v; if (!ctx) return; if (v) api.startMusic(); else if (musicTimer) { clearInterval(musicTimer); musicTimer = null; } musicBus.gain.setTargetAtTime(musicGain(), ctx.currentTime, 0.3); },
     applyVolumes() { if (!ctx) return; master.gain.setTargetAtTime(settings.master * 1.1, ctx.currentTime, 0.05); musicBus.gain.setTargetAtTime(musicGain(), ctx.currentTime, 0.05); sfxBus.gain.setTargetAtTime(sfxGain(), ctx.currentTime, 0.05); },
     startMusic() { if (!ensure() || !musicOn) return; startDrone(); if (!musicTimer) { nextNote = ctx.currentTime + 0.5; musicTimer = setInterval(schedule, 250); schedule(); } },
     pause() { if (ctx && ctx.state === 'running') ctx.suspend().catch(() => {}); },
@@ -1867,7 +1868,7 @@ const atlasCanvas = document.createElement('canvas'); atlasCanvas.width = ATLAS_
 const atlasTex = new THREE.CanvasTexture(atlasCanvas); atlasTex.colorSpace = THREE.SRGBColorSpace; atlasTex.anisotropy = LOW ? 1 : 4;
 const galleryPics = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshLambertMaterial({ map: atlasTex })); scene.add(galleryPics);
 let galleryFrames = null;
-function gallerySlotPos(i) { const r = Math.floor(i / GALLERY.cols), c = i % GALLERY.cols; return new THREE.Vector3(GALLERY.x0 + c * GALLERY.dx, GALLERY.y[r], GALLERY.z); }
+function gallerySlotPos(i, out) { const r = Math.floor(i / GALLERY.cols), c = i % GALLERY.cols; const v = out || new THREE.Vector3(); return v.set(GALLERY.x0 + c * GALLERY.dx, GALLERY.y[r], GALLERY.z); }
 // transit piece (comes out of the kiln and flies to the wall)
 const transit = new THREE.Group(); transit.visible = false; scene.add(transit);
 const transitFrame = new THREE.Mesh(colorize(new THREE.BoxGeometry(GALLERY.size + 0.12, GALLERY.size + 0.12, 0.06), '#b07a35'), lambertVC); transit.add(transitFrame);
@@ -2344,7 +2345,7 @@ function updateSequence(dt) {
     }
   } else if (q.phase === 'tokiln') {
     const e = easeInOut(u);
-    const target = new THREE.Vector3(KILN_MOUTH.x, KILN_MOUTH.y - 0.1, KILN_MOUTH.z - 0.3);
+    const target = _seqTarget.set(KILN_MOUTH.x, KILN_MOUTH.y - 0.1, KILN_MOUTH.z - 0.3);
     // lift straight up first (the board is still over the table), travel and shrink, and only tilt once it is well clear of the table top
     const lift = Math.sin(u * Math.PI) * 1.5;
     boardGroup.position.set(lerp(0, target.x, e), TABLE_Y + lift + e * (target.y - TABLE_Y), lerp(0, target.z, e));
@@ -2361,7 +2362,7 @@ function updateSequence(dt) {
     kilnLight.intensity = 3.5 + Math.sin(q.t * 40) * 0.8 + Math.sin(q.t * 23) * 0.5; kilnGlow.scale.setScalar(1.6 + Math.sin(q.t * 30) * 0.15);
     if (u >= 1) {
       q.phase = 'out'; q.t = 0;
-      transit.visible = true; transit.position.copy(KILN_MOUTH).add(new THREE.Vector3(0, 0, 0.3)); transit.scale.setScalar(0.3); transit.rotation.set(0, 0, 0);
+      transit.visible = true; transit.position.set(KILN_MOUTH.x, KILN_MOUTH.y, KILN_MOUTH.z + 0.3); transit.scale.setScalar(0.3); transit.rotation.set(0, 0, 0);
       if (transitPic.material.map) transitPic.material.map.dispose();
       const tex = new THREE.CanvasTexture(G.transitPic); tex.colorSpace = THREE.SRGBColorSpace; transitPic.material.map = tex; transitPic.material.needsUpdate = true;
       if (!G.simulating) Sound.fanfare();
@@ -2369,18 +2370,18 @@ function updateSequence(dt) {
   } else if (q.phase === 'out') {
     const e = easeInOut(u);
     const slotIdx = wallSlotFor(G.pz.key);
-    const dest = gallerySlotPos(slotIdx).add(new THREE.Vector3(0, 0, 0.03));
+    const dest = gallerySlotPos(slotIdx, _seqDest); dest.z += 0.03;
     // landscape: back to the table view; portrait: follow the panel to its frame on the wall
     if (camera.aspect < 1) { _kilnFocus.copy(KILN_MOUTH).sub(CAM.target).multiplyScalar(0.95); CAM.focus.copy(dest).sub(CAM.target); _kilnFocus.lerp(CAM.focus, clamp(u * 1.6, 0, 1)); CAM.focus.copy(_kilnFocus); }
     else CAM.focus.set(0, 0, 0);
-    const start = KILN_MOUTH.clone().add(new THREE.Vector3(0, 0, 0.3));
+    const start = _seqStart.copy(KILN_MOUTH); start.z += 0.3;
     transit.position.set(lerp(start.x, dest.x, e), lerp(start.y, dest.y, e) + Math.sin(u * Math.PI) * 1.4, lerp(start.z, dest.z + 0.8, e) - (u > 0.9 ? (u - 0.9) * 8 : 0));
     transit.scale.setScalar(lerp(0.3, 1, e)); transit.rotation.y = Math.sin(u * Math.PI) * 0.6; transit.rotation.x = Math.sin(u * Math.PI) * 0.2;
     kilnLight.intensity = lerp(3.5, 1.4, e); kilnGlow.scale.setScalar(lerp(1.6, 1, e));
     if (u >= 1) { q.phase = 'done'; transit.visible = false; sparks.visible = false; rebuildWall(); G.seq = null; if (camera.aspect >= 1) CAM.focus.set(0, 0, 0); showComplete(); }
   }
 }
-const _kilnFocus = new THREE.Vector3();
+const _seqTarget = new THREE.Vector3(), _seqDest = new THREE.Vector3(), _seqStart = new THREE.Vector3(), _kilnFocus = new THREE.Vector3();
 function wallList() { return progress.collection.slice().sort((a, b) => a.ts - b.ts).slice(-MAX_WALL); }
 function wallSlotFor(key) {
   const list = wallList();
@@ -2783,12 +2784,14 @@ gl.addEventListener('wheel', e => { e.preventDefault(); CAM.zoom = clamp(CAM.zoo
 //  Update loop (game time) + rendering
 // ============================================================================
 function updateTiles(dt) {
+  if (!G.pz || !G.tiles.length) return;
   const k = 1 - Math.exp(-dt * 14), kp = 1 - Math.exp(-dt * 11);
+  const n = G.pz.n, pitch = G.pitch, halfN = (n - 1) / 2;
   for (const tl of G.tiles) {
     if (!tl) continue;
     const p0 = tl.pivot.position, r0 = tl.mesh.rotation, before = p0.x + p0.y * 3.1 + p0.z * 7.3 + r0.x * 11.7 + r0.y * 13.9 + tl.mesh.scale.x * 5.3;
     tl.visAngle += (tl.angle - tl.visAngle) * k;
-    let [tx, tz] = slotLocal(tl.slot);
+    let tx = ((tl.slot % n) - halfN) * pitch, tz = (((tl.slot / n) | 0) - halfN) * pitch;
     if (G.drag === tl) { tx = tl.x; tz = tl.z; } else { tl.x += (tx - tl.x) * kp; tl.z += (tz - tl.z) * kp; }
     if (tl.jump < 1) tl.jump = Math.min(1, tl.jump + dt / 0.5);
     let lift = 0;
