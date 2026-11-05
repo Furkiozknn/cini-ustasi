@@ -1,79 +1,58 @@
 <p align="center">
-  <a href="https://furkiozknn.github.io/cini-ustasi/"><img src="docs/banner.svg" width="100%" alt="Çini Ustası: rotate, swap and flip hand-painted Iznik tiles until every motif connects. Click to play in your browser."></a>
+  <a href="https://furkiozknn.github.io/cini-ustasi/">
+    <img src="docs/card.jpg" width="100%" alt="Çini Ustası: rotate, swap and flip hand-painted Iznik tiles until every motif connects. Click to play in your browser.">
+  </a>
 </p>
 
 <p align="center">
-  <a href="https://furkiozknn.github.io/cini-ustasi/"><img src="https://img.shields.io/badge/%E2%96%B6_Play_now-in_your_browser-1F4E9C?style=for-the-badge&labelColor=2B2A3D" alt="Play now in your browser"></a>
+  <a href="https://furkiozknn.github.io/cini-ustasi/"><img src="https://img.shields.io/badge/%E2%96%B6_Play_free-in_your_browser-1F4E9C?style=for-the-badge&logo=googlechrome&logoColor=white&labelColor=2B2A3D" height="40" alt="Play free in your browser"></a>
+</p>
+
+<p align="center">
   <img src="https://img.shields.io/badge/Three.js-r170-1FA3A3?style=for-the-badge&logo=threedotjs&logoColor=white&labelColor=2B2A3D" alt="Three.js r170">
   <img src="https://img.shields.io/badge/built_by-Claude_Fable_5.1-D9452B?style=for-the-badge&logo=claude&logoColor=white&labelColor=2B2A3D" alt="Built by Claude Fable 5.1">
   <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-2E8B57?style=for-the-badge&labelColor=2B2A3D" alt="MIT licence"></a>
   <img src="https://img.shields.io/badge/no_install-desktop_%C2%B7_phone-FBF7EE?style=for-the-badge&labelColor=2B2A3D" alt="No install, desktop and phone">
 </p>
 
-<p align="center"><b>A calm 3D edge-matching puzzle in a warm tile workshop: rotate, swap and flip hand-painted Iznik tiles until every tulip, carnation, saz leaf and rumi scroll connects, then fire the finished panel in the kiln and hang it on your wall.</b></p>
-
-<p align="center">
-  <img src="docs/gameplay.gif" width="640" alt="Çini Ustası gameplay: tiles rotate on the board until the motifs connect">
-</p>
-
-<p align="center"><b>Play online: <a href="https://furkiozknn.github.io/cini-ustasi/">https://furkiozknn.github.io/cini-ustasi/</a></b> (desktop and phone, no install)</p>
-
 <!-- portals:start -->
-<p align="center">Also on: <a href="https://furkiozknn.itch.io/cini-ustasi">itch.io</a> &middot; <a href="https://playgama.ai/play/3w2c2uyo35qj3q">Playgama</a></p>
+<p align="center">
+  Also on: <a href="https://furkiozknn.itch.io/cini-ustasi"><strong>itch.io</strong></a> &middot; <a href="https://playgama.ai/play/3w2c2uyo35qj3q"><strong>Playgama</strong></a>
+</p>
 <!-- portals:end -->
 
-## Highlights
+<p align="center">
+  <strong>A calm 3D edge-matching puzzle in a warm tile workshop: rotate, swap and flip hand-painted Iznik tiles until every tulip, carnation, saz leaf and rumi scroll connects, then fire the finished panel in the kiln and hang it on your wall.</strong>
+</p>
 
-- **30 levels in 3 chapters.** Chapter 1 is about rotating tiles, chapter 2 adds swapping, chapter 3 adds fixed tiles
-  and double-sided tiles you can flip; boards grow from 3x3 to 6x6.
-- **Every level is solvable.** Boards are generated solved and then scrambled, and the built-in solver solves all 30
-  levels and the daily boards from the scrambled state (checked by the tests).
-- **Readable motifs.** Five Iznik motifs in cobalt, turquoise, coral and emerald are painted in code; each motif is
-  widest at the edge, so a matched pair forms one medallion, and matched edges glow gold.
-- **Moves against par.** 1 to 3 stars per level, undo, restart, three hints per level that each fix one tile, a
-  matched-edge counter in the top bar and a **daily board** that unlocks after chapter 1.
-- **The kiln is a craft step.** A solved board glazes with a shine sweep and slides into the glowing kiln; there a heat
-  gauge rises and you press **Fire** while the needle is in the glaze band. Inside the band the glass frit melts into a
-  glossy finish, dead centre earns the master glaze, too early or too late comes out matte. The finish is kept on the
-  panel and shows as a sheen on the wall and in the collection (stars and moves are not affected; one click skips it).
-- **Excavation boards.** On odd days of the month the daily board has three weathered tiles: the motif lies under a
-  layer of earth until one edge meets its correct neighbour, then it restores with a shimmer.
-- **Coaching in play, no tutorial wall.** Level 1 pulses the first wrong tile with a one-line tip; the first swap level
-  and the first fixed/double-sided level name the new rule once, over the tile it applies to.
-- **Live star meter.** A thin bar under the top bar counts the moves left before the next star threshold (gold,
-  silver, bronze); crossing one chimes and pops the stars, and a rotation that breaks a matched edge nudges the tile.
-- **Master's gallery.** The collection lists all 30 panels (unsolved ones as outlines) plus your daily boards; pick
-  one to see its name, stars and glaze, and unlock four short craft notes about Iznik tile, one per chapter.
-- **A living workshop.** Dust motes in the window light, a view of Lake Iznik, a flickering kiln, glossy bevelled tiles
-  on lime-plaster grout and a cat that comes to sit on the stool; oud-like plucks on a Hicaz scale over a soft drone,
-  made with Web Audio.
+<!-- gameplay gif -->
+
+## Features
+
+- **30 levels across 3 chapters:** Chapter 1 introduces tile rotation, Chapter 2 adds tile swapping, and Chapter 3 introduces fixed tiles and double-sided tiles you can flip, with boards scaling from 3x3 to 6x6.
+- **Par scoring, stars & daily boards:** 1 to 3 stars per level based on par, with undo, restart, 3 hints per level that each fix one tile, a live star meter, and fresh 4x4 daily boards unlocked after Chapter 1 (including excavation boards with 3 weathered tiles on odd days).
+- **Kiln firing & master glaze:** Solved panels glaze with a shine sweep and slide into the glowing kiln where a heat gauge rises; press Fire inside the glaze band to melt the frit into a glossy finish or dead centre for a master glaze, preserved across all 30 panels in the collection.
+- **Living workshop atmosphere:** Hand-painted Iznik motifs (tulip, carnation, saz leaf, rumi scroll) in cobalt, turquoise, coral, and emerald, accompanied by kiln embers, dust motes in window light over Lake Iznik, an animated cat on a stool, and authentic Hicaz oud plucks synthesized via Web Audio.
+- **Ultra-lean web performance:** A single `index.html` running Three.js r170 delivering a locked 60 fps at 21–58 draw calls on Intel UHD 620 (21 &rarr; 32 on title, 46 &rarr; 58 on level 10, 37 &rarr; 49 on level 22), with 358/358 unit tests passing and an automated `?auto` bot that clears all 30 levels with 0 JS errors.
 
 ## How to play
 
 > [!TIP]
-> **Goal:** connect every edge on the board: each motif must meet its twin on the neighbouring tile. Solve the level in
-> as few moves as possible to earn 3 stars, then fire the panel in the kiln at the right heat for a glossy finish.
+> **Goal:** Connect every edge on the board: each motif must meet its twin on the neighbouring tile. Solve the level in as few moves as possible to earn 3 stars, then fire the panel in the kiln at the right heat for a glossy finish.
 
-Click a tile to rotate it by 90 degrees. From chapter 2 on, drag a tile onto another to swap them. In chapter 3 some
-tiles are fixed in place, and double-sided tiles can be flipped with a right-click (or a long press). The top bar shows
-your moves, the level's par, how many edges already match and the star meter. When the board is solved it slides into
-the kiln: press **Fire** (or tap the card, `Enter`, `Space`) while the needle is in the glaze band.
+1. **Rotate tiles (Click / tap):** Click a tile to rotate it by 90 degrees until the motifs connect. Matched edges glow gold.
+2. **Swap and flip (Chapters 2 & 3):** Drag a tile onto another to swap their positions (from Chapter 2). In Chapter 3, double-sided tiles can be flipped with right-click, long press, or `F`.
+3. **Fire the kiln:** When the board is solved, press **Fire** (or tap the card, `Enter`, `Space`) while the heat needle is in the glaze band to set the panel's finish (matte, glossy, or master glaze).
 
 <details>
-<summary><b>More rules</b></summary>
+<summary><b>Rules and scoring</b></summary>
 
-- Each level has a par, the length of the planned solution. Finishing at or under par gives 3 stars, within
-  `ceil(1.6 x par) + 2` moves 2 stars, and any solve at least 1 star.
-- Every level starts with three hints. A hint fixes one tile, planned against the board's own generated solution, so it
-  is instant and never fails; undoing a hint gives it back.
-- Fixed tiles stay at their home position and cannot be rotated, swapped or flipped.
-- The kiln step rates the finish: matte, glossy (needle in the band) or master glaze (needle in the narrow core).
-  A panel keeps its best finish; skipping the step or letting the needle run to the end gives matte.
-- The daily board is a fresh 4x4 puzzle seeded by the date, with rotations and swaps; it unlocks after chapter 1. On
-  odd days it is an excavation board with three weathered tiles; the solution, hints and par are the same as the plain
-  board for that date.
-- Solved panels join the collection and the gallery wall of the workshop (the wall shows the 12 latest, the collection
-  keeps all of them); your best stars and finish per level are kept.
+- **Par & stars:** Each level has a par, the length of the planned solution. Finishing at or under par gives 3 stars, within `ceil(1.6 x par) + 2` moves gives 2 stars, and any solve earns at least 1 star.
+- **Hints:** Every level starts with three hints. A hint fixes one tile, planned against the board's own generated solution, so it is instant and never fails; undoing a hint gives it back.
+- **Fixed & double-sided tiles:** Fixed tiles stay at their home position and cannot be rotated, swapped or flipped. Double-sided tiles have two active faces.
+- **Kiln ratings:** The kiln step rates the finish: matte, glossy (needle in the band), or master glaze (needle in the narrow core). A panel keeps its best finish; skipping the step or letting the needle run to the end gives matte.
+- **Daily & excavation boards:** The daily board is a fresh 4x4 puzzle seeded by the date, with rotations and swaps; it unlocks after chapter 1. On odd days it is an excavation board with three weathered tiles; the solution, hints and par are the same as the plain board for that date.
+- **Master's gallery:** Solved panels join the collection and the gallery wall of the workshop (the wall shows the 12 latest, the collection keeps all 30); your best stars and finish per level are kept. Unlock four craft notes about Iznik tile, one per chapter.
 
 </details>
 
@@ -81,41 +60,40 @@ the kiln: press **Fire** (or tap the card, `Enter`, `Space`) while the needle is
 
 | Action | Mouse / touch | Keyboard |
 |---|---|---|
-| Rotate a tile 90 degrees | click / tap | |
-| Swap two tiles (chapter 2 on) | drag one onto the other | |
-| Flip a double-sided tile (chapter 3) | right-click / long press | `F` on the hovered tile |
-| Tilt the camera / zoom | drag on the table / wheel or pinch | |
+| Rotate a tile 90 degrees | Click / tap | |
+| Swap two tiles (chapter 2 on) | Drag one onto the other | |
+| Flip a double-sided tile (chapter 3) | Right-click / long press | `F` on the hovered tile |
+| Tilt the camera / zoom | Drag on the table / wheel or pinch | |
 | Fire the kiln (after a solve) | Fire button or tap the card; Skip | `Enter` / `Space` / `F` |
-| Undo / hint / restart | top bar | `Z` / `H` / `R` |
-| Pause menu | menu button | `P` / `Esc` |
-| Music / effects / language | pause menu, settings | `M` / `X` / `L` |
-| Buttons | tap | `Tab`, `Enter` / `Space` |
+| Undo / hint / restart | Top bar buttons | `Z` / `H` / `R` |
+| Pause menu | Menu button | `P` / `Esc` |
+| Music / effects / language | Pause menu, settings | `M` / `X` / `L` |
+| Buttons | Tap | `Tab`, `Enter` / `Space` |
 
-Settings (master, music and effects volume, TR / EN, Low / High graphics, fullscreen) are saved in `localStorage` under
-`arena.cini.settings`; stars, unlocked levels and the collection under `arena.cini.save`, and the title offers
-**Continue**. The first visit follows the browser language and picks Low graphics on touch devices or CPUs with 4
-threads or fewer.
+- **Global hotkeys:** `P` / `Esc` pause, `M` music, `X` effects, `L` language, `Z` undo, `H` hint, `R` restart.
+- **Audio control:** Sound effects and music volumes are adjustable in settings or the pause menu, synthesised entirely with Web Audio API.
+- **Touch:** Full touch support with tap to rotate, drag-and-drop to swap, long press to flip, pinch to zoom, and dedicated mobile HUD layouts.
+- **Persistence:** Settings (master, music and effects volume, TR / EN, Low / High graphics, fullscreen) are saved in `localStorage` under `arena.cini.settings`; stars, unlocked levels and the collection under `arena.cini.save`, with **Continue** on the title screen. The first visit follows browser language and picks Low graphics on touch devices or CPUs with 4 threads or fewer.
 
 <details>
 <summary><b>URL flags for testing</b></summary>
 
 | Flag | Effect |
 |---|---|
-| `?auto` | the game solves each board itself (plans to the generated solution) and moves on |
-| `?debug` | draw calls, fps and JS errors on screen; `window.ciniSim(seconds)` fast-forwards the game |
-| `?sim=N` | fast-forward N seconds before the first frame |
-| `?level=N` / `?level=daily` | jump to a level or the daily board |
-| `?daykey=YYYY-MM-DD` | force the daily board's date (an odd day gives the excavation board) |
-| `?screen=levels` | open a screen: `levels`, `collection`, `howto` (`&ch=N` picks the page), `settings` or `pause` |
+| `?auto` | The game solves each board itself (plans to the generated solution) and moves on |
+| `?debug` | Draw calls, fps and JS errors on screen; `window.ciniSim(seconds)` fast-forwards the game |
+| `?sim=N` | Fast-forward N seconds before the first frame |
+| `?level=N` / `?level=daily` | Jump to a level or the daily board |
+| `?daykey=YYYY-MM-DD` | Force the daily board's date (an odd day gives the excavation board) |
+| `?screen=levels` | Open a screen: `levels`, `collection`, `howto` (`&ch=N` picks the page), `settings` or `pause` |
 | `?low` | Low graphics for this visit (not saved) |
-| `?noassets` | skip the asset files and use the procedural models and textures |
-| `?lang=en` / `?lang=tr` | language |
-| `?fresh` | start with empty progress and default settings |
-| `?fill` | fill the collection for screenshots (saving disabled) |
-| `?noanim` / `?nohowto` / `?nokiln` | skip CSS animations / skip the coach tips / skip the kiln firing step |
+| `?noassets` | Skip the asset files and use the procedural models and textures |
+| `?lang=en` / `?lang=tr` | Language |
+| `?fresh` | Start with empty progress and default settings |
+| `?fill` | Fill the collection for screenshots (saving disabled) |
+| `?noanim` / `?nohowto` / `?nokiln` | Skip CSS animations / skip the coach tips / skip the kiln firing step |
 
-The live state is on `window.cini` (with a small test API on `window.cini.api`: `performMove`, `plan`, `lockKiln`,
-`mem`, `calls`, `tileScreenPos`).
+The live state is on `window.cini` (with a small test API on `window.cini.api`: `performMove`, `plan`, `lockKiln`, `mem`, `calls`, `tileScreenPos`).
 
 </details>
 
@@ -135,7 +113,7 @@ The live state is on `window.cini` (with a small test API on `window.cini.api`: 
 </table>
 
 <details>
-<summary><b>Coaching, the excavation board, pause, settings and the phone layout</b></summary>
+<summary><b>Coaching, excavation board, pause, settings and phone layout</b></summary>
 
 <table>
   <tr>
@@ -158,109 +136,71 @@ The live state is on `window.cini` (with a small test API on `window.cini.api`: 
 
 </details>
 
-## Tests
+## Redesign & Performance
 
-The puzzle core (the block between `CORE BEGIN` and `CORE END` in `index.html`) has no DOM or Three.js dependencies and
-is tested under Node, with no packages to install:
+**Art direction:** An authentic İznik palette (cobalt `#1F3A93`, turquoise `#1BA3A0`, coral `#C0392B`, sage `#6E8B3D`, glaze white `#F7F4EC`) in a warm, lamp-lit workshop, with every panel framed like a ceramic tile.
 
-```
-node tests/core.test.mjs
-```
+**Visual updates (rules, controls, bot, and saves are untouched):**
+- **Lighting:** A warm key light with a lamp glow over the table and a cooler fill from the window; the kiln mouth lights its surroundings and sheds a plume of ember particles.
+- **Environment:** Glazed terracotta floor with turquoise inserts, a tile dado along the walls, a paint cabinet with glaze bowls, plates and a pitcher on the shelves, brick kiln base with firing tools, and the cat resting on its stool.
+- **UI:** Tile-bordered panels with rumi spandrels in the corners (SVG) for title, pause, settings, how-to, level and collection screens, kiln step, and level-complete cards; ceramic tile band top bar with live star meter; cobalt primary and cream secondary buttons.
 
-It checks all 30 levels and 5 daily boards (two of them excavation boards): deterministic generation, a scrambled
-start, fixed tiles at home, the home solution solves the board, par equals the planned solution's length and earns 3
-stars, the solver finds a solution, weathering keeps the start and par, and the glaze bands. Current result:
-`TESTS PASSED 358/358`. The `?auto` bot also clears all 30 levels in a headless browser with 0 JS errors, with and
-without the asset files.
+**Measured on an Intel UHD 620 (1280x720):**
+- Framerate: locked 60 fps before and after
+- Draw calls: 21 &rarr; 32 (title), 46 &rarr; 58 (level 10), 37 &rarr; 49 (level 22)
+- Headless test bot: `?auto` clears all 30 levels with 0 JS errors (with and without asset files; `?lang=en` checked)
+- Unit tests: 358/358 core tests passing (`node tests/core.test.mjs`)
+
+![Level 22 before and after the redesign](docs/redesign-before-after.png)
 
 ## Running locally
 
-Serve the folder over HTTP (opened from `file://`, the browser blocks the asset files and the game uses its procedural
-models and textures):
+Serve the folder over HTTP (opened from `file://`, the browser blocks the asset files and the game uses its procedural models and textures):
 
-```
+```bash
 python -m http.server 8000
 ```
 
-then open <http://localhost:8000/>.
+Then open <http://localhost:8000/>.
 
-## How it was made
+## Made with Claude Code
 
-Built by **Claude Fable 5.1** with Claude Code from one prompt: [prompts/cini-ustasi.md](prompts/cini-ustasi.md). The
-tile faces are painted at runtime on canvas from four edge motifs that must meet their twin exactly at the edge, the
-workshop was first built from procedural low-poly parts, and the music and sounds are synthesised with the Web Audio API.
+Built by **Claude Fable 5.1** with Claude Code from one prompt: [prompts/cini-ustasi.md](prompts/cini-ustasi.md). The tile faces are painted at runtime on canvas from four edge motifs that must meet their twin exactly at the edge, the workshop was first built from procedural low-poly parts, and the music and sounds are synthesised with the Web Audio API. Three.js is loaded from jsDelivr under its MIT licence.
 
-The assets were remastered by the orchestrator, **Claude Opus 5.5**, with generated models and textures: Tripo
-text-to-3D (through Higgsfield) for the kiln, the sitting cat and the paint set, and GPT Image for the table wood, the
-terracotta floor, the plaster, the window view, the kilim, the crest and a small panorama for the glaze reflections.
-They were processed with glTF-Transform and sharp (about 1.1 MB in `assets/`). The tile faces stay procedural on purpose,
-because generated art cannot guarantee that the motifs meet exactly at the edges, and every replaced part keeps its
-procedural version as the fallback. Prompts, sizes and remaining issues: [docs/assets.md](docs/assets.md). A Godot 4
-remake was made in round 2.
+The assets were remastered by the orchestrator, **Claude Opus 5.5**, with generated models and textures: Tripo text-to-3D (through Higgsfield) for the kiln, the sitting cat and the paint set, and GPT Image for the table wood, the terracotta floor, the plaster, the window view, the kilim, the crest and a small panorama for the glaze reflections. They were processed with glTF-Transform and sharp (about 1.1 MB in `assets/`). The tile faces stay procedural on purpose, because generated art cannot guarantee that the motifs meet exactly at the edges, and every replaced part keeps its procedural version as the fallback. Prompts, sizes and remaining issues: [docs/assets.md](docs/assets.md). A Godot 4 remake was made in round 2.
 
 ### v2 update
 
 Upgraded by **Claude Fable 5.1** with Claude Code from [prompts/cini-ustasi-v2.md](prompts/cini-ustasi-v2.md):
 
-- the how-to overlay is gone; level 1 and the first level of each chapter coach inside the board (`?` still opens the
-  how-to card);
-- the kiln became a craft step with a heat gauge and a glaze rating (matte / glossy / master) kept per panel and drawn
-  as a sheen on the wall and in the collection; old saves load unchanged and get a rating on their next firing;
-- the daily board is an excavation board on odd days, with three weathered tiles that restore on their first matched
-  edge (same solution, so hints, the solver and the bot are unchanged);
-- a live star meter with a chime, a star pop and a "wasted move" nudge;
-- the master's gallery with all 30 panels, a detail box and four craft notes;
-- lime-plaster grout, a bright bevel rim and a glossier glaze on the tiles, a sheen pass when a tile's last edge
-  matches, and the matched-edge glow now updates one preallocated geometry instead of rebuilding one per move;
-- the web font request is gone (system font stack), the load-failure message is bilingual.
+- **In-board coaching:** The how-to overlay was replaced with contextual in-board coaching on Level 1 and the first level of each chapter (`?` still opens the how-to card).
+- **Kiln craft step:** Heat gauge with interactive timing; ratings (matte, glossy, master glaze) saved per panel and shown as a glaze sheen in the collection and on the workshop wall. Old saves load unchanged and receive a rating on their next firing.
+- **Excavation daily boards:** Odd-day daily boards feature three weathered tiles that restore on their first matched edge, keeping the same solution, hints, and par.
+- **Live star meter & feedback:** Progress bar under the top bar with star thresholds, pop animations, audio chimes, and a nudge when a move breaks a matched connection.
+- **Master's gallery:** All 30 panels in the collection with detail views, glaze badges, and four unlockable craft notes detailing Iznik ceramic tradition.
+- **Refined visuals & audio:** Lime-plaster grout, bright bevel rims, glossier tile glaze, sheen sweep on full tile match, preallocated glow geometry, system font stack, and bilingual messaging.
 
-The in-game facts (kiln step, excavation intro, craft notes, title line) come from the research pool behind the brief;
-the source of each is noted in a code comment next to the `FACTS` table in `index.html`.
+The in-game facts (kiln step, excavation intro, craft notes, title line) come from the research pool behind the brief; the source of each is noted in a code comment next to the `FACTS` table in `index.html`.
 
-### Redesign (2026-11)
+<details>
+<summary><b>Technical notes</b></summary>
 
-A visual pass by **Claude Fable 5.1** with Claude Code; the puzzle core, levels, par, stars, bot, saves and flags are
-unchanged. Art direction: an İznik palette (cobalt `#1F3A93`, turquoise `#1BA3A0`, coral `#C0392B`, sage `#6E8B3D`,
-glaze white `#F7F4EC`) in a warm, lamp-lit workshop, with every panel framed like a tile.
+- **Puzzle core (`CORE BEGIN` to `CORE END`):** Pure JavaScript with zero DOM or Three.js dependencies, enabling headless unit testing under Node (`node tests/core.test.mjs`, 358/358 tests passing). Deterministic board generation guarantees every scrambled board is solvable.
+- **Procedural tile painting:** Canvas-rendered Iznik motifs (tulip, carnation, saz leaf, rumi scroll) dynamically generated at runtime so edges align seamlessly across tiles.
+- **Optimized rendering:** Preallocated geometry for matched-edge glow outlines, merged static scenery, instanced decorative elements, and low-poly assets totaling ~1.1 MB.
+- **Audio synthesis:** Pure Web Audio API generating traditional Hicaz-scale oud plucks, background drone, chime flourishes, and firing ambience without external audio samples.
 
-![Level 22 before and after the redesign](docs/redesign-before-after.png)
+</details>
 
-- Lighting: a warm key light with a lamp glow over the table and a cooler fill from the window; the kiln mouth lights
-  its surroundings and sheds a plume of ember particles.
-- Environment: a glazed terracotta floor with turquoise inserts, a tile dado along the walls, a paint cabinet with glaze
-  bowls, plates and a pitcher on the shelves, a brick kiln base and firing tools, the cat on its stool.
-- UI skin: tile-bordered panels with rumi spandrels in the corners (SVG) for the title, pause, settings, how-to, level
-  and collection screens, the kiln step and the level-complete card; a tile band as the top bar with the star meter
-  under it; cobalt primary and cream secondary buttons; the phone portrait and landscape layouts were re-checked.
-- Measured on an Intel UHD 620 at 1280x720: 60 fps before and after; draw calls 46 -> 58 on level 10, 37 -> 49 on
-  level 22, 21 -> 32 on the title. The `?auto` bot clears all 30 levels with 0 JS errors with and without the asset
-  files; `?lang=en` checked, and the low-quality path is the one the phone shots use.
+### Claude Game Arena
 
 Çini Ustası is part of the **Claude Game Arena** series, where each game is built by a Claude model from one prompt.
-The other games: [Hisar](https://furkiozknn.github.io/kale-savunmasi/) ·
-[Çay Ocağı](https://furkiozknn.github.io/cay-ocagi/) · [Martı](https://furkiozknn.github.io/marti/) ·
-[Kervan](https://furkiozknn.github.io/kervan/) ·
-[Dolmuş](https://furkiozknn.github.io/dolmus/) · [Peri Golf](https://furkiozknn.github.io/peri-golf/) ·
-[Mehter](https://furkiozknn.github.io/mehter/) · [Boğaz Vapuru](https://furkiozknn.github.io/bogaz-vapuru/) ·
-[Simit Fırını](https://furkiozknn.github.io/simit-firini/) · [Karagöz](https://furkiozknn.github.io/karagoz/) ·
-[Lale Bahçesi](https://furkiozknn.github.io/lale-bahcesi/)
 
-**Round 5:** [Kapadokya Balonu](https://furkiozknn.github.io/kapadokya-balonu/) ·
-[Ebru](https://furkiozknn.github.io/ebru/) · [Kırkpınar](https://furkiozknn.github.io/kirkpinar/) ·
-[Çarşı Kaçışı](https://furkiozknn.github.io/carsi-kacisi/)
+[Hisar](https://furkiozknn.github.io/kale-savunmasi/) · [Çay Ocağı](https://furkiozknn.github.io/cay-ocagi/) · [Martı](https://furkiozknn.github.io/marti/) · [Kervan](https://furkiozknn.github.io/kervan/) · [Dolmuş](https://furkiozknn.github.io/dolmus/) · [Peri Golf](https://furkiozknn.github.io/peri-golf/) · [Mehter](https://furkiozknn.github.io/mehter/) · [Boğaz Vapuru](https://furkiozknn.github.io/bogaz-vapuru/) · [Simit Fırını](https://furkiozknn.github.io/simit-firini/) · [Karagöz](https://furkiozknn.github.io/karagoz/) · [Lale Bahçesi](https://furkiozknn.github.io/lale-bahcesi/)
 
-**Round 6:** [Topkapı Gecesi](https://furkiozknn.github.io/topkapi-gecesi/) ·
-[Hamsi](https://furkiozknn.github.io/hamsi/) · [Pamukkale](https://furkiozknn.github.io/pamukkale/) ·
-[Mimar Sinan](https://furkiozknn.github.io/mimar-sinan/)
+**Round 5:** [Kapadokya Balonu](https://furkiozknn.github.io/kapadokya-balonu/) · [Ebru](https://furkiozknn.github.io/ebru/) · [Kırkpınar](https://furkiozknn.github.io/kirkpinar/) · [Çarşı Kaçışı](https://furkiozknn.github.io/carsi-kacisi/)
 
-## Türkçe
-
-**Çini Ustası**, sıcak bir çini atölyesinde geçen sakin bir 3D kenar eşleştirme bulmacası. El boyaması İznik çinilerini
-çevir, yer değiştir ve ters yüz et; her lale, karanfil, saz yaprağı ve rumi kıvrımı komşusuyla birleşsin. Biten panoyu
-fırında pişir ve atölyenin duvarına as. Üç bölümde 30 seviye ve her gün yeni bir pano var. Kurulum yok; masaüstünde ve
-telefonda tarayıcıda oynanır. Claude Fable 5.1 tarafından Claude Code ile tek bir prompt'tan yapıldı.
-
-**Oyna:** https://furkiozknn.github.io/cini-ustasi/
+**Round 6:** [Topkapı Gecesi](https://furkiozknn.github.io/topkapi-gecesi/) · [Hamsi](https://furkiozknn.github.io/hamsi/) · [Pamukkale](https://furkiozknn.github.io/pamukkale/) · [Mimar Sinan](https://furkiozknn.github.io/mimar-sinan/)
 
 ## License
 
