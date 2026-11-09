@@ -357,7 +357,9 @@ kbd{font-family:var(--font); background:#fff; border:1px solid var(--cobalt); bo
   .cgrid{grid-template-columns:repeat(3, 1fr); gap:8px;}
   .notes{grid-template-columns:1fr;}
   .detail canvas{width:84px; height:84px;}
-  .scoreRow{gap:10px;}
+  .scoreRow{display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:6px;}
+  .scoreRow .stat{min-width:0; padding:6px 4px;}
+  .scoreRow .stat span{overflow-wrap:anywhere;}
   .starsBig{font-size:42px; min-height:48px;}
   #coach{font-size:13px; max-width:82vw;}
   #factCard{bottom:12px; font-size:12px;}
