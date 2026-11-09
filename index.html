@@ -300,6 +300,29 @@ kbd{font-family:var(--font); background:#fff; border:1px solid var(--cobalt); bo
   .starsBig svg{opacity:1; transform:none;}
 }
 
+/* ---------- Desen Atölyesi (pattern workshop): side panel on wide screens, bottom sheet on narrow ones ---------- */
+#workshopPanel{position:absolute; left:16px; top:50%; transform:translateY(-50%); width:min(340px, calc(100vw - 32px)); max-height:calc(100% - 32px); overflow-y:auto; overscroll-behavior:contain; padding:14px 16px 10px; text-align:center; animation:fadeIn .35s ease;}
+#workshopPanel h2{margin:0 0 4px; font-size:22px; font-weight:800; color:var(--cobalt-deep);}
+#workshopPanel p{margin:2px 0 8px; font-size:12.5px; line-height:1.4; color:var(--ink-soft);}
+.wsLabel{margin:8px 0 4px; font-size:10.5px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--turq-deep); text-align:left;}
+#workshopPanel .seg button{min-height:38px; font-size:13px;}
+.wsMotifs{display:grid; grid-template-columns:repeat(5, 1fr); gap:5px;}
+.wsMotifs button{aspect-ratio:1; padding:2px; border-radius:6px; border:1.5px solid rgba(20,53,138,0.35); background:#fbf7ee; box-shadow:0 2px 0 rgba(20,53,138,0.35); display:flex; align-items:center; justify-content:center;}
+.wsMotifs button canvas{width:100%; height:100%; display:block;}
+.wsMotifs button.on{border-color:var(--gold); box-shadow:0 0 0 2px var(--gold), 0 2px 0 var(--cobalt-deep); background:#fff8dc;}
+.wsMotifs button:focus-visible{outline:3px solid var(--gold); outline-offset:2px;}
+#workshopPanel .row{margin-top:8px;}
+#workshopPanel .btn.small{min-width:0; margin:2px;}
+.wsLink{display:flex; gap:6px; align-items:center; margin-top:8px;}
+.wsLink input{flex:1 1 auto; min-width:0; height:34px; padding:0 8px; border-radius:6px; border:1.5px solid rgba(20,53,138,0.35); background:#fff; color:var(--ink-soft); font:600 11px/1 var(--font); user-select:text; -webkit-user-select:text;}
+.wsLink .btn.small{flex:0 0 auto; margin:0;}
+@media (max-width:760px), (orientation:portrait){
+  #workshopPanel{left:50%; top:auto; bottom:8px; transform:translateX(-50%); width:min(460px, calc(100vw - 16px)); max-height:46vh; padding:8px 12px 6px;}
+  .wsLabel{margin:5px 0 3px;} #workshopPanel .seg button{min-height:34px;} #workshopPanel .row{margin-top:5px;} .wsLink{margin-top:5px;}
+  #workshopPanel h2{font-size:18px;} #workshopPanel p{display:none;}
+  .wsMotifs{grid-template-columns:repeat(10, 1fr); gap:3px;}
+}
+
 /* ---------- mobile responsive (max-width: 640px) ---------- */
 @media (max-width:640px){
   #topbar{padding:6px 8px 10px; gap:6px; top:6px; left:6px; right:6px; border-width:8px; border-image-width:8px; flex-wrap:wrap;}
@@ -419,6 +442,7 @@ kbd{font-family:var(--font); background:#fff; border:1px solid var(--cobalt); bo
       <div class="row">
         <button class="btn alt" id="btnCollection" data-i18n="collection">Koleksiyon</button>
         <button class="btn turq" id="btnDaily" data-i18n="daily">Günün Çinisi</button>
+        <button class="btn alt" id="btnWorkshop" data-i18n="workshop">Desen Atölyesi</button>
       </div>
       <div class="assetLine" id="assetLine"></div>
       <div class="foot">
@@ -510,10 +534,26 @@ kbd{font-family:var(--font); background:#fff; border:1px solid var(--cobalt); bo
       <div class="row">
         <button class="btn" id="btnNext" data-i18n="next">Sonraki</button>
         <button class="btn alt" id="btnReplay" data-i18n="replay">Tekrar</button>
+        <button class="btn alt hidden" id="btnCompleteWorkshop" data-i18n="workshop">Desen Atölyesi</button>
         <button class="btn alt" id="btnCompleteLevels" data-i18n="levels">Bölümler</button>
         <button class="btn alt" id="btnCompleteTitle" data-i18n="backToTitle">Ana ekran</button>
       </div>
     </div>
+  </div>
+
+  <!-- Desen Atölyesi: the player paints the inner edges of a solved board, then plays or shares it as a #p1= link -->
+  <div id="workshopPanel" class="tilePanel hidden">
+    <h2 data-i18n="workshop">Desen Atölyesi</h2>
+    <p data-i18n="wsHint">Bir motif seç, sonra panodaki bir çininin kenarına dokun: komşu çini de aynı motifi alır.</p>
+    <div class="wsLabel" data-i18n="wsSize">Pano</div>
+    <div class="seg" id="wsSizes"><button data-n="3">3×3</button><button data-n="4">4×4</button><button data-n="5">5×5</button><button data-n="6">6×6</button></div>
+    <div class="wsLabel" data-i18n="wsRule">Kural</div>
+    <div class="seg"><button id="wsRotOnly" data-i18n="wsRotOnly">Döndür</button><button id="wsRotSwap" data-i18n="wsRotSwap">Döndür + yer değiştir</button></div>
+    <div class="wsLabel" data-i18n="wsMotif">Motif</div>
+    <div class="wsMotifs" id="wsMotifs"></div>
+    <div class="row"><button class="btn alt small" id="wsRandom" data-i18n="wsRandom">Rastgele</button><button class="btn small" id="wsPlay" data-i18n="wsPlay">Dene</button></div>
+    <div class="wsLink"><input id="wsLinkText" type="text" readonly spellcheck="false"><button class="btn turq small" id="wsCopy" data-i18n="copyLink">Linki kopyala</button></div>
+    <div class="row"><button class="btn alt small" id="wsBack" data-i18n="backToTitle">Ana ekran</button></div>
   </div>
 
   <div id="toasts"></div>
@@ -562,7 +602,8 @@ const settings = {
   lang: (navigator.language || '').toLowerCase().startsWith('tr') ? 'tr' : 'en',
   quality: COARSE || (navigator.hardwareConcurrency || 8) <= 4 ? 'low' : 'high',
 };
-let progress = { best: {}, collection: [], seenHowto: {}, dailyToastShown: false };
+// atelier (Desen Atölyesi): the last drawn pattern code and the best results on pattern links (old saves simply lack both)
+let progress = { best: {}, collection: [], seenHowto: {}, dailyToastShown: false, atelier: '', patterns: {} };
 const readJSON = k => { try { const raw = localStorage.getItem(k); return raw ? JSON.parse(raw) : null; } catch (e) { return null; } };
 const writeJSON = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { } };
 function loadStorage() {
@@ -576,6 +617,8 @@ function loadStorage() {
   if (st) for (const k of Object.keys(settings)) if (st[k] !== undefined && st[k] !== null) settings[k] = st[k];
   if (sv) for (const k of Object.keys(progress)) if (sv[k] !== undefined && sv[k] !== null) progress[k] = sv[k];
   if (!['tr', 'en'].includes(settings.lang)) settings.lang = 'tr';
+  if (typeof progress.atelier !== 'string') progress.atelier = '';
+  if (!progress.patterns || typeof progress.patterns !== 'object' || Array.isArray(progress.patterns)) progress.patterns = {};
   if (old && !FLAG('fill')) { saveSettings(); saveProgress(); }
 }
 function saveSettings() { writeJSON(SETTINGS_KEY, settings); }
@@ -678,6 +721,11 @@ function generateLevel(def, seed) {
   }
   // never seen for the 30 levels; a daily seed that fails every attempt moves on to the next seed instead of a partial board
   if (!tiles) return generateLevel(def, (seed + 1) >>> 0);
+  return finishLevel(def, seed, rng, n, tiles, palette, pick);
+}
+// Fixed tiles, decoy faces and the scramble of a solved tile set (shared by generated levels and pattern links).
+function finishLevel(def, seed, rng, n, tiles, palette, pick) {
+  const N = n * n;
   const mech = { swap: !!def.shuf, flip: !!def.flip, fixed: !!def.fix };
   const slots = tiles.map((t, i) => ({ t: i, rot: 0, face: 0 }));
   // fixed tiles
@@ -836,6 +884,97 @@ function starsFor(moves, par) { return moves <= par ? 3 : moves <= Math.ceil(par
 function levelSeed(i) { return hashStr('cini-level-' + (i + 1) + '-v1'); }
 function dailyKey(d) { d = d || new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
 function dailySeed(key) { return hashStr('cini-daily-' + key); }
+
+// ---- Desen Atölyesi: a player-drawn pattern shared as a link (#p1=<base64url>) ----
+// A pattern is the inner edges of a solved n×n board: H = (n-1) rows × n horizontal edges, V = n rows × (n-1) vertical
+// edges, each an inner motif id 1..20 (the frame band 0 stays on the outside). swap: the challenge also scrambles places.
+// p1 payload: a bit stream, least significant bit first: 2 bits n-3, 1 bit swap, then 5 bits (id-1) per edge, H then V,
+// zero padded to whole bytes and written as unpadded base64url. Decoding is strict: exact length, ids in range, zero
+// padding and a canonical round trip, or null. It never throws. 6×6 is 38 bytes = 51 characters.
+const PATTERN_IDS = 20, PATTERN_MIN_N = 3, PATTERN_MAX_N = 6, PATTERN_MAX_CODE = 64;
+const B64U = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+const patternEdgeCount = n => 2 * n * (n - 1);
+function b64uEncode(bytes) {
+  let s = '';
+  for (let i = 0; i < bytes.length; i += 3) {
+    const v = (bytes[i] << 16) | ((bytes[i + 1] || 0) << 8) | (bytes[i + 2] || 0), left = bytes.length - i;
+    s += B64U[(v >> 18) & 63] + B64U[(v >> 12) & 63] + (left > 1 ? B64U[(v >> 6) & 63] : '') + (left > 2 ? B64U[v & 63] : '');
+  }
+  return s;
+}
+function b64uDecode(s) {
+  if (typeof s !== 'string' || s.length % 4 === 1 || !/^[A-Za-z0-9_-]*$/.test(s)) return null;
+  const out = [];
+  for (let i = 0; i < s.length; i += 4) {
+    const c = s.slice(i, i + 4); let v = 0;
+    for (let j = 0; j < 4; j++) v = (v << 6) | (j < c.length ? B64U.indexOf(c[j]) : 0);
+    out.push((v >> 16) & 255); if (c.length > 2) out.push((v >> 8) & 255); if (c.length > 3) out.push(v & 255);
+  }
+  return out;
+}
+function validPattern(pat) {
+  if (!pat || typeof pat !== 'object' || !Number.isInteger(pat.n) || pat.n < PATTERN_MIN_N || pat.n > PATTERN_MAX_N) return false;
+  const half = pat.n * (pat.n - 1);
+  if (!Array.isArray(pat.H) || !Array.isArray(pat.V) || pat.H.length !== half || pat.V.length !== half) return false;
+  for (const v of pat.H.concat(pat.V)) if (!Number.isInteger(v) || v < 1 || v > PATTERN_IDS) return false;
+  return true;
+}
+// pattern -> code (the part after "p1="); null for an invalid pattern
+function encodePattern(pat) {
+  if (!validPattern(pat)) return null;
+  const bytes = []; let acc = 0, nb = 0;
+  const put = (v, w) => { for (let i = 0; i < w; i++) { acc |= ((v >> i) & 1) << nb; if (++nb === 8) { bytes.push(acc); acc = 0; nb = 0; } } };
+  put(pat.n - PATTERN_MIN_N, 2); put(pat.swap ? 1 : 0, 1);
+  for (const v of pat.H.concat(pat.V)) put(v - 1, 5);
+  if (nb) bytes.push(acc);
+  return b64uEncode(bytes);
+}
+// "#p1=…", "p1=…" or anything else -> { n, swap, H, V } or null (never throws)
+function decodePattern(str) {
+  try {
+    if (typeof str !== 'string' || str.length > PATTERN_MAX_CODE + 4) return null;
+    const m = /^#?p1=([A-Za-z0-9_-]{2,64})$/.exec(str); if (!m) return null;
+    const bytes = b64uDecode(m[1]); if (!bytes) return null;
+    let pos = 0;
+    const get = w => { let v = 0; for (let i = 0; i < w; i++, pos++) v |= ((bytes[pos >> 3] >> (pos & 7)) & 1) << i; return v; };
+    const n = PATTERN_MIN_N + get(2), swap = get(1) === 1, E = patternEdgeCount(n);
+    if (bytes.length !== Math.ceil((3 + 5 * E) / 8)) return null;
+    const vals = [];
+    for (let i = 0; i < E; i++) { const v = get(5) + 1; if (v > PATTERN_IDS) return null; vals.push(v); }
+    while (pos < bytes.length * 8) if (get(1)) return null; // padding bits must be zero
+    const pat = { n, swap, H: vals.slice(0, E / 2), V: vals.slice(E / 2) };
+    return encodePattern(pat) === m[1] ? pat : null;
+  } catch (e) { return null; }
+}
+// edges of the tile at row r, column c of the solved pattern board (same order as generateLevel: top, right, bottom, left)
+function patternEdges(pat, r, c) {
+  const n = pat.n;
+  return [r === 0 ? 0 : pat.H[(r - 1) * n + c], c === n - 1 ? 0 : pat.V[r * (n - 1) + c], r === n - 1 ? 0 : pat.H[r * n + c], c === 0 ? 0 : pat.V[r * (n - 1) + c - 1]];
+}
+function patternTiles(pat) {
+  const n = pat.n, tiles = [];
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) tiles.push({ id: r * n + c, home: r * n + c, faces: [patternEdges(pat, r, c)], fixed: false });
+  return tiles;
+}
+// A playable challenge from a pattern: the same scramble as the levels, seeded by the code, so a link always deals the same board.
+// Repeated or symmetric tiles are allowed here (it is the player's design); the board is judged by edges, the hint and the bot
+// still plan to the drawn layout, and the corner tile turned by finishLevel always breaks an accidentally solved deal.
+function patternLevel(pat) {
+  const code = encodePattern(pat); if (!code) return null;
+  const seed = hashStr('cini-pattern-' + code);
+  const def = { n: pat.n, m: 0, shuf: pat.swap ? 1 : 0, pattern: true };
+  const palette = [...new Set(pat.H.concat(pat.V))];
+  const pz = finishLevel(def, seed, mulberry32(seed), pat.n, patternTiles(pat), palette, () => palette[0]);
+  pz.code = code;
+  return pz;
+}
+// a random pattern in the levels' style: a small palette, every inner edge from it
+function randomPattern(n, swap, seed) {
+  const rng = mulberry32(seed >>> 0), pal = pickPalette(rng, Math.min(8, n + 1)), pick = () => pal[(rng() * pal.length) | 0];
+  const half = n * (n - 1), H = [], V = [];
+  for (let i = 0; i < half; i++) { H.push(pick()); V.push(pick()); }
+  return { n, swap: !!swap, H, V };
+}
 // ==== CORE END ====
 
 // ============================================================================
@@ -864,6 +1003,13 @@ const I18N = {
     glaze: 'Sır', glazeMatte: 'Mat sır', glazeGlossy: 'Parlak sır', glazeMaster: 'Usta sırrı', kilnMissed: 'Sır erimeden çıktı: mat.', kilnOver: 'Fazla pişti: mat.', kilnGlossy: 'Cam frit eridi: parlak!', kilnMaster: 'Tam kıvamında: usta sırrı!', kilnSkipped: 'Fırınlama atlandı: mat.',
     craftNotes: 'Usta notları', gallery: 'Galeri', noteTitles: ['Çırak notu', 'Kalfa notu', 'Usta notu', 'Mühür notu'], noteLocked: ['1. bölümde bir pano bitir', '2. bölümde bir pano bitir', '3. bölümde bir pano bitir', '30 panonun hepsini bitir'],
     notSolved: 'Henüz çözülmedi', selectPiece: 'Bir panoya dokun: adı, yıldızları ve sırrı görünsün.', panels: '{n}/30 pano',
+    // Desen Atölyesi
+    workshop: 'Desen Atölyesi', wsHint: 'Bir motif seç, sonra panodaki bir çininin kenarına dokun: komşu çini de aynı motifi alır.', wsSize: 'Pano', wsRule: 'Kural', wsMotif: 'Motif',
+    wsRotOnly: 'Döndür', wsRotSwap: 'Döndür + yer değiştir', wsRandom: 'Rastgele', wsPlay: 'Dene', copyLink: 'Linki kopyala', wsLinkLabel: 'Paylaşım linki',
+    wsFrame: 'Dış çerçeve boyanmaz: içteki bir kenara dokun', wsSame: 'Bu kenar zaten bu motif', linkCopied: 'Link kopyalandı', copyManual: 'Kopyalanamadı: linki seçip elle kopyala',
+    patternName: 'Atölye Deseni', patternLoaded: 'Paylaşılan desen yüklendi', patternBad: 'Desen linki okunamadı, yok sayıldı',
+    coachPattern: 'Paylaşılan desen: çinileri döndür, motifleri eşleştir ve deseni yeniden kur.', coachPatternSwap: 'Paylaşılan desen: çinileri döndür ve yer değiştir, deseni yeniden kur.',
+    shapeNames: ['Lale', 'Karanfil', 'Saz yaprağı', 'Rumi', 'Gül'], colorNames: ['Kobalt', 'Turkuaz', 'Mercan', 'Zümrüt'],
     howto: [
       { title: 'Kenarları eşleştir', lines: ['Bir çiniye dokun: 90° döner.', 'Komşu kenarlardaki motifler aynı olmalı: aynı şekil, aynı renk.', 'Kenar şeridi yalnızca dış çerçeveye bakar.', 'Eşleşen kenarlar altın gibi parlar. <kbd>Z</kbd> geri al, <kbd>H</kbd> ipucu, <kbd>R</kbd> yeniden, <kbd>P</kbd> mola.'] },
       { title: 'Yer değiştir', lines: ['Bir çiniyi sürükleyip başka bir çininin üstüne bırak: yer değişirler.', 'Dokunmak yine döndürür. Doğru çiniyi doğru yere koy, sonra çevir.', 'Masaya sürükleyerek bakış açısını, tekerlekle yakınlığı ayarla.'] },
@@ -893,6 +1039,13 @@ const I18N = {
     glaze: 'Glaze', glazeMatte: 'Matte glaze', glazeGlossy: 'Glossy glaze', glazeMaster: 'Master glaze', kilnMissed: 'Out before the glaze melted: matte.', kilnOver: 'Overfired: matte.', kilnGlossy: 'The glass frit melted: glossy!', kilnMaster: 'Just right: master glaze!', kilnSkipped: 'Firing skipped: matte.',
     craftNotes: "Craft notes", gallery: 'Gallery', noteTitles: ["Apprentice's note", "Journeyman's note", "Master's note", "Seal note"], noteLocked: ['Finish a panel in chapter 1', 'Finish a panel in chapter 2', 'Finish a panel in chapter 3', 'Finish all 30 panels'],
     notSolved: 'Not solved yet', selectPiece: 'Tap a panel to see its name, stars and glaze.', panels: '{n}/30 panels',
+    // Pattern Workshop
+    workshop: 'Pattern Workshop', wsHint: 'Pick a motif, then tap near the edge of a tile on the board: the neighbouring tile gets the same motif.', wsSize: 'Board', wsRule: 'Rule', wsMotif: 'Motif',
+    wsRotOnly: 'Rotate', wsRotSwap: 'Rotate + swap', wsRandom: 'Random', wsPlay: 'Try it', copyLink: 'Copy link', wsLinkLabel: 'Share link',
+    wsFrame: 'The outer frame is not painted: tap an inner edge', wsSame: 'This edge already has that motif', linkCopied: 'Link copied', copyManual: 'Could not copy: select the link and copy it by hand',
+    patternName: 'Workshop Pattern', patternLoaded: 'Shared pattern loaded', patternBad: 'The pattern link could not be read and was ignored',
+    coachPattern: 'A shared pattern: rotate the tiles, match the motifs and rebuild the design.', coachPatternSwap: 'A shared pattern: rotate and swap the tiles to rebuild the design.',
+    shapeNames: ['Tulip', 'Carnation', 'Saz leaf', 'Rumi', 'Rosette'], colorNames: ['Cobalt', 'Turquoise', 'Coral', 'Emerald'],
     howto: [
       { title: 'Match the edges', lines: ['Tap a tile: it turns 90°.', 'Motifs on neighbouring edges must be the same: same shape, same colour.', 'The border band only faces the outer frame.', 'Matching edges glow gold. <kbd>Z</kbd> undo, <kbd>H</kbd> hint, <kbd>R</kbd> restart, <kbd>P</kbd> pause.'] },
       { title: 'Swap places', lines: ['Drag a tile onto another tile: they swap places.', 'Tapping still rotates. Put the right tile in the right place, then turn it.', 'Drag on the table to tilt the view, scroll to zoom.'] },
@@ -2086,11 +2239,11 @@ function updateCatModel(dt) {
 // v2: ?daykey=YYYY-MM-DD forces the daily board's date (testing the excavation variant on an odd day)
 const DAYKEY = /^\d{4}-\d{2}-\d{2}$/.test(PARAMS.get('daykey') || '') ? PARAMS.get('daykey') : null;
 const todayKey = () => DAYKEY || dailyKey();
-const levelKey = idx => idx === 'daily' ? 'D' + todayKey() : 'L' + (idx + 1);
+const levelKey = idx => idx === 'daily' ? 'D' + todayKey() : idx === 'pattern' ? 'P' + (G.pz && G.pz.code || '') : idx === 'workshop' ? 'W' : 'L' + (idx + 1);
 const isUnlocked = idx => idx === 'daily' ? dailyUnlocked() : idx === 0 || !!progress.best['L' + idx];
 function dailyUnlocked() { for (let i = 0; i < 10; i++) if (!progress.best['L' + (i + 1)]) return false; return true; }
 const dailyName = key => t(excavationDay(key) ? 'excavationName' : 'dailyName');
-function levelDisplayName(idx) { return idx === 'daily' ? dailyName(todayKey()) : LEVEL_NAMES[idx][lang === 'tr' ? 0 : 1]; }
+function levelDisplayName(idx) { return idx === 'daily' ? dailyName(todayKey()) : idx === 'pattern' ? t('patternName') : idx === 'workshop' ? t('workshop') : LEVEL_NAMES[idx][lang === 'tr' ? 0 : 1]; }
 function totalStars() { let s = 0; for (let i = 0; i < 30; i++) { const b = progress.best['L' + (i + 1)]; if (b) s += b.stars; } return s; }
 function completedCount() { let c = 0; for (let i = 0; i < 30; i++) if (progress.best['L' + (i + 1)]) c++; return c; }
 function nextUnfinished() { for (let i = 0; i < 30; i++) if (!progress.best['L' + (i + 1)]) return i; return 29; }
@@ -2105,6 +2258,8 @@ const G = {
   progress: null, settings, assets: [], assetsReady: false,
   // v2: coach tip, kiln firing step, tile sheen queue
   coach: null, kiln: null, sheen: null, sheenQueue: [], fullByTile: [],
+  // Desen Atölyesi: the pattern being played from a link, and the workshop draft ({ pat, motif })
+  pattern: null, ws: null,
 };
 G.progress = progress;
 window.cini = G;
@@ -2278,9 +2433,16 @@ function restartLevel() {
 
 // ---- level flow ----
 function startLevel(idx) {
-  const def = idx === 'daily' ? dailyDefFor(todayKey()) : LEVEL_DEFS[idx];
-  const seed = idx === 'daily' ? dailySeed(todayKey()) : levelSeed(idx);
-  G.levelIndex = idx; G.pz = generateLevel(def, seed); G.pz.key = levelKey(idx);
+  if (idx === 'pattern' && !validPattern(G.pattern)) idx = 0;
+  if (idx !== 'pattern') clearPatternHash();
+  G.levelIndex = idx;
+  if (idx === 'pattern') G.pz = patternLevel(G.pattern);
+  else {
+    const def = idx === 'daily' ? dailyDefFor(todayKey()) : LEVEL_DEFS[idx];
+    const seed = idx === 'daily' ? dailySeed(todayKey()) : levelSeed(idx);
+    G.pz = generateLevel(def, seed);
+  }
+  G.pz.key = levelKey(idx);
   G.slots = G.pz.start.map(s => ({ ...s })); G.history = []; G.hints = 3; G.seq = null; G.kiln = null;
   G.bot.plan = null; G.bot.i = 0; G.bot.timer = 0.6;
   TEX_SIZE = LOW ? 128 : 256; CAM.focus.set(0, 0, 0);
@@ -2290,6 +2452,7 @@ function startLevel(idx) {
   hideAll(); $('topbar').classList.remove('hidden');
   G.screen = 'playing'; updateHUD();
   // v2: no how-to overlay; the first level of each chapter coaches inside the board (seenHowto remembers which tips were shown)
+  if (idx === 'pattern') { showCoach(G.pz.mech.swap ? 'coachPatternSwap' : 'coachPattern', null, 8); return; }
   const ch = idx === 'daily' ? 3 : Math.floor(idx / 10);
   const first = idx === 'daily' || idx % 10 === 0;
   if (idx === 'daily' && G.pz.weathered) { showCoach('coachExcavation', G.pz.weathered[0], 9); showFact(2); }
@@ -2333,6 +2496,21 @@ function onSolved() {
   G.screen = 'completing';
   G.drag = null; G.hover = null;
   const moves = moveCount(), par = G.pz.par, stars = starsFor(moves, par);
+  // a pattern link keeps its own small record (not the 30-level progress, not the wall collection)
+  if (G.levelIndex === 'pattern') {
+    const code = G.pz.code, prev = progress.patterns[code];
+    const improved = !prev || stars > prev.stars || (stars === prev.stars && moves < prev.moves);
+    if (improved) progress.patterns[code] = { stars, moves, ts: Date.now() };
+    const codes = Object.keys(progress.patterns);
+    if (codes.length > 40) { codes.sort((a, b) => (progress.patterns[a].ts || 0) - (progress.patterns[b].ts || 0)); for (const c of codes.slice(0, codes.length - 40)) delete progress.patterns[c]; }
+    saveProgress(); G.newPiece = false;
+    G.result = { moves, par, stars, best: progress.patterns[code], record: improved && !!prev, glaze: null };
+    G.seq = { phase: 'glow', t: 0 };
+    G.transitPic = paintBoardPicture(G.pz, 256, null);
+    hideCoach(); hideFact();
+    if (!G.simulating) Sound.match(3);
+    return;
+  }
   const key = G.pz.key; const prev = progress.best[key];
   const improved = !prev || stars > prev.stars || (stars === prev.stars && moves < prev.moves);
   if (improved) progress.best[key] = { stars, moves };
@@ -2448,7 +2626,7 @@ const _seqTarget = new THREE.Vector3(), _seqDest = new THREE.Vector3(), _seqStar
 function wallList() { return progress.collection.slice().sort((a, b) => a.ts - b.ts).slice(-MAX_WALL); }
 function wallSlotFor(key) {
   const list = wallList();
-  const i = list.findIndex(c => c.key === key); return i < 0 ? list.length - 1 : i;
+  const i = list.findIndex(c => c.key === key); return i < 0 ? Math.max(0, list.length - 1) : i;
 }
 const pictureCache = new Map();
 function pictureFor(entry, size) {
@@ -2493,7 +2671,7 @@ function rebuildWall() {
 const OVERLAYS = { levels: 'levelScreen', collection: 'collectionScreen', howto: 'howtoScreen', menu: 'menuScreen', settings: 'settingsScreen' };
 const BASES = ['title', 'playing', 'completing', 'complete'];
 G.stack = [];
-function hideAll() { for (const id of ['titleScreen', 'completeScreen', 'kilnScreen', ...Object.values(OVERLAYS)]) $(id).classList.add('hidden'); hideFact(); hideCoach(); }
+function hideAll() { for (const id of ['titleScreen', 'completeScreen', 'kilnScreen', 'workshopPanel', ...Object.values(OVERLAYS)]) $(id).classList.add('hidden'); hideFact(); hideCoach(); }
 const STAR_PATH = 'M12 2.6l2.9 6 6.5.8-4.8 4.5 1.2 6.5L12 17.2l-5.8 3.2 1.2-6.5L2.6 9.4l6.5-.8z';
 const starSvg = lit => `<svg viewBox="0 0 24 24" class="${lit ? '' : 'off'}" aria-hidden="true"><path d="${STAR_PATH}"/></svg>`;
 function starsHtml(s) { let h = `<span class="stars" role="img" aria-label="${s}/3">`; for (let i = 0; i < 3; i++) h += starSvg(i < s); return h + '</span>'; }
@@ -2501,7 +2679,7 @@ function updateHUD() {
   if (!G.pz) return;
   const idx = G.levelIndex;
   $('lvlName').textContent = levelDisplayName(idx);
-  $('lvlSub').textContent = idx === 'daily' ? `${todayKey()} · ${G.pz.n}×${G.pz.n}` : `${t('chapter')} ${Math.floor(idx / 10) + 1} · ${t('level')} ${idx + 1} · ${G.pz.n}×${G.pz.n}`;
+  $('lvlSub').textContent = idx === 'daily' ? `${todayKey()} · ${G.pz.n}×${G.pz.n}` : typeof idx === 'string' ? `${t(G.pz.mech.swap ? 'wsRotSwap' : 'wsRotOnly')} · ${G.pz.n}×${G.pz.n}` : `${t('chapter')} ${Math.floor(idx / 10) + 1} · ${t('level')} ${idx + 1} · ${G.pz.n}×${G.pz.n}`;
   const m = moveCount(); $('movesVal').textContent = m; $('parVal').textContent = G.pz.par;
   $('edgesVal').textContent = `${G.matchedCount}/${edgeTotal(G.pz.n)}`;
   $('starsLive').innerHTML = starsHtml(starsFor(m, G.pz.par));
@@ -2530,6 +2708,7 @@ function applyLang() {
   updateHUD();
   if (!$('levelScreen').classList.contains('hidden')) renderLevels();
   if (!$('collectionScreen').classList.contains('hidden')) renderCollection();
+  if (G.screen === 'workshop') renderWorkshop();
 }
 function setLang(l) { lang = l; settings.lang = l; saveSettings(); applyLang(); }
 function toast(msg, kind) {
@@ -2539,6 +2718,7 @@ function toast(msg, kind) {
 }
 const focusSoon = id => { if (!COARSE) requestAnimationFrame(() => { const el = $(id); if (el && el.offsetParent) el.focus({ preventScroll: true }); }); };
 function showTitle() {
+  clearPatternHash();
   hideAll(); G.stack = []; G.screen = 'title'; G.returnTo = 'title'; CAM.focus.set(0, 0, 0);
   $('titleScreen').classList.remove('hidden'); $('topbar').classList.add('hidden');
   applyLang(); focusSoon(completedCount() > 0 ? 'btnContinue' : 'btnPlay');
@@ -2573,7 +2753,7 @@ function showHowto(ch) {
   $('howtoList').innerHTML = h.lines.map((l, i) => `<li><div class="ic">${icons[i % icons.length]}</div><div>${l}</div></li>`).join('');
   openOverlay('howto'); focusSoon('btnHowtoOk');
 }
-const currentChapter = () => G.levelIndex === 'daily' ? 3 : Math.floor(G.levelIndex / 10);
+const currentChapter = () => G.levelIndex === 'daily' ? 3 : typeof G.levelIndex === 'string' ? (G.pz && G.pz.mech.swap ? 1 : 0) : Math.floor(G.levelIndex / 10);
 function showMenu() { if (G.screen !== 'playing') return; openOverlay('menu'); focusSoon('btnResume'); }
 function showSettings() { syncSettingsUI(); openOverlay('settings'); focusSoon('volMaster'); }
 function showLevels() { renderLevels(); openOverlay('levels'); }
@@ -2653,14 +2833,157 @@ function showComplete() {
   $('cGlaze').innerHTML = glazeTag(r.glaze);
   $('cNote').textContent = (G.newPiece ? t('newPiece') + '. ' : '') + t('fired');
   const cv = $('completePreview'); cv.getContext('2d').clearRect(0, 0, 256, 256); cv.getContext('2d').drawImage(G.transitPic, 0, 0, 256, 256);
-  const last = G.levelIndex === 29 || G.levelIndex === 'daily';
+  const last = G.levelIndex === 29 || typeof G.levelIndex === 'string';
+  $('btnCompleteWorkshop').classList.toggle('hidden', G.levelIndex !== 'pattern');
   $('btnNext').classList.toggle('hidden', last || (G.levelIndex !== 'daily' && !isUnlocked(G.levelIndex + 1)));
   focusSoon($('btnNext').classList.contains('hidden') ? 'btnReplay' : 'btnNext');
   if (G.levelIndex === 29 && completedCount() === 30) toast(t('allDone'), 'good');
   if (G.pendingDaily) { G.pendingDaily = false; progress.dailyToastShown = true; saveProgress(); toast(t('dailyUnlocked'), 'good'); }
   if (!G.simulating) { setTimeout(() => Sound.star(), 150); if (r.stars > 1) setTimeout(() => Sound.star(), 330); if (r.stars > 2) setTimeout(() => Sound.star(), 510); }
 }
-function nextLevel() { if (G.levelIndex === 'daily' || G.levelIndex >= 29) { showTitle(); return; } startLevel(G.levelIndex + 1); }
+function nextLevel() { if (G.levelIndex === 'pattern') { openWorkshop(G.pattern); return; } if (typeof G.levelIndex === 'string' || G.levelIndex >= 29) { showTitle(); return; } startLevel(G.levelIndex + 1); }
+
+// ============================================================================
+//  Desen Atölyesi (pattern workshop): the player paints the inner edges of a solved board on the table with the game's
+//  own motifs, then plays it or shares it as a link (#p1=…, see encodePattern). A link opens as a playable challenge.
+// ============================================================================
+function clearPatternHash() { try { if (location.hash) history.replaceState(null, '', location.pathname + location.search); } catch (e) { } }
+function patternLink(pat) { const code = encodePattern(pat); return code ? location.href.split(/[?#]/)[0] + '#p1=' + code : ''; }
+// the pattern in the address bar, or null. Anything that does not decode is ignored (a toast, nothing else).
+function readPatternHash() {
+  let h = ''; try { h = String(location.hash || ''); } catch (e) { }
+  if (!h || h === '#') return null;
+  const pat = h.length <= PATTERN_MAX_CODE + 4 ? decodePattern(h) : null;
+  if (!pat) { toast(t('patternBad'), 'bad'); clearPatternHash(); }
+  return pat;
+}
+window.addEventListener('hashchange', () => {
+  const pat = readPatternHash();
+  if (!pat || G.seq || G.kiln || G.screen === 'loading') return;
+  G.pattern = pat; startLevel('pattern'); toast(t('patternLoaded'), 'good');
+});
+function openWorkshop(pat) {
+  clearPatternHash();
+  let draft = validPattern(pat) ? pat : decodePattern('p1=' + progress.atelier);
+  if (!draft) draft = randomPattern(4, false, (Date.now() ^ (Math.random() * 1e9)) >>> 0);
+  G.ws = { pat: { n: draft.n, swap: !!draft.swap, H: draft.H.slice(), V: draft.V.slice() }, motif: G.ws ? G.ws.motif : draft.H[0] };
+  G.levelIndex = 'workshop'; G.seq = null; G.kiln = null; G.history = []; G.hints = 3;
+  hideAll(); G.stack = []; $('topbar').classList.add('hidden');
+  buildWorkshopBoard();
+  G.screen = 'workshop'; G.returnTo = 'title';
+  $('workshopPanel').classList.remove('hidden');
+  renderWorkshop(); saveWorkshop();
+}
+// the draft is shown as a solved board (home slots, no rotation), built with the same tiles and textures as play
+function buildWorkshopBoard() {
+  const pat = G.ws.pat;
+  G.pz = { n: pat.n, tiles: patternTiles(pat), mech: { swap: pat.swap, flip: false, fixed: false }, par: 0, key: 'W', def: { n: pat.n } };
+  G.slots = homeSolution(G.pz);
+  TEX_SIZE = LOW ? 128 : 256;
+  boardGroup.visible = true; boardGroup.position.set(0, TABLE_Y, 0); boardGroup.scale.setScalar(1); boardGroup.rotation.set(0, 0, 0);
+  buildTiles(true);
+  glowMesh.visible = false; // every edge of a drawn board matches; the gold glow belongs to play
+  workshopFocus();
+}
+// keep the board clear of the panel: it sits left on wide screens, at the bottom on narrow ones
+function workshopFocus() { if (camera.aspect < 1) CAM.focus.set(0, -0.2, 2.6); else if (window.innerWidth <= 760) CAM.focus.set(0, 0, 4); else CAM.focus.set(-6, 0, 0); }
+window.addEventListener('resize', () => { if (G.screen === 'workshop') workshopFocus(); });
+function saveWorkshop() { const code = encodePattern(G.ws.pat); if (code) { progress.atelier = code; saveProgress(); } renderWorkshopLink(); }
+function renderWorkshopLink() { if (G.ws) $('wsLinkText').value = patternLink(G.ws.pat); }
+// motif swatch: the motif with its twin, meeting at the middle line the way a matched edge pair does on the board
+function paintMotifSwatch(cv, id) {
+  const S = cv.width, ctx = cv.getContext('2d');
+  glazeBackground(ctx, S, mulberry32(id));
+  ctx.save(); ctx.translate(0, S / 2); drawEdgeMotif(ctx, S, 0, id); ctx.restore();
+  ctx.save(); ctx.translate(0, -S / 2); drawEdgeMotif(ctx, S, 2, id); ctx.restore();
+}
+const motifName = id => `${t('colorNames')[(id - 1) % 4]} ${t('shapeNames')[((id - 1) / 4) | 0].toLocaleLowerCase(lang)}`;
+function renderWorkshop() {
+  const ws = G.ws; if (!ws) return;
+  for (const b of $('wsSizes').children) b.classList.toggle('on', +b.dataset.n === ws.pat.n);
+  $('wsRotOnly').classList.toggle('on', !ws.pat.swap); $('wsRotSwap').classList.toggle('on', ws.pat.swap);
+  const grid = $('wsMotifs');
+  if (!grid.children.length) {
+    for (let id = 1; id <= PATTERN_IDS; id++) {
+      const b = document.createElement('button'); b.dataset.id = id;
+      const cv = document.createElement('canvas'); cv.width = cv.height = 88; paintMotifSwatch(cv, id); b.appendChild(cv);
+      b.addEventListener('click', e => { e.stopPropagation(); Sound.unlock(); Sound.ui(); G.ws.motif = id; renderWorkshop(); });
+      grid.appendChild(b);
+    }
+  }
+  for (const b of grid.children) {
+    const id = +b.dataset.id; b.classList.toggle('on', id === ws.motif);
+    b.title = motifName(id); b.setAttribute('aria-label', b.title); b.setAttribute('aria-pressed', id === ws.motif ? 'true' : 'false');
+  }
+  $('wsLinkText').setAttribute('aria-label', t('wsLinkLabel'));
+  renderWorkshopLink();
+}
+// which H/V entry edge k of slot p is, or null for the outer frame
+function edgeRef(pat, p, k) {
+  const n = pat.n, r = (p / n) | 0, c = p % n;
+  if (k === 0) return r === 0 ? null : ['H', (r - 1) * n + c];
+  if (k === 2) return r === n - 1 ? null : ['H', r * n + c];
+  if (k === 1) return c === n - 1 ? null : ['V', r * (n - 1) + c];
+  return c === 0 ? null : ['V', r * (n - 1) + c - 1];
+}
+// the tile edge under the pointer: the slot and the side (0 top, 1 right, 2 bottom, 3 left) nearest to the hit point.
+// It intersects the plane of the tile tops, not the tile meshes: the mesh pick area stops short of the bevelled rim,
+// which is exactly where a player taps to paint an edge.
+const _wsPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), _wsHit = new THREE.Vector3();
+function workshopEdgeAt(e) {
+  setNdc(e); raycaster.setFromCamera(ndc, camera);
+  _wsPlane.constant = -(boardGroup.position.y + 0.06 + G.tileH);
+  if (!raycaster.ray.intersectPlane(_wsPlane, _wsHit)) return null;
+  const lx = _wsHit.x - boardGroup.position.x, lz = _wsHit.z - boardGroup.position.z;
+  const p = slotAtLocal(lx, lz); if (p < 0) return null;
+  const [cx, cz] = slotLocal(p), dx = lx - cx, dz = lz - cz;
+  return { p, k: Math.abs(dx) > Math.abs(dz) ? (dx > 0 ? 1 : 3) : (dz > 0 ? 2 : 0) };
+}
+function refreshWorkshopTile(p) {
+  const n = G.ws.pat.n, tl = G.tileBySlot[p], td = G.pz.tiles[p]; if (!tl || !td) return;
+  td.faces[0] = patternEdges(G.ws.pat, (p / n) | 0, p % n);
+  const old = tl.texA; tl.texA = tileTexture(td.faces[0], 'plain', 100 + td.id);
+  tl.mat.map = tl.texA; tl.mat.needsUpdate = true; tl.sparkle = 0.7;
+  // drop a face texture nothing shows any more, so a long painting session does not pile up GPU textures
+  if (old !== tl.texA && !G.tiles.some(o => o && o.texA === old)) for (const [key, tex] of textureCache) if (tex === old) { textureCache.delete(key); tex.dispose(); break; }
+}
+function workshopPaint(e) {
+  const at = workshopEdgeAt(e); if (!at) return;
+  const ws = G.ws, ref = edgeRef(ws.pat, at.p, at.k), tl = G.tileBySlot[at.p];
+  if (!ref) { toast(t('wsFrame')); Sound.deny(); if (tl) shake(tl); return; }
+  if (ws.pat[ref[0]][ref[1]] === ws.motif) { toast(t('wsSame')); return; }
+  ws.pat[ref[0]][ref[1]] = ws.motif;
+  const n = ws.pat.n;
+  refreshWorkshopTile(at.p); refreshWorkshopTile(at.p + (at.k === 0 ? -n : at.k === 2 ? n : at.k === 1 ? 1 : -1));
+  Sound.rotate(); saveWorkshop();
+}
+// right-click in the workshop picks up the motif under the pointer (an eyedropper)
+function workshopPick(e) {
+  const at = workshopEdgeAt(e); if (!at) return;
+  const ref = edgeRef(G.ws.pat, at.p, at.k); if (!ref) return;
+  G.ws.motif = G.ws.pat[ref[0]][ref[1]]; Sound.ui(); renderWorkshop();
+}
+function resizeWorkshop(n) {
+  const old = G.ws.pat; if (old.n === n) return;
+  const pat = randomPattern(n, old.swap, (Date.now() ^ (Math.random() * 1e9)) >>> 0), m = Math.min(n, old.n);
+  // keep every painted edge that still fits on the new board
+  for (let r = 1; r < m; r++) for (let c = 0; c < m; c++) pat.H[(r - 1) * n + c] = old.H[(r - 1) * old.n + c];
+  for (let r = 0; r < m; r++) for (let c = 1; c < m; c++) pat.V[r * (n - 1) + c - 1] = old.V[r * (old.n - 1) + c - 1];
+  G.ws.pat = pat; buildWorkshopBoard(); renderWorkshop(); saveWorkshop();
+}
+function copyPatternLink() {
+  const link = patternLink(G.ws.pat); if (!link) return;
+  const input = $('wsLinkText'); input.value = link;
+  const fallback = () => {
+    let ok = false;
+    try { input.focus({ preventScroll: true }); input.select(); input.setSelectionRange(0, link.length); ok = !!(document.execCommand && document.execCommand('copy')); } catch (e) { ok = false; }
+    toast(t(ok ? 'linkCopied' : 'copyManual'), ok ? 'good' : 'bad');
+  };
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) navigator.clipboard.writeText(link).then(() => toast(t('linkCopied'), 'good'), fallback);
+    else fallback();
+  } catch (e) { fallback(); }
+}
 
 // ---- settings (same order as every arena game: volumes, language, quality, fullscreen) ----
 const VOL = [['volMaster', 'master'], ['volMusic', 'music'], ['volSfx', 'sfx']];
@@ -2726,6 +3049,16 @@ on('btnNext', () => { Sound.ui(); nextLevel(); });
 on('btnReplay', () => { Sound.ui(); startLevel(G.levelIndex); });
 on('btnCompleteLevels', () => { Sound.ui(); showLevels(); });
 on('btnCompleteTitle', () => { Sound.ui(); showTitle(); });
+// Desen Atölyesi
+on('btnWorkshop', () => { if (!assetsGate()) return; Sound.ui(); openWorkshop(null); });
+on('btnCompleteWorkshop', () => { Sound.ui(); openWorkshop(G.pattern); });
+for (const b of $('wsSizes').children) b.addEventListener('click', e => { e.stopPropagation(); Sound.unlock(); Sound.ui(); resizeWorkshop(+b.dataset.n); });
+on('wsRotOnly', () => { Sound.ui(); G.ws.pat.swap = false; renderWorkshop(); saveWorkshop(); });
+on('wsRotSwap', () => { Sound.ui(); G.ws.pat.swap = true; renderWorkshop(); saveWorkshop(); });
+on('wsRandom', () => { Sound.ui(); const p = G.ws.pat; G.ws.pat = randomPattern(p.n, p.swap, (Date.now() ^ (Math.random() * 1e9)) >>> 0); buildWorkshopBoard(); renderWorkshop(); saveWorkshop(); });
+on('wsPlay', () => { Sound.ui(); const p = G.ws.pat; G.pattern = { n: p.n, swap: p.swap, H: p.H.slice(), V: p.V.slice() }; startLevel('pattern'); });
+on('wsCopy', () => { Sound.ui(); copyPatternLink(); });
+on('wsBack', () => { Sound.ui(); showTitle(); });
 // v2: kiln step (the whole card fires, the small button skips) and the fact card closes on tap
 on('btnKilnFire', () => lockKiln(false));
 on('btnKilnSkip', () => lockKiln(true));
@@ -2745,6 +3078,7 @@ window.addEventListener('keydown', e => {
   if (k === 'escape' || k === 'p') {
     if (G.screen === 'playing') showMenu();
     else if (G.stack.length) closeOverlay();
+    else if (G.screen === 'workshop') showTitle();
     e.preventDefault(); return;
   }
   if (e.target && e.target.tagName === 'INPUT' && k !== 'm' && k !== 'x' && k !== 'l') return;
@@ -2794,7 +3128,7 @@ gl.addEventListener('pointerdown', e => {
   gl.setPointerCapture(e.pointerId);
   ptr.down = true; ptr.sx = ptr.lastX = e.clientX; ptr.sy = ptr.lastY = e.clientY; ptr.moved = false; ptr.dragging = false; ptr.longFired = false; ptr.camDrag = false; ptr.noSwapToasted = false;
   ptr.tile = e.button === 2 ? null : pickTile(e);
-  if (e.button === 2) { tryFlip(pickTile(e)); ptr.down = false; return; }
+  if (e.button === 2) { if (G.screen === 'workshop') workshopPick(e); else tryFlip(pickTile(e)); ptr.down = false; return; }
   if (ptr.tile) {
     clearTimeout(ptr.longTimer);
     if (e.pointerType !== 'mouse') ptr.longTimer = setTimeout(() => { if (ptr.down && !ptr.moved && ptr.tile) { ptr.longFired = true; tryFlip(ptr.tile); ptr.tile = null; } }, 520);
@@ -2836,7 +3170,7 @@ function endPointer(e) {
     const tl = ptr.tile;
     if (tl.fixed) { toast(t('fixedTile'), 'bad'); Sound.deny(); shake(tl); }
     else performMove({ type: 'rot', p: tl.slot });
-  }
+  } else if (G.screen === 'workshop' && !ptr.moved) workshopPaint(e);
   ptr.tile = null; ptr.camDrag = false; ptr.dragging = false;
 }
 gl.addEventListener('pointerup', endPointer); gl.addEventListener('pointercancel', endPointer);
@@ -2935,7 +3269,7 @@ function update(dt) {
   G.time += dt;
   stepCamera(dt);
   if (G.seq || G.drag) shadowDirty = true;
-  if (G.screen === 'playing' || G.screen === 'completing' || G.screen === 'menu' || G.screen === 'howto' || G.screen === 'levels' || G.screen === 'collection' || G.screen === 'complete') updateTiles(dt);
+  if (G.screen === 'playing' || G.screen === 'completing' || G.screen === 'menu' || G.screen === 'howto' || G.screen === 'levels' || G.screen === 'collection' || G.screen === 'complete' || G.screen === 'workshop') updateTiles(dt);
   if (G.screen === 'playing') updateSheen(dt);
   if (G.coach && typeof G.coach.until === 'number' && G.screen === 'playing') { G.coach.t += dt; if (G.coach.t >= G.coach.until) hideCoach(); }
   updateSequence(dt);
@@ -2969,7 +3303,7 @@ function botUpdate(dt) {
     }
     case 'complete': {
       B.plan = null; B.levelsDone = (B.levelsDone || 0) + 1;
-      if (G.levelIndex === 29 || G.levelIndex === 'daily') { showCollection(); B.done = true; } else nextLevel();
+      if (G.levelIndex === 29 || typeof G.levelIndex === 'string') { showCollection(); B.done = true; } else nextLevel();
       B.timer = 0.9; break;
     }
   }
@@ -3037,10 +3371,14 @@ function boot() {
   const lv = PARAMS.get('level');
   if (lv === 'daily') startLevel('daily');
   else if (lv) startLevel(clamp(parseInt(lv, 10) - 1, 0, 29));
-  else showTitle();
+  else {
+    // a shared Desen Atölyesi link opens straight into its challenge; a bad one was ignored by readPatternHash
+    const shared = readPatternHash();
+    if (shared) { G.pattern = shared; startLevel('pattern'); toast(t('patternLoaded'), 'good'); } else showTitle();
+  }
   const sc = PARAMS.get('screen');
   if (sc === 'levels') showLevels(); else if (sc === 'collection') showCollection(); else if (sc === 'howto') showHowto(parseInt(PARAMS.get('ch') || '0', 10));
-  else if (sc === 'settings') showSettings(); else if (sc === 'pause') showMenu();
+  else if (sc === 'settings') showSettings(); else if (sc === 'pause') showMenu(); else if (sc === 'workshop') openWorkshop(null);
   const sim = parseFloat(PARAMS.get('sim') || '0');
   if (sim > 0) window.ciniSim(sim);
   renderDebug();
