@@ -532,7 +532,7 @@ if (/[?&]lang=en\b/.test(location.search)) { const l = document.querySelector('#
 setTimeout(() => { if (!window.cini) { const l = document.getElementById('loading'); if (l) l.innerHTML = '<div style="padding:20px;max-width:560px;text-align:center;line-height:1.5">Three.js could not be loaded. An internet connection is required.<br>Three.js yüklenemedi. İnternet bağlantısı gerekir.' + (window.__ciniErrors.length ? '<br><small style="color:#ffb3a6">' + window.__ciniErrors.join('<br>') + '</small>' : '') + '</div>'; } }, 20000);
 </script>
 <script type="importmap">
-{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" },"integrity":{"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js":"sha384-GY5FqjttLCFRt/McQbyaVdCk2O1IQtOeX8Py6NfD89BIAsIyJFRl4UgSXrk2vXAk","https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/loaders/GLTFLoader.js":"sha384-Lq1Wl94so5JCKGDvezrdVMJhdeKQkwb8iwRo59QrPPd61CnrCJZLxYmFlQ8ZuOKR","https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/utils/BufferGeometryUtils.js":"sha384-wOjwauvHlJO7K6APr7FmMGH2nupQa3Ndzas9bJZhsAMOK055efJud8ns4aYmASKv"}}
 </script>
 <script type="module">
 import * as THREE from 'three';
