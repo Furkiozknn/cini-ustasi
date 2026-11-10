@@ -562,7 +562,7 @@ kbd{font-family:var(--font); background:#fff; border:1px solid var(--cobalt); bo
     <div class="row"><button class="btn alt small" id="wsBack" data-i18n="backToTitle">Ana ekran</button></div>
   </div>
 
-  <div id="toasts"></div>
+  <div id="toasts" role="status" aria-live="polite"></div>
   <div id="debug" class="hidden"></div>
 </div>
 
@@ -577,11 +577,12 @@ if (/[?&]lang=en\b/.test(location.search)) { const l = document.querySelector('#
 // If the module (three.js from the CDN) has not started within 20 s, say so instead of spinning forever (bilingual).
 setTimeout(() => { if (!window.cini) { const l = document.getElementById('loading'); if (l) l.innerHTML = '<div style="padding:20px;max-width:560px;text-align:center;line-height:1.5">Three.js could not be loaded. An internet connection is required.<br>Three.js yüklenemedi. İnternet bağlantısı gerekir.' + (window.__ciniErrors.length ? '<br><small style="color:#ffb3a6">' + window.__ciniErrors.join('<br>') + '</small>' : '') + '</div>'; } }, 20000);
 </script>
-<script>/*ARENA-KIT:BEGIN v1.0.1 sha256:bc575c398c95*/
+<script>/*ARENA-KIT:BEGIN v1.1.0 sha256:3bea83137e26*/
 /* ARENA-KIT v1 — shared layer for the 21 Claude Game Arena games.
  *
  * Injected inline into each game's index.html (between begin/end marker comments) by
- * arena-kit/inject.py, so every game stays a single file. Plain script, no imports, no network.
+ * arena-kit/inject.py, so every game stays a single file. Plain script, no imports; the kit itself opens no
+ * connection (v1.1 play events are handed to the page's existing GoatCounter counter, if it is there).
  * Everything is optional: a game that never calls Arena.* behaves exactly as before.
  *
  *   Arena.perf.attach(renderer)        dynamic pixel ratio for weak GPUs (Intel UHD)
@@ -592,6 +593,10 @@ setTimeout(() => { if (!window.cini) { const l = document.getElementById('loadin
  *   Arena.share({...})                 Web Share / clipboard text + optional PNG card
  *   Arena.profile(), Arena.award(id)   cross-game passport (shared origin localStorage)
  *   Arena.settings / openSettings()    accessibility panel (text size, contrast, motion, vibration, auto-pause)
+ *   Arena.complete({mount, feedback})  v1.1: "completed" event + one-tap 👍/👎 (once a day per game), inline in `mount`
+ *   Arena.track(name)                  v1.1: one GoatCounter event "<game>/<name>" per page load; automatic:
+ *                                      "start" (first real input) and "return" (played this game on an earlier day)
+ *                                      Nothing is sent or shown on quiet runs; no cookies, no ids, no new service.
  *
  * Storage: every key starts with "arena." and is versioned; every access is wrapped in try/catch
  * (private mode, quota, portals). Pure logic lives in Arena._core so it can be tested in Node.
@@ -599,7 +604,7 @@ setTimeout(() => { if (!window.cini) { const l = document.getElementById('loadin
 (function (root) {
   'use strict';
   if (root.Arena && root.Arena.version) return; // injected twice (e.g. iframe) -> keep the first
-  var VERSION = '1.0.1';
+  var VERSION = '1.1.0';
   var hasDOM = typeof document !== 'undefined';
 
   /* ---------- core (pure, Node-testable) ---------- */
@@ -619,6 +624,12 @@ setTimeout(() => { if (!window.cini) { const l = document.getElementById('loadin
     var y = Math.floor(key / 10000), m = Math.floor(key / 100) % 100, d = key % 100;
     return core.dayKey(new Date(Date.UTC(y, m - 1, d) - 86400000));
   };
+  // v1.1: a player is "returning" if this game was last played on an earlier day (old profiles: any earlier play)
+  core.isReturn = function (lastDay, plays, lastAnyAt, today) {
+    if (lastDay) return lastDay < today;
+    return !!(plays > 0 && lastAnyAt && core.dayKey(new Date(lastAnyAt)) < today);
+  };
+  core.eventName = function (name) { return String(name || '').replace(/[^a-z0-9-]/gi, '').slice(0, 24).toLowerCase(); };
   core.hash = function (str) { // FNV-1a 32-bit
     var h = 0x811c9dc5;
     for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
@@ -687,10 +698,12 @@ setTimeout(() => { if (!window.cini) { const l = document.getElementById('loadin
   var STR = {
     tr: { again: 'Bir daha', another: 'Başka bir oyun dene', close: 'Kapat', settings: 'Erişilebilirlik',
       textSize: 'Yazı boyutu', contrast: 'Yüksek karşıtlık', motion: 'Hareketi azalt', vibration: 'Titreşim',
-      autoPause: 'Sekme değişince duraklat', copied: 'Panoya kopyalandı', streak: 'Seri', days: 'gün', share: 'Paylaş' },
+      autoPause: 'Sekme değişince duraklat', copied: 'Panoya kopyalandı', streak: 'Seri', days: 'gün', share: 'Paylaş',
+      fbAsk: 'Beğendin mi?', like: 'Beğendim', dislike: 'Beğenmedim', thanks: 'Teşekkürler!' },
     en: { again: 'Play again', another: 'Try another game', close: 'Close', settings: 'Accessibility',
       textSize: 'Text size', contrast: 'High contrast', motion: 'Reduce motion', vibration: 'Vibration',
-      autoPause: 'Pause when the tab is hidden', copied: 'Copied to clipboard', streak: 'Streak', days: 'days', share: 'Share' },
+      autoPause: 'Pause when the tab is hidden', copied: 'Copied to clipboard', streak: 'Streak', days: 'days', share: 'Share',
+      fbAsk: 'Did you enjoy it?', like: 'I liked it', dislike: 'I did not like it', thanks: 'Thanks!' },
   };
   var lang = 'en';
   try { lang = /^tr/i.test((hasDOM && document.documentElement.lang) || (root.navigator && navigator.language) || '') ? 'tr' : 'en'; } catch (e) {}
@@ -707,9 +720,13 @@ setTimeout(() => { if (!window.cini) { const l = document.getElementById('loadin
     gameId = (meta && meta.content) || (GAMES.indexOf(seg) >= 0 ? seg : 'unknown');
   } catch (e) {}
   function profile() { return get('profile.v1', { plays: {}, badges: {}, last: null, first: null }); }
+  var returning = false;
   function touchProfile() {
-    var p = profile(), now = Date.now();
+    var p = profile(), now = Date.now(), today = core.dayKey();
+    p.lastDay = p.lastDay || {};
+    returning = core.isReturn(p.lastDay[gameId], p.plays[gameId] || 0, p.last && p.last.at, today);
     p.plays[gameId] = (p.plays[gameId] || 0) + 1; p.last = { game: gameId, at: now }; p.first = p.first || now;
+    p.lastDay[gameId] = today;
     set('profile.v1', p); return p;
   }
   function award(id, label) {
@@ -762,6 +779,13 @@ setTimeout(() => { if (!window.cini) { const l = document.getElementById('loadin
     'width:40px;height:40px;border-radius:50%;border:0;background:rgba(14,13,11,.7);color:#f6f1e6;font:20px/40px system-ui;cursor:pointer;opacity:.7}' +
     '.arena-gear:hover,.arena-gear:focus-visible{opacity:1}' +
     'html[data-arena-contrast] body{filter:contrast(1.25) saturate(1.1)}' +
+    '.arena-fb{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top));transform:translateX(-50%);z-index:2147483000;white-space:nowrap;' +
+    'display:flex;align-items:center;gap:8px;padding:6px 6px 6px 14px;border-radius:999px;background:rgba(14,13,11,.9);color:#f6f1e6;' +
+    'font:600 calc(15px*var(--arena-text-scale,1))/1.2 system-ui,sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)}' +
+    '.arena-fb button{min-width:44px;min-height:44px;border:0;border-radius:50%;background:#2b2722;color:#f6f1e6;font:22px/1 system-ui;cursor:pointer}' +
+    '.arena-fb button.arena-fb-x{font-size:16px;background:transparent}' +
+    '.arena-fb.arena-fb-inline{position:static;transform:none;margin:12px auto 0;width:max-content;max-width:100%;box-shadow:none}' +
+    '.arena-fb button:focus-visible{outline:3px solid #3fd4dc;outline-offset:2px}' +
     'html[data-arena-reduced-motion] *{animation-duration:.001s!important;animation-iteration-count:1!important;transition-duration:.001s!important}';
   var styled = false;
   function style() {
@@ -830,6 +854,55 @@ setTimeout(() => { if (!window.cini) { const l = document.getElementById('loadin
     var close = modal(el('div', { class: 'arena-card' }, kids));
     again.addEventListener('click', function () { close(); if (o.onAgain) o.onAgain(); });
     return close;
+  }
+
+  /* ---------- play events (v1.1) ---------- */
+  // Handed to the page's own GoatCounter (`window.goatcounter.count`, already on 20 of 21 pages). The kit opens no
+  // connection itself; without the counter (or on ?auto / ?nosave / ?demo) the events are simply dropped.
+  var sent = {}, pending = [];
+  function gcSend(path, title) {
+    var gc = root.goatcounter;
+    if (!gc || typeof gc.count !== 'function') return false;
+    try { gc.count({ path: path, title: title || path, event: true }); } catch (e) {}
+    return true;
+  }
+  function flush(tries) {
+    pending = pending.filter(function (e) { return !gcSend(e[0], e[1]); });
+    if (pending.length && tries < 20) setTimeout(function () { flush(tries + 1); }, 500); // count.js loads async
+  }
+  function track(name, title) {
+    name = core.eventName(name);
+    if (quiet || !hasDOM || !name || sent[name]) return false;
+    sent[name] = 1;
+    var path = gameId + '/' + name;
+    if (!gcSend(path, title)) { pending.push([path, title]); if (pending.length === 1) flush(0); }
+    return true;
+  }
+  var fbEl = null;
+  function complete(o) {
+    o = o || {};
+    track('complete');
+    if (quiet || !hasDOM || !document.body || o.feedback === false || fbEl) return;
+    var asked = get('feedback.v1', {}), today = core.dayKey();
+    if (asked[gameId] === today) return;
+    style();
+    var up = el('button', { type: 'button', 'aria-label': t('like'), title: t('like'), text: '👍' });
+    var down = el('button', { type: 'button', 'aria-label': t('dislike'), title: t('dislike'), text: '👎' });
+    var x = el('button', { type: 'button', class: 'arena-fb-x', 'aria-label': t('close'), title: t('close'), text: '✕' });
+    var label = el('span', { text: t('fbAsk') });
+    var mount = o.mount && o.mount.appendChild ? o.mount : null;   // inline in the game's own end screen if given
+    fbEl = el('div', { class: mount ? 'arena-fb arena-fb-inline' : 'arena-fb', role: 'group', 'aria-label': t('fbAsk') }, [label, up, down, x]);
+    function done() { if (fbEl && fbEl.parentNode) fbEl.parentNode.removeChild(fbEl); fbEl = null; }
+    function vote(v) {
+      track(v); var a = get('feedback.v1', {}); a[gameId] = today; set('feedback.v1', a);
+      [up, down, x].forEach(function (b) { b.remove(); }); label.textContent = t('thanks'); announce(t('thanks'));
+      setTimeout(done, 1500);
+    }
+    up.addEventListener('click', function () { vote('like'); });
+    down.addEventListener('click', function () { vote('dislike'); });
+    x.addEventListener('click', done);
+    (mount || document.body).appendChild(fbEl);
+    if (!mount) setTimeout(done, o.ms || 20000);   // floating panel fades out; an inline one stays with the end screen
   }
 
   function daily(game, opts) {
@@ -928,7 +1001,16 @@ setTimeout(() => { if (!window.cini) { const l = document.getElementById('loadin
       if (!settings.autoPause) return;
       emit(document.hidden ? 'pause' : 'resume');
     });
-    var boot = function () { applySettings(); touchProfile(); };
+    var boot = function () {
+      applySettings(); touchProfile();
+      if (quiet) return;
+      var first = function (e) {
+        if (e && e.isTrusted === false) return;
+        ['pointerdown', 'keydown', 'touchstart'].forEach(function (n) { document.removeEventListener(n, first, true); });
+        track('start'); if (returning) track('return');
+      };
+      ['pointerdown', 'keydown', 'touchstart'].forEach(function (n) { document.addEventListener(n, first, true); });
+    };
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
   }
 
@@ -936,6 +1018,7 @@ setTimeout(() => { if (!window.cini) { const l = document.getElementById('loadin
     version: VERSION, quiet: quiet, game: gameId, games: GAMES.slice(), lang: function (l) { if (l) lang = l === 'tr' ? 'tr' : 'en'; return lang; },
     perf: perf, hint: hint, toast: toast, endCard: endCard, daily: daily, share: share, shareCard: shareCard,
     profile: profile, award: award, settings: settings, openSettings: openSettings, mountSettingsButton: mountSettingsButton,
+    track: track, complete: complete,
     on: function (name, fn) { (listeners[name] = listeners[name] || []).push(fn); },
     _core: core, _store: { get: get, set: set },
   };
@@ -1552,6 +1635,21 @@ function drawRosette(ctx, S, col) {
   ctx.fillStyle = col.dark; ctx.beginPath(); ctx.arc(0, cy, R * 0.26, 0, Math.PI * 2); ctx.fill();
 }
 const SHAPE_FN = { tulip: drawTulip, carnation: drawCarnation, saz: drawSaz, rumi: drawRumi, rosette: drawRosette };
+// Colour-independent cue (drawing only; motif ids, palettes and pictures are unchanged): every glaze colour carries its
+// own white mark on the motif, next to the edge, so the two halves of a matched pair also show the same mark.
+// cobalt = dot, turquoise = two bars, coral = triangle, emerald = plus. Edge-local 256 units: x along the edge, y inward.
+const COLOR_MARK = { cobalt: 'dot', turquoise: 'bars', coral: 'tri', emerald: 'plus' };
+function drawColorMark(ctx, color) {
+  const m = COLOR_MARK[color], y = 20, h = 14;
+  ctx.save(); ctx.fillStyle = '#fbf7ee'; ctx.strokeStyle = INK; ctx.lineWidth = 3.5; ctx.lineJoin = 'round';
+  ctx.beginPath();
+  if (m === 'dot') ctx.arc(0, y, h - 1, 0, Math.PI * 2);
+  else if (m === 'bars') { ctx.rect(-h, y - h, 10, 2 * h); ctx.rect(h - 10, y - h, 10, 2 * h); }
+  else if (m === 'tri') { ctx.moveTo(0, y + h); ctx.lineTo(h + 2, y - h); ctx.lineTo(-h - 2, y - h); ctx.closePath(); }   // points into the tile
+  else if (m === 'plus') { const a = 5; ctx.moveTo(-a, y - h); ctx.lineTo(a, y - h); ctx.lineTo(a, y - a); ctx.lineTo(h, y - a); ctx.lineTo(h, y + a); ctx.lineTo(a, y + a); ctx.lineTo(a, y + h); ctx.lineTo(-a, y + h); ctx.lineTo(-a, y + a); ctx.lineTo(-h, y + a); ctx.lineTo(-h, y - a); ctx.lineTo(-a, y - a); ctx.closePath(); }
+  ctx.fill(); ctx.stroke();
+  ctx.restore();
+}
 
 function drawBorderBand(ctx, S) {
   // band along the edge: cobalt strip with a white lozenge chain and a turquoise hairline (same pattern as the frame)
@@ -1567,7 +1665,7 @@ function drawBorderBand(ctx, S) {
 }
 
 // Draw one edge motif in edge-local coordinates: x along the edge, y pointing into the tile.
-function drawEdgeMotif(ctx, S, k, id) {
+function drawEdgeMotif(ctx, S, k, id, mark) {
   ctx.save();
   ctx.translate(S / 2, S / 2);
   ctx.rotate(k * Math.PI / 2);
@@ -1579,6 +1677,7 @@ function drawEdgeMotif(ctx, S, k, id) {
     const col = PAL[motifColor(id)];
     ctx.save(); ctx.scale(S / 256, S / 256); ctx.lineJoin = 'round';
     SHAPE_FN[motifShape(id)](ctx, 256, col);
+    if (mark) drawColorMark(ctx, motifColor(id));
     ctx.restore();
   }
   ctx.restore();
@@ -1636,14 +1735,14 @@ function weatherTile(ctx, S, rng) {
   ctx.restore();
 }
 // Paints a tile face into a canvas of TEX_SIZE x (TEX_SIZE + STRIP). kind: 'plain' | 'fixed' | 'flip'
-function paintTile(edges, kind, S, seed, weathered) {
+function paintTile(edges, kind, S, seed, weathered, marks) {
   S = S || TEX_SIZE;
   const cv = document.createElement('canvas'); cv.width = S; cv.height = S + STRIP;
   const ctx = cv.getContext('2d');
   const rng = mulberry32(seed || 7);
   ctx.fillStyle = '#f4f0e4'; ctx.fillRect(0, S, S, STRIP);
   glazeBackground(ctx, S, rng);
-  for (let k = 0; k < 4; k++) drawEdgeMotif(ctx, S, k, edges[k]);
+  for (let k = 0; k < 4; k++) drawEdgeMotif(ctx, S, k, edges[k], marks);
   drawCenterOrnament(ctx, S, kind);
   if (weathered) weatherTile(ctx, S, rng);
   return cv;
@@ -1652,7 +1751,7 @@ function tileTexture(edges, kind, seed, weathered) {
   const key = edges.join(',') + '|' + kind + '|' + TEX_SIZE + (weathered ? '|w' : '');
   let tex = textureCache.get(key);
   if (!tex) {
-    tex = new THREE.CanvasTexture(paintTile(edges, kind, TEX_SIZE, seed, weathered));
+    tex = new THREE.CanvasTexture(paintTile(edges, kind, TEX_SIZE, seed, weathered, true));   // board tiles carry the colour marks
     tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = LOW ? 1 : 4;
     tex.generateMipmaps = true; tex.minFilter = THREE.LinearMipmapLinearFilter;
     textureCache.set(key, tex);
@@ -1861,6 +1960,7 @@ const camera = new THREE.PerspectiveCamera(46, 1, 0.1, 60);
 const CAM = { target: new THREE.Vector3(0, 1.25, -0.45), dist: 7.7, polar: 48 * Math.PI / 180, azim: 0, zoom: 1,
   focus: new THREE.Vector3(), curFocus: new THREE.Vector3(), shake: 0, idle: 0 };
 const _look = new THREE.Vector3();
+const calm = () => !!(window.Arena && Arena.settings && Arena.settings.reducedMotion);   // kit "reduce motion": read live, visuals only (the puzzle never sees it)
 
 function updateCamera() {
   const aspect = camera.aspect;
@@ -1871,16 +1971,16 @@ function updateCamera() {
   // while the camera pans to the kiln on a phone it also comes closer, so the kiln and the wall fill the view
   const pan = portrait ? clamp(CAM.curFocus.length() / 2.5, 0, 1) : 0;
   const dist = lerp(Math.max(CAM.dist, need), CAM.dist * 1.15, pan) * CAM.zoom;
-  const drA = Math.sin(CAM.idle * 0.21) * 0.012, drP = Math.sin(CAM.idle * 0.17) * 0.006;
+  const still = calm(), drA = still ? 0 : Math.sin(CAM.idle * 0.21) * 0.012, drP = still ? 0 : Math.sin(CAM.idle * 0.17) * 0.006;   // reduce motion: no idle drift
   const sp = Math.sin(CAM.polar + drP), cp = Math.cos(CAM.polar + drP), az = CAM.azim + drA;
   _look.copy(CAM.curFocus).multiplyScalar(portrait ? 1 : 0.22).add(CAM.target);
   camera.position.set(_look.x + dist * sp * Math.sin(az), _look.y + dist * cp, _look.z + dist * sp * Math.cos(az));
-  if (CAM.shake > 0) { const s = CAM.shake * 0.06, T = CAM.idle; camera.position.x += Math.sin(T * 37) * s; camera.position.y += Math.sin(T * 41 + 1) * s * 0.6; }
+  if (CAM.shake > 0 && !still) { const s = CAM.shake * 0.06, T = CAM.idle; camera.position.x += Math.sin(T * 37) * s; camera.position.y += Math.sin(T * 41 + 1) * s * 0.6; }
   camera.lookAt(_look);
 }
 function stepCamera(dt) {
   CAM.idle += dt;
-  CAM.curFocus.lerp(CAM.focus, 1 - Math.exp(-dt * 2.5));
+  if (calm()) { CAM.curFocus.copy(CAM.focus); CAM.shake = 0; } else CAM.curFocus.lerp(CAM.focus, 1 - Math.exp(-dt * 2.5));   // reduce motion: camera pans are instant, no shake
   if (CAM.shake > 0) CAM.shake = Math.max(0, CAM.shake - dt * 0.8);
   updateCamera();
 }
@@ -2945,7 +3045,7 @@ function lockKiln(skipped) {
   const msg = skipped ? 'kilnSkipped' : k.result === 'master' ? 'kilnMaster' : k.result === 'glossy' ? 'kilnGlossy' : k.pct > GLAZE_BAND.hi ? 'kilnOver' : 'kilnMissed';
   $('kilnResult').textContent = t(msg); $('kilnResult').className = k.result; $('btnKilnFire').disabled = true;
   if (!G.simulating) { if (!skipped) Sound.kilnTap(); setTimeout(() => Sound.glaze(GLAZE_RANK[k.result]), skipped ? 0 : 250); }
-  if (!skipped) CAM.shake = Math.max(CAM.shake, 0.35);
+  if (!skipped && !calm()) CAM.shake = Math.max(CAM.shake, 0.35);
 }
 function finishKiln(glaze) {
   const entry = progress.collection.find(c => c.key === G.pz.key);
@@ -2962,16 +3062,17 @@ function updateSequence(dt) {
   const q = G.seq; if (!q) return;
   // the kiln step holds the 'fire' phase open until the player fires or skips (?auto and the fast-forward skip it)
   if (G.kiln) {
-    const k = G.kiln; k.t += dt;
+    const k = G.kiln; k.t += calm() ? dt / 2 : dt;   // reduce motion: the needle crosses the gauge in 6.4 s instead of 3.2 s
     if (!k.locked) { k.pct = Math.min(1, k.t / KILN_RISE); $('gaugeNeedle').style.left = (k.pct * 100).toFixed(1) + '%'; if (k.pct >= 1) lockKiln(false); }
     else { k.wait += dt; if (k.wait >= 1.1) finishKiln(k.result); }
-    kilnLight.intensity = 2.2 + k.pct * 2.5 + Math.sin(q.t * 40) * 0.6 + Math.sin(q.t * 23) * 0.4; kilnGlow.scale.setScalar(1.2 + k.pct * 0.6 + Math.sin(q.t * 30) * 0.12);
+    const fl = calm() ? 0 : 1;   // reduce motion: the kiln glows steadily, no flicker
+    kilnLight.intensity = 2.2 + k.pct * 2.5 + fl * (Math.sin(q.t * 40) * 0.6 + Math.sin(q.t * 23) * 0.4); kilnGlow.scale.setScalar(1.2 + k.pct * 0.6 + fl * Math.sin(q.t * 30) * 0.12);
     q.t = Math.min(q.t + dt, SEQ.fire * 0.8); // keep the sparks alive, never finish the phase while the step is up
     return;
   }
   q.t += dt; const dur = SEQ[q.phase]; const u = clamp(q.t / dur, 0, 1);
   if (q.phase === 'glow') {
-    glowMat.opacity = 0.85 + 0.15 * Math.sin(q.t * 12);
+    glowMat.opacity = calm() ? 0.9 : 0.85 + 0.15 * Math.sin(q.t * 12);
     if (u >= 1) { q.phase = 'shine'; q.t = 0; sweep.material.opacity = 0.75; }
   } else if (q.phase === 'shine') {
     sweep.position.x = lerp(-BOARD_SIZE * 1.1, BOARD_SIZE * 1.1, easeInOut(u)); sweep.position.z = sweep.position.x * 0.3;
@@ -2991,12 +3092,13 @@ function updateSequence(dt) {
     boardGroup.rotation.z = Math.sin(u * Math.PI) * 0.15 * tilt; boardGroup.rotation.x = 0.4 * tilt;
     kilnLight.intensity = 1.4 + u * 2.5; kilnGlow.scale.setScalar(1 + u * 0.6);
     if (u >= 1) {
-      q.phase = 'fire'; q.t = 0; boardGroup.visible = false; sparks.visible = true; for (let i = 0; i < SPARKS; i++) sparkLife[i] = -Math.random() * 0.8; CAM.shake = 0.6; if (!G.simulating) Sound.fire();
+      q.phase = 'fire'; q.t = 0; boardGroup.visible = false; sparks.visible = true; for (let i = 0; i < SPARKS; i++) sparkLife[i] = -Math.random() * 0.8; if (!calm()) CAM.shake = 0.6; if (!G.simulating) Sound.fire();
       if (!AUTO && !G.simulating && !FLAG('nokiln')) openKilnStep();
       else finishKiln(G.result.glaze || 'matte'); // auto-skipped: an unrated panel comes out matte, a rated one keeps its finish
     }
   } else if (q.phase === 'fire') {
-    kilnLight.intensity = 3.5 + Math.sin(q.t * 40) * 0.8 + Math.sin(q.t * 23) * 0.5; kilnGlow.scale.setScalar(1.6 + Math.sin(q.t * 30) * 0.15);
+    const fl = calm() ? 0 : 1;
+    kilnLight.intensity = 3.5 + fl * (Math.sin(q.t * 40) * 0.8 + Math.sin(q.t * 23) * 0.5); kilnGlow.scale.setScalar(1.6 + fl * Math.sin(q.t * 30) * 0.15);
     if (u >= 1) {
       q.phase = 'out'; q.t = 0;
       transit.visible = true; transit.position.set(KILN_MOUTH.x, KILN_MOUTH.y, KILN_MOUTH.z + 0.3); transit.scale.setScalar(0.3); transit.rotation.set(0, 0, 0);
@@ -3239,6 +3341,7 @@ function showComplete() {
   if (G.levelIndex === 29 && completedCount() === 30) toast(t('allDone'), 'good');
   if (G.pendingDaily) { G.pendingDaily = false; progress.dailyToastShown = true; saveProgress(); toast(t('dailyUnlocked'), 'good'); }
   if (!G.simulating) { setTimeout(() => Sound.star(), 150); if (r.stars > 1) setTimeout(() => Sound.star(), 330); if (r.stars > 2) setTimeout(() => Sound.star(), 510); }
+  if (window.Arena && Arena.complete) Arena.complete({ mount: document.querySelector('#completeCard .row') });   // arena-kit v1.1: cini-ustasi/complete + one-tap 👍/👎 (nothing on ?auto)
 }
 function nextLevel() { if (G.levelIndex === 'pattern') { openWorkshop(G.pattern); return; } if (typeof G.levelIndex === 'string' || G.levelIndex >= 29) { showTitle(); return; } startLevel(G.levelIndex + 1); }
 
@@ -3293,8 +3396,8 @@ function renderWorkshopLink() { if (G.ws) $('wsLinkText').value = patternLink(G.
 function paintMotifSwatch(cv, id) {
   const S = cv.width, ctx = cv.getContext('2d');
   glazeBackground(ctx, S, mulberry32(id));
-  ctx.save(); ctx.translate(0, S / 2); drawEdgeMotif(ctx, S, 0, id); ctx.restore();
-  ctx.save(); ctx.translate(0, -S / 2); drawEdgeMotif(ctx, S, 2, id); ctx.restore();
+  ctx.save(); ctx.translate(0, S / 2); drawEdgeMotif(ctx, S, 0, id, true); ctx.restore();
+  ctx.save(); ctx.translate(0, -S / 2); drawEdgeMotif(ctx, S, 2, id, true); ctx.restore();
 }
 const motifName = id => `${t('colorNames')[(id - 1) % 4]} ${t('shapeNames')[((id - 1) / 4) | 0].toLocaleLowerCase(lang)}`;
 function renderWorkshop() {
@@ -3614,9 +3717,9 @@ function updateTiles(dt) {
       lift += Math.sin(f.t * Math.PI) * G.tileSize * 0.55;
       if (f.t >= 1) { tl.flip = null; fx = 0; }
     }
-    if (tl.shake > 0) { tl.shake -= dt; fx += Math.sin(tl.shake * 60) * 0.08 * (tl.shake / 0.35); }
+    if (tl.shake > 0) { tl.shake -= dt; if (!calm()) fx += Math.sin(tl.shake * 60) * 0.08 * (tl.shake / 0.35); }   // reduce motion: no wobble (the moves counter still flags it)
     if (tl.sparkle > 0) { tl.sparkle -= dt * 1.2; tl.mat.emissive.setRGB(0.5 * tl.sparkle, 0.4 * tl.sparkle, 0.1 * tl.sparkle); if (tl.sparkle <= 0) tl.mat.emissive.setScalar(0); }
-    else if (G.coach && G.coach.tileId === tl.id && G.screen === 'playing') { const p = 0.16 + 0.13 * Math.sin(G.time * 5); tl.mat.emissive.setRGB(p * 0.9, p * 0.7, p * 0.2); } // v2 coach: the target tile pulses gold
+    else if (G.coach && G.coach.tileId === tl.id && G.screen === 'playing') { const p = calm() ? 0.22 : 0.16 + 0.13 * Math.sin(G.time * 5); tl.mat.emissive.setRGB(p * 0.9, p * 0.7, p * 0.2); } // v2 coach: the target tile pulses gold
     tl.lift += (lift - tl.lift) * (1 - Math.exp(-dt * 16));
     tl.pivot.position.set(tl.x, 0.06 + tl.lift, tl.z);
     tl.mesh.rotation.set(fx, tl.visAngle, 0);
@@ -3632,16 +3735,16 @@ function updateCat(dt) {
   else if (c.phase === 'back') { const u = Math.min(1, c.t / walk); cat.position.z = lerp(z1, z0, u); cat.position.y = 2.58 + Math.abs(Math.sin(c.t * 7)) * 0.02; cat.userData.tail.rotation.x = Math.sin(c.t * 5) * 0.4; if (u >= 1) { c.phase = 'hidden'; c.t = 0; c.next = 28 + Math.random() * 30; cat.visible = false; } }
 }
 function updateEffects(dt) {
-  const T = G.time;
+  const T = G.time, fl = calm() ? 0 : 1;   // reduce motion: kiln, lamp and glow burn steady
   // kiln flicker
-  if (!G.seq) { kilnLight.intensity = 1.8 + Math.sin(T * 9.1) * 0.16 + Math.sin(T * 23.7) * 0.1 + Math.sin(T * 3.3) * 0.12; kilnGlow.material.opacity = 0.75 + Math.sin(T * 11) * 0.1; }
-  lampGlow.material.opacity = 0.5 + Math.sin(T * 13.3) * 0.08 + Math.sin(T * 5.1) * 0.06; lampGlow.scale.setScalar(1 + Math.sin(T * 7.7) * 0.06);
+  if (!G.seq) { kilnLight.intensity = 1.8 + fl * (Math.sin(T * 9.1) * 0.16 + Math.sin(T * 23.7) * 0.1 + Math.sin(T * 3.3) * 0.12); kilnGlow.material.opacity = 0.75 + fl * Math.sin(T * 11) * 0.1; }
+  lampGlow.material.opacity = 0.5 + fl * (Math.sin(T * 13.3) * 0.08 + Math.sin(T * 5.1) * 0.06); lampGlow.scale.setScalar(1 + fl * Math.sin(T * 7.7) * 0.06);
   // flames: a low ember fire while playing, roaring while the panel is in the kiln
   const heatTarget = G.seq && (G.seq.phase === 'fire' || G.kiln) ? 1 : G.seq && G.seq.phase === 'tokiln' ? 0.7 : 0.3;
   flameHeat += (heatTarget - flameHeat) * (1 - Math.exp(-dt * 3));
   if (!G.simulating) updateFlames(dt);
   // glow pulse
-  if (!G.seq) glowMat.opacity = 0.72 + Math.sin(T * 2.2) * 0.12;
+  if (!G.seq) glowMat.opacity = 0.72 + fl * Math.sin(T * 2.2) * 0.12;
   // sparks
   if (sparks.visible) {
     const P = sparkGeo.attributes.position.array;
@@ -3740,6 +3843,7 @@ function renderDebug() {
   el.innerHTML = lines.join('\n') + (errs.length ? '\n<span class="err">ERRORS (' + errs.length + '):\n' + errs.slice(-4).map(e => String(e).slice(0, 200)).join('\n') + '</span>' : '\nerrors: 0');
 }
 window.__ciniShowErr = renderDebug;
+if (window.Arena) Arena.on('settings', () => { if (calm()) { CAM.shake = 0; CAM.curFocus.copy(CAM.focus); for (const tl of G.tiles) if (tl) tl.shake = 0; } });   // "reduce motion" switched on: stop a running shake now
 window.ciniSim = function (seconds) {
   const steps = Math.ceil(seconds * 30); G.simulating = true;
   for (let i = 0; i < steps; i++) update(1 / 30);
