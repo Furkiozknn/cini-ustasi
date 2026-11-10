@@ -1,0 +1,17 @@
+{
+  "game": "cini-ustasi",
+  "recorded": "2026-11-10T00:50:34.630Z",
+  "commit": "b91b21e",
+  "entrySha": "057015f90683",
+  "run": "() => {\n      const G = window.cini; let t = 0;\n      while (!G.bot.done && t < 6000) { window.ciniSim(10); t += 10; }\n      const best = G.progress.best, keys = Array.from({ length: 30 }, (_, i) => 'L' + (i + 1)).filter((k) => best[k]);\n      window.__gateM = { levelsDone: G.bot.levelsDone || 0, solved: keys.length, stars: keys.reduce((a, k) => a + best[k].stars, 0),\n        moves: keys.reduce((a, k) => a + best[k].moves, 0), collection: G.progress.collection.length, simSeconds: t, botDone: !!G.bot.done };\n    }",
+  "metrics": {
+    "levelsDone": 30,
+    "solved": 30,
+    "stars": 90,
+    "moves": 1428,
+    "collection": 30,
+    "simSeconds": 610,
+    "botDone": true,
+    "gameErrors": 0
+  }
+}
