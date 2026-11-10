@@ -2761,7 +2761,10 @@ function afterChange(isUndo, move) {
   const ev = evaluate(G.pz, G.slots);
   updateGlow();
   G.matchedCount = G.glowCount;
-  if (!isUndo && G.matchedCount > before && !G.simulating) Sound.match(G.matchedCount - before);
+  if (!isUndo && G.matchedCount > before && !G.simulating) {
+    Sound.match(G.matchedCount - before);
+    try { if (navigator.vibrate) { navigator.vibrate(15); } } catch (e) { } // haptic feedback on edge snap
+  }
   // v2: a tile whose last edge just matched gets a glaze sheen pass
   const full = fullTiles(ev.matched);
   if (!isUndo) for (let id = 0; id < full.length; id++) if (full[id] && !G.fullByTile[id]) G.sheenQueue.push(id);
@@ -3575,7 +3578,10 @@ function endPointer(e) {
   } else if (ptr.tile && !ptr.moved && !ptr.longFired && G.screen === 'playing') {
     const tl = ptr.tile;
     if (tl.fixed) { toast(t('fixedTile'), 'bad'); Sound.deny(); shake(tl); }
-    else performMove({ type: 'rot', p: tl.slot });
+    else {
+      performMove({ type: 'rot', p: tl.slot });
+      try { if (navigator.vibrate) { navigator.vibrate(15); } } catch (e) { } // haptic feedback on tile rotation
+    }
   } else if (G.screen === 'workshop' && !ptr.moved) workshopPaint(e);
   ptr.tile = null; ptr.camDrag = false; ptr.dragging = false;
 }
