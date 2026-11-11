@@ -75,7 +75,7 @@ button{font-family:var(--font); cursor:pointer;}
 .hidden{display:none !important;}
 
 /* ---------- top bar ---------- */
-#topbar{position:absolute; top:10px; left:12px; right:12px; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px 16px 14px; box-shadow:0 14px 34px -8px rgba(10,20,50,0.42), 0 0 0 1px rgba(212,175,55,0.45), inset 0 1px 0 #fff;}
+#topbar{position:absolute; top:10px; left:12px; right:12px; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px 16px 14px; box-shadow:0 14px 34px -8px rgba(10,20,50,0.42), 0 0 0 1px rgba(212,175,55,0.45), inset 0 1px 0 #fff; z-index:2;}
 .topbar-left{display:flex; align-items:center; gap:12px; min-width:0; flex:0 1 auto;}
 #topbar .logo{display:flex; align-items:center; gap:8px; font-weight:800; font-family:var(--font-head); font-size:19px; letter-spacing:0.5px; color:var(--cobalt-deep); white-space:nowrap;}
 #topbar .logo canvas{width:34px; height:34px; border-radius:6px; box-shadow:0 0 0 2px var(--gold), 0 0 0 3.5px var(--cobalt), 0 3px 6px rgba(0,0,0,0.25);}
@@ -96,6 +96,7 @@ button{font-family:var(--font); cursor:pointer;}
 #starsLive svg{width:19px; height:19px;}
 
 #topbar .right{display:flex; align-items:center; gap:6px; flex:0 0 auto;}
+.hud-actions{display:flex; align-items:center; gap:6px;}
 .ibtn{position:relative; width:44px; height:44px; min-width:44px; min-height:44px; border-radius:9px; border:1.5px solid var(--cobalt); background:linear-gradient(180deg, #ffffff 0%, #faf6ec 60%, #f0e8d6 100%); color:var(--cobalt-deep); display:inline-flex; align-items:center; justify-content:center; transition:transform .14s cubic-bezier(0.2,0.9,0.3,1), box-shadow .14s, background .14s, color .14s; padding:0; box-shadow:0 3px 0 var(--cobalt-deep), 0 4px 10px rgba(12,29,86,0.16), inset 0 1px 0 #ffffff;}
 .ibtn:hover{background:linear-gradient(180deg, #2b4ec2 0%, var(--cobalt) 100%); color:#ffffff; transform:translateY(-2px); box-shadow:0 5px 0 var(--cobalt-deep), 0 8px 16px rgba(12,29,86,0.28), inset 0 1px 0 rgba(255,255,255,0.4);}
 .ibtn:active{transform:translateY(2px); box-shadow:0 1px 0 var(--cobalt-deep), inset 0 1px 2px rgba(0,0,0,0.2);}
@@ -150,7 +151,7 @@ button{font-family:var(--font); cursor:pointer;}
 .glazeTag.master{color:#926a05; border-color:var(--gold);} .glazeTag.master i{background:linear-gradient(135deg, #fff8d6, #d4af37); box-shadow:0 0 8px rgba(212,175,55,.8);}
 
 /* ---------- overlays ---------- */
-.overlay{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:18px; background:radial-gradient(ellipse at center, rgba(30,16,8,.2), rgba(20,10,5,.6)); animation:fadeIn .35s ease;}
+.overlay{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:18px; background:radial-gradient(ellipse at center, rgba(30,16,8,.2), rgba(20,10,5,.6)); animation:fadeIn .35s ease; z-index:20;}
 .overlay.clear{background:none;}
 .overlay.dim{background:rgba(25,12,6,.5); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);}
 .lowq .overlay.dim{backdrop-filter:none; -webkit-backdrop-filter:none; background:rgba(25,12,6,.65);}
@@ -365,6 +366,43 @@ kbd{font-family:var(--font); background:#fff; border:1px solid var(--cobalt); bo
   #factCard{bottom:12px; font-size:12px;}
   #completeCard canvas.preview{width:130px; height:130px;}
 }
+
+/* ---------- mobile bottom-weighted floating HUD (viewports under 400px) ---------- */
+@media (max-width:400px){
+  .hud-actions{
+    position:fixed;
+    bottom:calc(14px + env(safe-area-inset-bottom, 0px));
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    padding:6px 14px;
+    background:var(--glaze);
+    border:1.5px solid var(--cobalt);
+    border-radius:999px;
+    box-shadow:0 10px 28px -4px rgba(10,22,58,0.45), 0 3px 10px rgba(10,22,58,0.2), inset 0 1px 0 #ffffff, inset 0 0 0 1px rgba(212,175,55,0.45);
+    z-index:6;
+    pointer-events:auto;
+  }
+  .hud-actions .ibtn{
+    width:48px;
+    height:48px;
+    min-width:48px;
+    min-height:48px;
+    border-radius:12px;
+  }
+  .hud-actions .ibtn svg{
+    width:24px;
+    height:24px;
+  }
+  #topbar .right{gap:0;}
+  #lvlName{max-width:calc(100vw - 110px);}
+  #factCard{bottom:calc(84px + env(safe-area-inset-bottom, 0px));}
+  #debug{bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
+}
+#hud:has(.overlay:not(.hidden):not(.clear)) .hud-actions{display:none !important;}
 @media (pointer:coarse){.btn{min-height:44px;} .ibtn{min-width:44px; min-height:44px;}}
 @media (max-height:520px){
   .card h1{font-size:30px;} .logoBig{width:70px; height:70px;}
@@ -378,6 +416,7 @@ kbd{font-family:var(--font); background:#fff; border:1px solid var(--cobalt); bo
   #topbar .logo canvas{width:24px; height:24px;}
   #topbar .mid{gap:6px; flex:1 1 auto; min-width:0; display:flex;}
   #topbar .right{gap:4px; flex-wrap:nowrap;}
+  #topbar .hud-actions{position:static; transform:none; background:none; border:none; box-shadow:none; padding:0; gap:4px; z-index:auto;}
   #lvlSub{display:none;}
   #topbar .ibtn{width:38px; height:38px; min-width:38px; min-height:38px;}
   #topbar .ibtn svg{width:18px; height:18px;}
@@ -417,9 +456,11 @@ kbd{font-family:var(--font); background:#fff; border:1px solid var(--cobalt); bo
       <div class="stat"><b id="starsLive"></b><span data-i18n="stars">Yıldız</span></div>
     </div>
     <div class="right">
-      <button class="ibtn" id="btnHint" data-tip="hint" title="İpucu (H)" aria-label="İpucu (H)"><svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 17l.7 1.8 1.8.7-1.8.7L19 22l-.7-1.8-1.8-.7 1.8-.7z"/></svg><span class="badge" id="hintBadge">3</span></button>
-      <button class="ibtn" id="btnUndo" title="Geri al (Z)" aria-label="Geri al (Z)"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg></button>
-      <button class="ibtn" id="btnRestart" title="Yeniden (R)" aria-label="Yeniden (R)"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button>
+      <div class="hud-actions" id="hudActions" role="toolbar" aria-label="Hızlı işlemler">
+        <button class="ibtn" id="btnHint" data-tip="hint" title="İpucu (H)" aria-label="İpucu (H)"><svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 17l.7 1.8 1.8.7-1.8.7L19 22l-.7-1.8-1.8-.7 1.8-.7z"/></svg><span class="badge" id="hintBadge">3</span></button>
+        <button class="ibtn" id="btnUndo" title="Geri al (Z)" aria-label="Geri al (Z)"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg></button>
+        <button class="ibtn" id="btnRestart" title="Yeniden (R)" aria-label="Yeniden (R)"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button>
+      </div>
       <button class="ibtn wideOnly" id="btnHelp" title="Nasıl oynanır?" aria-label="Nasıl oynanır?"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.8.4-1 .9-1 1.7"/><path d="M12 17h.01"/></svg></button>
       <button class="ibtn wideOnly" id="btnSound" title="Ses (X)" aria-label="Ses (X)"><svg viewBox="0 0 24 24"><path d="M4 10v4h3l4 3V7L7 10z"/><path d="M15 9.5a4 4 0 0 1 0 5"/><path d="M17.5 7a7 7 0 0 1 0 10"/></svg></button>
       <button class="ibtn wideOnly" id="btnMusic" title="Müzik (M)" aria-label="Müzik (M)"><svg viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg></button>
@@ -3201,6 +3242,7 @@ function applyLang() {
   for (const [id, k] of [['btnHint', 'hintTip'], ['btnUndo', 'undoTip'], ['btnRestart', 'restartTip'], ['btnHelp', 'helpTip'], ['btnSound', 'soundTip2'], ['btnMusic', 'musicTip2'], ['btnMenu', 'menuTip'], ['btnLang', 'langTip'], ['btnSound2', 'soundTip2'], ['btnMusic2', 'musicTip2'], ['btnLang2', 'langTip'], ['btnSettings2', 'settingsTip'], ['btnLevelsClose', 'closeTip'], ['btnCollectionClose', 'closeTip']]) $(id).title = t(k);
   // a11y: include btnLang and btnLang2 in localized aria-labels alongside the icon buttons
   for (const id of ['btnSound', 'btnMusic', 'btnMenu', 'btnHint', 'btnUndo', 'btnRestart', 'btnHelp', 'btnLang', 'btnSound2', 'btnMusic2', 'btnSettings2', 'btnLang2', 'btnLevelsClose', 'btnCollectionClose']) $(id).setAttribute('aria-label', $(id).title);
+  if ($('hudActions')) $('hudActions').setAttribute('aria-label', lang === 'tr' ? 'Hızlı işlemler' : 'Quick actions');
   const langTag = (lang === 'tr' ? 'en' : 'tr').toLocaleUpperCase('tr-TR');
   $('btnLang').textContent = langTag; $('btnLang2').textContent = langTag;
   const hasSave = completedCount() > 0;
