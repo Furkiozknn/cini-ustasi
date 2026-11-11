@@ -1044,6 +1044,9 @@ const lerp = (a, b, t) => a + (b - a) * t;
 const easeOut = t => 1 - Math.pow(1 - t, 3);
 const easeInOut = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 const $ = id => document.getElementById(id);
+// Turkish locale-aware string conversions: prevents dotted/dotless I/İ corruption (e.g. 'İznik', 'İlk Fırça')
+const toLocaleUpperTR = s => String(s || '').toLocaleUpperCase('tr-TR');
+const toLocaleLowerTR = s => String(s || '').toLocaleLowerCase('tr-TR');
 
 // ============================================================================
 //  Settings (arena.cini.settings) and save (arena.cini.save); migrated once from the old 'cini-ustasi-v1' key
@@ -2753,6 +2756,7 @@ G.api = {
   performMove: m => performMove(m), undo: () => undo(), hint: () => useHint(), lockKiln: skipped => lockKiln(!!skipped),
   plan: () => planMoves(G.pz, G.slots, homeSolution(G.pz)), wallCount: () => wallList().length, mem: () => ({ ...renderer.info.memory }), calls: () => renderer.info.render.calls,
   tileScreenPos(id) { const tl = G.tiles[id]; if (!tl) return null; const v = new THREE.Vector3(tl.x, 0.06 + G.tileH, tl.z).applyMatrix4(boardGroup.matrixWorld).project(camera); return [(v.x * 0.5 + 0.5) * window.innerWidth, (-v.y * 0.5 + 0.5) * window.innerHeight]; },
+  toUpperTR: s => toLocaleUpperTR(s), toLowerTR: s => toLocaleLowerTR(s),
 };
 const shared = { geo: null, geoKey: '' };
 
@@ -3197,7 +3201,8 @@ function applyLang() {
   for (const [id, k] of [['btnHint', 'hintTip'], ['btnUndo', 'undoTip'], ['btnRestart', 'restartTip'], ['btnHelp', 'helpTip'], ['btnSound', 'soundTip2'], ['btnMusic', 'musicTip2'], ['btnMenu', 'menuTip'], ['btnLang', 'langTip'], ['btnSound2', 'soundTip2'], ['btnMusic2', 'musicTip2'], ['btnLang2', 'langTip'], ['btnSettings2', 'settingsTip'], ['btnLevelsClose', 'closeTip'], ['btnCollectionClose', 'closeTip']]) $(id).title = t(k);
   // a11y: include btnLang and btnLang2 in localized aria-labels alongside the icon buttons
   for (const id of ['btnSound', 'btnMusic', 'btnMenu', 'btnHint', 'btnUndo', 'btnRestart', 'btnHelp', 'btnLang', 'btnSound2', 'btnMusic2', 'btnSettings2', 'btnLang2', 'btnLevelsClose', 'btnCollectionClose']) $(id).setAttribute('aria-label', $(id).title);
-  $('btnLang').textContent = lang === 'tr' ? 'EN' : 'TR'; $('btnLang2').textContent = lang === 'tr' ? 'EN' : 'TR';
+  const langTag = (lang === 'tr' ? 'en' : 'tr').toLocaleUpperCase('tr-TR');
+  $('btnLang').textContent = langTag; $('btnLang2').textContent = langTag;
   const hasSave = completedCount() > 0;
   $('btnContinue').classList.toggle('hidden', !hasSave); $('btnPlay').classList.toggle('hidden', hasSave);
   $('progressLine').innerHTML = `${completedCount()}/30 · ${totalStars()} <span class="stars">${starSvg(true)}</span>`;
@@ -3321,7 +3326,7 @@ function renderCollection() {
     $('cDetailName').textContent = entryName(sel);
     const b = progress.best[sel.key];
     $('cDetailSub').textContent = sel.idx === 'daily' ? `${t('dailyName')} · 4×4` : `${t('chapter')} ${Math.floor(sel.idx / 10) + 1} · ${t('chapterNames')[Math.floor(sel.idx / 10)]} · ${LEVEL_DEFS[sel.idx].n}×${LEVEL_DEFS[sel.idx].n}`;
-    $('cDetailLine').innerHTML = `${starsHtml(sel.stars)} <span>${b ? `${t('best')}: ${b.moves} ${t('moves').toLowerCase()}` : ''}</span> ${glazeTag(sel.glaze)}`;
+    $('cDetailLine').innerHTML = `${starsHtml(sel.stars)} <span>${b ? `${t('best')}: ${b.moves} ${lang === 'tr' ? toLocaleLowerTR(t('moves')) : t('moves').toLowerCase()}` : ''}</span> ${glazeTag(sel.glaze)}`;
   } else if (!progress.collection.length) grid.insertAdjacentHTML('afterbegin', `<div class="empty" style="grid-column:1/-1; padding:12px">${t('emptyCollection')}</div>`);
 }
 function showComplete() {
@@ -3399,7 +3404,7 @@ function paintMotifSwatch(cv, id) {
   ctx.save(); ctx.translate(0, S / 2); drawEdgeMotif(ctx, S, 0, id, true); ctx.restore();
   ctx.save(); ctx.translate(0, -S / 2); drawEdgeMotif(ctx, S, 2, id, true); ctx.restore();
 }
-const motifName = id => `${t('colorNames')[(id - 1) % 4]} ${t('shapeNames')[((id - 1) / 4) | 0].toLocaleLowerCase(lang)}`;
+const motifName = id => `${t('colorNames')[(id - 1) % 4]} ${t('shapeNames')[((id - 1) / 4) | 0].toLocaleLowerCase(lang === 'tr' ? 'tr-TR' : 'en-US')}`;
 function renderWorkshop() {
   const ws = G.ws; if (!ws) return;
   for (const b of $('wsSizes').children) b.classList.toggle('on', +b.dataset.n === ws.pat.n);
@@ -3881,6 +3886,14 @@ function boot() {
   paintLogo($('logoBig')); paintLogo($('logoSmall'));
   rebuildWall();
   applyLang();
+  // Turkish locale string conversion verification (verifies 'İznik' and level titles without errors)
+  try {
+    const testIznik = toLocaleUpperTR('İznik');
+    for (let i = 0; i < LEVEL_NAMES.length; i++) toLocaleUpperTR(LEVEL_NAMES[i][0]);
+    if (DEBUG && testIznik !== 'İZNİK') console.warn('[cini] Turkish locale uppercase mismatch:', testIznik);
+  } catch (e) {
+    debugError('locale verification: ' + (e.stack || e));
+  }
   if (DEBUG) $('debug').classList.remove('hidden');
   if (FLAG('noanim')) document.documentElement.classList.add('noanim'); // screenshot helper: skip CSS animations
   document.documentElement.classList.toggle('lowq', LOW);
