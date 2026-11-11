@@ -1088,6 +1088,29 @@ const $ = id => document.getElementById(id);
 // Turkish locale-aware string conversions: prevents dotted/dotless I/İ corruption (e.g. 'İznik', 'İlk Fırça')
 const toLocaleUpperTR = s => String(s || '').toLocaleUpperCase('tr-TR');
 const toLocaleLowerTR = s => String(s || '').toLocaleLowerCase('tr-TR');
+// Safe haptic feedback: verifies user activation and suppresses in automated (?auto) or simulation runs
+// to avoid Chrome's "Blocked call to navigator.vibrate because user hasn't tapped on the frame yet" console error
+const safeVibrate = pattern => {
+  if (AUTO || (typeof G !== 'undefined' && G.simulating)) return false;
+  try {
+    if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+      if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return false;
+      return navigator.vibrate(pattern);
+    }
+  } catch (e) { }
+  return false;
+};
+// Guard global navigator.vibrate in case of direct invocations outside user activation
+try {
+  if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+    const _origVib = navigator.vibrate.bind(navigator);
+    navigator.vibrate = function (pattern) {
+      if (AUTO || (typeof G !== 'undefined' && G.simulating)) return false;
+      if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return false;
+      try { return _origVib(pattern); } catch (e) { return false; }
+    };
+  }
+} catch (e) { }
 
 // ============================================================================
 //  Settings (arena.cini.settings) and save (arena.cini.save); migrated once from the old 'cini-ustasi-v1' key
@@ -2908,7 +2931,7 @@ function afterChange(isUndo, move) {
   G.matchedCount = G.glowCount;
   if (!isUndo && G.matchedCount > before && !G.simulating) {
     Sound.match(G.matchedCount - before);
-    try { if (navigator.vibrate) { navigator.vibrate(15); } } catch (e) { } // haptic feedback on edge snap
+    safeVibrate(15); // haptic feedback on edge snap
   }
   // v2: a tile whose last edge just matched gets a glaze sheen pass
   const full = fullTiles(ev.matched);
@@ -3730,7 +3753,7 @@ function endPointer(e) {
     if (tl.fixed) { toast(t('fixedTile'), 'bad'); Sound.deny(); shake(tl); }
     else {
       performMove({ type: 'rot', p: tl.slot });
-      try { if (navigator.vibrate) { navigator.vibrate(15); } } catch (e) { } // haptic feedback on tile rotation
+      safeVibrate(15); // haptic feedback on tile rotation
     }
   } else if (G.screen === 'workshop' && !ptr.moved) workshopPaint(e);
   ptr.tile = null; ptr.camDrag = false; ptr.dragging = false;
