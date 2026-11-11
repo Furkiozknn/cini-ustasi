@@ -402,7 +402,11 @@ kbd{font-family:var(--font); background:#fff; border:1px solid var(--cobalt); bo
   #factCard{bottom:calc(84px + env(safe-area-inset-bottom, 0px));}
   #debug{bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
 }
-#hud:has(.overlay:not(.hidden):not(.clear)) .hud-actions{display:none !important;}
+#topbar.hidden .hud-actions,
+#hud:has(.overlay:not(.hidden)) .hud-actions,
+#hud:has(#workshopPanel:not(.hidden)) .hud-actions{
+  display:none !important;
+}
 @media (pointer:coarse){.btn{min-height:44px;} .ibtn{min-width:44px; min-height:44px;}}
 @media (max-height:520px){
   .card h1{font-size:30px;} .logoBig{width:70px; height:70px;}
@@ -1088,25 +1092,47 @@ const $ = id => document.getElementById(id);
 // Turkish locale-aware string conversions: prevents dotted/dotless I/İ corruption (e.g. 'İznik', 'İlk Fırça')
 const toLocaleUpperTR = s => String(s || '').toLocaleUpperCase('tr-TR');
 const toLocaleLowerTR = s => String(s || '').toLocaleLowerCase('tr-TR');
-// Safe haptic feedback: verifies user activation and suppresses in automated (?auto) or simulation runs
+// Track real trusted user gestures for safe haptic feedback
+let lastUserGesture = 0;
+let lastVibTime = 0;
+if (typeof window !== 'undefined') {
+  ['pointerdown', 'pointerup', 'touchstart', 'touchend', 'mousedown', 'mouseup'].forEach(evt => {
+    window.addEventListener(evt, e => {
+      if (e && e.isTrusted) lastUserGesture = Date.now();
+    }, { capture: true, passive: true });
+  });
+}
+
+// Safe haptic feedback: verifies user activation and suppresses in automated (?auto),
+// headless (navigator.webdriver), quiet (?nosave/arena), or simulation runs
 // to avoid Chrome's "Blocked call to navigator.vibrate because user hasn't tapped on the frame yet" console error
 const safeVibrate = pattern => {
+  if (typeof navigator === 'undefined' || typeof navigator.vibrate !== 'function') return false;
+  if (navigator.webdriver) return false;
   if (AUTO || (typeof G !== 'undefined' && G.simulating)) return false;
+  if (typeof Arena !== 'undefined' && Arena.quiet) return false;
+  if (typeof Arena !== 'undefined' && Arena.settings && Arena.settings.vibration === false) return false;
+  if (Date.now() - lastUserGesture > 1500) return false;
+  if (typeof navigator.userActivation !== 'undefined' && !navigator.userActivation.hasBeenActive) return false;
+  if (Date.now() - lastVibTime < 60) return false;
+  lastVibTime = Date.now();
   try {
-    if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
-      if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return false;
-      return navigator.vibrate(pattern);
-    }
-  } catch (e) { }
-  return false;
+    return navigator.vibrate(pattern);
+  } catch (e) {
+    return false;
+  }
 };
 // Guard global navigator.vibrate in case of direct invocations outside user activation
 try {
   if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
     const _origVib = navigator.vibrate.bind(navigator);
     navigator.vibrate = function (pattern) {
+      if (navigator.webdriver) return false;
       if (AUTO || (typeof G !== 'undefined' && G.simulating)) return false;
-      if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return false;
+      if (typeof Arena !== 'undefined' && Arena.quiet) return false;
+      if (typeof Arena !== 'undefined' && Arena.settings && Arena.settings.vibration === false) return false;
+      if (Date.now() - lastUserGesture > 1500) return false;
+      if (typeof navigator.userActivation !== 'undefined' && !navigator.userActivation.hasBeenActive) return false;
       try { return _origVib(pattern); } catch (e) { return false; }
     };
   }
