@@ -1907,7 +1907,7 @@ function paintLogo(cv) {
 //  Audio: generated music (oud-like plucks over a soft drone) and synthesised SFX
 // ============================================================================
 const Sound = (() => {
-  let ctx = null, master, musicBus, sfxBus, delay, delayGain, drone = null;
+  let ctx = null, master, musicBus, sfxBus, delay, delayGain, drone = null, droneOscs = [];
   let soundOn = settings.soundOn !== false, musicOn = settings.musicOn !== false, musicTimer = null, nextNote = 0, degree = 0, noiseBuf = null;
   const SCALE = [293.66, 311.13, 369.99, 392.0, 440.0, 466.16, 523.25, 587.33, 622.25, 739.99]; // Hicaz on D
   function ensure() {
@@ -1927,7 +1927,7 @@ const Sound = (() => {
         const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
       } catch (e) { return false; }
     }
-    if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+    if (ctx.state === 'suspended' || ctx.state === 'interrupted') ctx.resume().catch(() => {});
     return true;
   }
   function noise(dur, type, freq, q, gain, when, bus, sweepTo) {
@@ -1954,10 +1954,20 @@ const Sound = (() => {
     if (drone) return;
     drone = ctx.createGain(); drone.gain.value = 0.0001; drone.connect(musicBus);
     drone.gain.exponentialRampToValueAtTime(0.05, ctx.currentTime + 4);
+    droneOscs = [];
     for (const [fq, g] of [[73.42, 1], [110, 0.5], [146.83, 0.35]]) {
       const o = ctx.createOscillator(); o.type = 'sine'; o.frequency.value = fq; const gg = ctx.createGain(); gg.gain.value = g; o.connect(gg); gg.connect(drone); o.start();
       const lfo = ctx.createOscillator(); lfo.frequency.value = 0.08 + Math.random() * 0.06; const lg = ctx.createGain(); lg.gain.value = g * 0.3; lfo.connect(lg); lg.connect(gg.gain); lfo.start();
+      droneOscs.push(o, lfo);
     }
+  }
+  // stop and disconnect permanent drone oscillators when music is turned off
+  function stopDrone() {
+    if (!drone) return;
+    for (const o of droneOscs) { try { o.stop(); o.disconnect(); } catch (e) {} }
+    droneOscs = [];
+    try { drone.disconnect(); } catch (e) {}
+    drone = null;
   }
   function schedule() {
     if (!ctx || !musicOn) return;
@@ -1981,12 +1991,13 @@ const Sound = (() => {
     get soundOn() { return soundOn; }, get musicOn() { return musicOn; },
     unlock() { if (ensure() && musicOn) api.startMusic(); },
     setSound(v) { soundOn = v; if (ctx) sfxBus.gain.setTargetAtTime(sfxGain(), ctx.currentTime, 0.02); },
-    // clear background schedule interval when music is turned off to prevent timer leak
-    setMusic(v) { musicOn = v; if (!ctx) return; if (v) api.startMusic(); else if (musicTimer) { clearInterval(musicTimer); musicTimer = null; } musicBus.gain.setTargetAtTime(musicGain(), ctx.currentTime, 0.3); },
+    // clear background schedule interval and stop drone oscillators when music is turned off
+    setMusic(v) { musicOn = v; if (!ctx) return; if (v) api.startMusic(); else { if (musicTimer) { clearInterval(musicTimer); musicTimer = null; } stopDrone(); } musicBus.gain.setTargetAtTime(musicGain(), ctx.currentTime, 0.3); },
     applyVolumes() { if (!ctx) return; master.gain.setTargetAtTime(settings.master * 1.1, ctx.currentTime, 0.05); musicBus.gain.setTargetAtTime(musicGain(), ctx.currentTime, 0.05); sfxBus.gain.setTargetAtTime(sfxGain(), ctx.currentTime, 0.05); },
     startMusic() { if (!ensure() || !musicOn) return; startDrone(); if (!musicTimer) { nextNote = ctx.currentTime + 0.5; musicTimer = setInterval(schedule, 250); schedule(); } },
     pause() { if (ctx && ctx.state === 'running') ctx.suspend().catch(() => {}); },
-    resume() { if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {}); },
+    // resume from both 'suspended' and iOS 'interrupted' AudioContext states
+    resume() { if (ctx && (ctx.state === 'suspended' || ctx.state === 'interrupted')) ctx.resume().catch(() => {}); },
     // ---- SFX ----
     rotate() { if (!ensure() || !soundOn) return; const n = ctx.currentTime; noise(0.16, 'bandpass', 900, 1.2, 0.18, n, null, 2400); tone(660, n + 0.02, 0.12, 0.05, 'triangle'); },
     swap() { if (!ensure() || !soundOn) return; const n = ctx.currentTime; noise(0.22, 'bandpass', 500, 1, 0.2, n, null, 1600); tone(440, n, 0.1, 0.05, 'triangle'); tone(550, n + 0.12, 0.1, 0.05, 'triangle'); },
