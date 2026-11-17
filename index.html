@@ -424,6 +424,12 @@ kbd{font-family:var(--font); background:#fff; border:1px solid var(--cobalt); bo
   #lvlSub{display:none;}
   #topbar .ibtn{width:38px; height:38px; min-width:38px; min-height:38px;}
   #topbar .ibtn svg{width:18px; height:18px;}
+  /* Yazı denetimi (2026-11): 48 px sabit yükseklikte içerik ezilip ilerleme çizgisi yazıların ortasından geçiyordu */
+  #topbar{height:auto; padding:3px 10px 10px;}
+  #meter{bottom:3px; height:4px;}
+  #topbar .logo span{display:none;}
+  .topbar-left{flex:0 0 auto;}
+  #lvlName{max-width:none;}
 }
 @media (max-height:500px){
   #completeScreen{padding:8px;}
