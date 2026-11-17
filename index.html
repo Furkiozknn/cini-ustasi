@@ -1612,7 +1612,7 @@ function loadStorage() {
   }
   if (st) for (const k of Object.keys(settings)) if (st[k] !== undefined && st[k] !== null) settings[k] = st[k];
   if (sv) for (const k of Object.keys(progress)) if (sv[k] !== undefined && sv[k] !== null) progress[k] = sv[k];
-  if (!['tr', 'en'].includes(settings.lang)) settings.lang = 'tr';
+  if (!['tr', 'en'].includes(settings.lang)) settings.lang = (/^tr/i.test(navigator.language || '') ? 'tr' : 'en');
   if (typeof progress.atelier !== 'string') progress.atelier = '';
   if (!progress.patterns || typeof progress.patterns !== 'object' || Array.isArray(progress.patterns)) progress.patterns = {};
   if (old && !FLAG('fill')) { saveSettings(); saveProgress(); }
@@ -4436,7 +4436,7 @@ document.addEventListener('visibilitychange', () => { running = !document.hidden
 // ============================================================================
 function boot() {
   if (FLAG('fill')) { for (let i = 0; i < 30; i++) { const key = 'L' + (i + 1); const stars = 1 + ((i * 7) % 3); progress.best[key] = { stars, moves: 20 + i }; if (!progress.collection.find(c => c.key === key)) progress.collection.push({ key, idx: i, seed: levelSeed(i), stars, ts: 1700000000000 + i * 1000, glaze: ['matte', 'glossy', 'master'][(i * 5) % 3] }); } }
-  lang = PARAMS.get('lang') || settings.lang; if (!I18N[lang]) lang = 'tr';
+  lang = ['tr', 'en'].includes(PARAMS.get('lang')) ? PARAMS.get('lang') : settings.lang; if (!I18N[lang]) lang = 'en';
   syncToggles();
   // redesign: rumi spandrels in the four corners of every tile-bordered panel (the coach tip and the fact card stay plain)
   document.querySelectorAll('.tilePanel').forEach(p => { if (p.id === 'coach' || p.id === 'factCard') { p.classList.remove('tilePanel'); return; } for (const c of ['tl', 'tr', 'bl', 'br']) { const i = document.createElement('i'); i.className = 'rumi ' + c; p.appendChild(i); } });
