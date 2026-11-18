@@ -102,6 +102,7 @@ button{font-family:var(--font); cursor:pointer;}
 .ibtn:active{transform:translateY(2px); box-shadow:0 1px 0 var(--cobalt-deep), inset 0 1px 2px rgba(0,0,0,0.2);}
 .ibtn svg{width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round;}
 .ibtn.off{color:#9ca3af; border-color:#9ca3af; box-shadow:0 2px 0 #6b7280; background:#f3f4f6;}
+.ibtn.ad .badge{background:linear-gradient(135deg, #f59e0b, #b45309);}
 .ibtn.off::after{content:""; position:absolute; left:10px; right:10px; top:50%; height:2.5px; background:var(--coral); transform:rotate(-35deg); border-radius:2px; box-shadow:0 1px 2px rgba(0,0,0,0.3);}
 .ibtn .badge{position:absolute; top:-6px; right:-6px; min-width:20px; height:20px; padding:0 5px; border-radius:10px; background:linear-gradient(135deg, #ef4444, #b91c1c); color:#ffffff; font-family:var(--font); font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 5px rgba(0,0,0,0.3), 0 0 0 1.5px #ffffff;}
 .ibtn.txt{width:auto; padding:0 12px; font-weight:800; font-size:13px; letter-spacing:0.6px;}
@@ -1986,7 +1987,7 @@ const I18N = {
     settings: 'Ayarlar', masterVolume: 'Ana ses', musicVolume: 'Müzik', sfxVolume: 'Efektler', language: 'Dil', quality: 'Grafik', qualityLow: 'Düşük', qualityHigh: 'Yüksek', fullscreen: 'Tam ekran', fullscreenToggle: 'Aç / kapat', close: 'Kapat',
     newRecord: 'Yeni rekor!', howtoBtn: 'Nasıl oynanır?', loadingAssets: 'Atölye hazırlanıyor… {n}/{m}', qualityNote: 'Kenar yumuşatma bir sonraki açılışta değişir', settingsTip: 'Ayarlar',
     backToTitle: 'Ana ekran', start: 'Başla', next: 'Sonraki', replay: 'Tekrar', best: 'En iyi', complete: 'Çini tamamlandı!', fired: 'Fırından çıktı ve duvara asıldı.',
-    noHints: 'İpucu kalmadı', hintUsed: 'Bir çini yerine oturdu', undone: 'Geri alındı', nothingToUndo: 'Geri alınacak hamle yok',
+    noHints: 'İpucu kalmadı', hintAd: 'Reklam izle: +1 ipucu', hintUsed: 'Bir çini yerine oturdu', undone: 'Geri alındı', nothingToUndo: 'Geri alınacak hamle yok',
     fixedTile: 'Bu çini sabit, oynamaz', notTwoSided: 'Bu çini tek yüzlü', noSwapHere: 'Bu bölümde çiniler yer değiştirmez', restarted: 'Pano baştan başladı',
     dailyUnlocked: 'Günün Çinisi açıldı!', allDone: 'Tüm panolar tamamlandı. Tebrikler, usta!', emptyCollection: 'Duvar henüz boş. İlk panoyu bitir, fırından çıksın!',
     errorLoad: 'Three.js yüklenemedi. İnternet bağlantısı gerekir.', lowMode: 'Düşük grafik modu', locked: 'Kilitli', newPiece: 'Yeni parça koleksiyona eklendi',
@@ -2024,7 +2025,7 @@ const I18N = {
     settings: 'Settings', masterVolume: 'Master', musicVolume: 'Music', sfxVolume: 'Effects', language: 'Language', quality: 'Graphics', qualityLow: 'Low', qualityHigh: 'High', fullscreen: 'Fullscreen', fullscreenToggle: 'On / off', close: 'Close',
     newRecord: 'New record!', howtoBtn: 'How to play', loadingAssets: 'Preparing the workshop… {n}/{m}', qualityNote: 'Anti-aliasing changes on the next visit', settingsTip: 'Settings',
     backToTitle: 'Title screen', start: 'Start', next: 'Next', replay: 'Replay', best: 'Best', complete: 'Panel complete!', fired: 'Fired in the kiln and hung on the wall.',
-    noHints: 'No hints left', hintUsed: 'One tile set right', undone: 'Undone', nothingToUndo: 'Nothing to undo',
+    noHints: 'No hints left', hintAd: 'Watch an ad: +1 hint', hintUsed: 'One tile set right', undone: 'Undone', nothingToUndo: 'Nothing to undo',
     fixedTile: 'This tile is fixed', notTwoSided: 'This tile has one side', noSwapHere: 'Tiles cannot be swapped in this chapter', restarted: 'Board reset',
     dailyUnlocked: 'Daily Tile unlocked!', allDone: 'All panels complete. Congratulations, master!', emptyCollection: 'The wall is empty. Finish your first panel and fire it!',
     errorLoad: 'Three.js could not be loaded. An internet connection is required.', lowMode: 'Low graphics mode', locked: 'Locked', newPiece: 'New piece added to the collection',
@@ -3455,7 +3456,7 @@ function checkRestores(matched) {
 }
 function useHint() {
   if (G.screen !== 'playing') return;
-  if (G.hints <= 0) { toast(t('noHints'), 'bad'); Sound.deny(); return; }
+  if (G.hints <= 0) { if (hintAdReady()) { hintByAd(); return; } toast(t('noHints'), 'bad'); Sound.deny(); return; }
   // plan against the generated solution: O(N), no search, always valid (fixed tiles never leave home)
   const sol = homeSolution(G.pz);
   let p = -1;
@@ -3472,6 +3473,31 @@ function useHint() {
   toast(t('hintUsed'), 'good');
   if (!G.simulating) Sound.star();
   updateHUD();
+}
+// Portal ad hooks (G-050). Ads only at the natural break: when the player leaves the level-complete card (next, replay,
+// main screen). On the game's own site (no portal SDK) afterBreak() runs the action synchronously and the ad hint never
+// shows, so the site plays exactly as before. The ?auto bot calls nextLevel() directly and is not affected.
+let breakBusy = false;
+function afterBreak(f) {
+  if (!(window.Arena && Arena.portal && Arena.portal.name !== 'none')) return f(); // own site: synchronous, as before
+  if (breakBusy) return; breakBusy = true;
+  Arena.portal.midgame().catch(() => false).then(() => { breakBusy = false; f(); });
+}
+// Rewarded hint: once the level's 3 hints are spent, one more for an ad, once per level, only where the portal can reward.
+// Not on the daily board, a pattern link or the workshop. The hint's moves count like any hint, so stars stay fair.
+function hintAdReady() {
+  return !!(window.Arena && Arena.portal && Arena.portal.canReward && !AUTO && !G.simulating && G.screen === 'playing'
+    && typeof G.levelIndex === 'number' && G.hints <= 0 && !G.hintAdUsed);
+}
+let hintAdBusy = false;
+function hintByAd() {
+  if (hintAdBusy) return; hintAdBusy = true;
+  const pz = G.pz;
+  Arena.portal.rewarded().catch(() => false).then(ok => {
+    hintAdBusy = false;
+    if (ok && G.pz === pz && !G.hintAdUsed) { G.hintAdUsed = true; G.hints++; if (G.screen === 'playing') { useHint(); return; } }
+    updateHUD();
+  });
 }
 function restartLevel() {
   if (!G.pz) return;
@@ -3491,7 +3517,7 @@ function startLevel(idx) {
     G.pz = generateLevel(def, seed);
   }
   G.pz.key = levelKey(idx);
-  G.slots = G.pz.start.map(s => ({ ...s })); G.history = []; G.hints = 3; G.seq = null; G.kiln = null;
+  G.slots = G.pz.start.map(s => ({ ...s })); G.history = []; G.hints = 3; G.seq = null; G.kiln = null; G.hintAdUsed = false;
   G.bot.plan = null; G.bot.i = 0; G.bot.timer = 0.6;
   TEX_SIZE = LOW ? 128 : 256; CAM.focus.set(0, 0, 0);
   G.stack = [];
@@ -3741,7 +3767,9 @@ function updateHUD() {
   const m = moveCount(); $('movesVal').textContent = m; $('parVal').textContent = G.pz.par;
   $('edgesVal').textContent = `${G.matchedCount}/${edgeTotal(G.pz.n)}`;
   $('starsLive').innerHTML = starsHtml(starsFor(m, G.pz.par));
-  $('hintBadge').textContent = G.hints; $('btnHint').classList.toggle('off', G.hints <= 0);
+  const adHint = hintAdReady();
+  $('hintBadge').textContent = adHint ? '▶+1' : G.hints; $('btnHint').classList.toggle('off', G.hints <= 0 && !adHint); $('btnHint').classList.toggle('ad', adHint);
+  if (adHint || $('btnHint').title === t('hintAd')) { const tip = t(adHint ? 'hintAd' : 'hintTip'); $('btnHint').title = tip; $('btnHint').setAttribute('aria-label', tip); }
   // v2 star meter: how many moves are left before the next star threshold (gold = 3-star zone, silver = 2, bronze = 1)
   const par = G.pz.par, thr2 = Math.ceil(par * 1.6) + 2, meter = $('meter');
   let frac = 1, cls = 'bronze', left = 0;
@@ -4118,10 +4146,10 @@ function shareResult() {
   const url = pat ? patternLink(G.pattern) || 'https://furkiozknn.github.io/cini-ustasi/' : 'https://furkiozknn.github.io/cini-ustasi/' + (daily ? '?d=' + todayKey().replace(/-/g, '') : '');
   return Arena.share({ title: t('title'), lines: [name, t('shareLine', { st: r.stars, m: r.moves, p: r.par })], url });
 }
-on('btnNext', () => { Sound.ui(); nextLevel(); });
-on('btnReplay', () => { Sound.ui(); startLevel(G.levelIndex); });
+on('btnNext', () => { Sound.ui(); afterBreak(nextLevel); });
+on('btnReplay', () => { Sound.ui(); afterBreak(() => startLevel(G.levelIndex)); });
 on('btnCompleteLevels', () => { Sound.ui(); showLevels(); });
-on('btnCompleteTitle', () => { Sound.ui(); showTitle(); });
+on('btnCompleteTitle', () => { Sound.ui(); afterBreak(showTitle); });
 // Desen Atölyesi
 on('btnWorkshop', () => { if (!assetsGate()) return; Sound.ui(); openWorkshop(null); });
 on('btnCompleteWorkshop', () => { Sound.ui(); openWorkshop(G.pattern); });

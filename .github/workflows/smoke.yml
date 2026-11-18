@@ -17,7 +17,8 @@ concurrency:
 jobs:
   smoke:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    # webkit installs ~150 apt packages first; a slow Ubuntu mirror ran it past 15 min before any test (18 Nov, G-054)
+    timeout-minutes: ${{ matrix.browser == 'webkit' && 30 || 15 }}
     permissions:
       contents: read
     strategy:
