@@ -5,15 +5,23 @@
 <meta name="arena-game" content="cini-ustasi">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <title>Çini Ustası</title>
-<meta name="description" content="Calm 3D Iznik tile puzzle: rotate, swap and flip tiles until every motif connects, then fire the panel in the kiln. 30 levels, daily board, free.">
+<meta name="description" content="Sakin bir 3B İznik çini bulmacası: çinileri döndür, yer değiştir, çevir; her motif birbirine bağlanınca panoyu fırında pişir. 30 bölüm, günlük pano, tarayıcıda ücretsiz.">
+<meta name="theme-color" content="#14358a">
+<link rel="canonical" href="https://furkiozknn.github.io/cini-ustasi/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Çini Ustası · Iznik Tile Puzzle">
-<meta property="og:description" content="Rotate, swap and flip hand-painted Iznik tiles until every motif connects, then fire the panel in the kiln. 30 levels, free in your browser.">
+<meta property="og:title" content="Çini Ustası · İznik çini bulmacası">
+<meta property="og:site_name" content="Çini Ustası">
+<meta property="og:locale" content="tr_TR">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="og:description" content="Elle boyanmış İznik çinilerini döndür, yer değiştir, çevir; her motif birbirine bağlanınca panoyu fırınla. 30 bölüm, tarayıcıda ücretsiz.">
 <meta property="og:image" content="https://furkiozknn.github.io/cini-ustasi/docs/card.jpg">
 <meta property="og:image:width" content="960">
 <meta property="og:image:height" content="540">
 <meta property="og:url" content="https://furkiozknn.github.io/cini-ustasi/">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Çini Ustası · İznik çini bulmacası">
+<meta name="twitter:description" content="Elle boyanmış İznik çinilerini eşleştir, panoyu fırınla. 30 bölüm, ücretsiz.">
+<meta name="twitter:image" content="https://furkiozknn.github.io/cini-ustasi/docs/card.jpg">
 <link rel="icon" type="image/png" href="assets/ui/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -108,7 +116,7 @@ button{font-family:var(--font); cursor:pointer;}
 .ibtn.txt{width:auto; padding:0 12px; font-weight:800; font-size:13px; letter-spacing:0.6px;}
 
 /* focus ring */
-.btn:focus-visible, .ibtn:focus-visible, .lcard:focus-visible, .seg button:focus-visible, input[type=range]:focus-visible, .foot a:focus-visible, .credit a:focus-visible{outline:3px solid var(--gold); outline-offset:2px; box-shadow:0 0 0 2px #fff, 0 0 0 5px rgba(13,148,136,0.8);}
+.btn:focus-visible, .ibtn:focus-visible, .lcard:focus-visible, .seg button:focus-visible, input[type=range]:focus-visible, .foot a:focus-visible, .credit a:focus-visible, .credit .verbtn:focus-visible{outline:3px solid var(--gold); outline-offset:2px; box-shadow:0 0 0 2px #fff, 0 0 0 5px rgba(13,148,136,0.8);}
 .crest{border-radius:0 !important; box-shadow:none !important; filter:drop-shadow(0 6px 12px rgba(30,15,5,.4));}
 
 /* star meter: inlaid golden ceramic progress track */
@@ -284,7 +292,17 @@ kbd{font-family:var(--font); background:#fff; border:1px solid var(--cobalt); bo
 
 /* ---------- title extras ---------- */
 .credit{margin-top:14px; font-size:12px;}
-.credit a{color:var(--ink-soft); text-decoration:none; border-bottom:1px dotted rgba(66,81,120,.6); padding:4px 0;}
+.credit a, .credit .verbtn{color:var(--ink-soft); text-decoration:underline dotted rgba(66,81,120,.7); text-underline-offset:4px; border:0; padding:4px 2px; font:inherit; background:none; cursor:pointer; display:inline-block; min-height:32px;}
+@media (pointer:coarse){ .credit a, .credit .verbtn{min-height:44px; padding:12px 6px;} }
+.creditLine{margin-top:2px; opacity:.75;}
+.credit .verbtn:hover{color:var(--cobalt);}
+.news ul{margin:6px 0 14px; padding:0 0 0 20px; text-align:left; line-height:1.45; font-size:14px;}
+.news li{margin:5px 0;}
+.news h3{margin:10px 0 4px; font:800 15px var(--font-head); color:var(--cobalt-deep); text-align:left;}
+.news .ledger{display:grid; grid-template-columns:repeat(auto-fit, minmax(96px, 1fr)); gap:8px; margin:6px 0 14px;}
+.news .ledger div{background:var(--cream-deep); border-radius:var(--radius); padding:8px 6px; text-align:center;}
+.news .ledger b{display:block; font:800 20px var(--font-head); color:var(--cobalt-deep);}
+.news .ledger span{font-size:11px; color:var(--ink-soft);}
 .credit a:hover{color:var(--cobalt);}
 .assetLine{font-size:12px; color:var(--ink-soft); min-height:16px; margin-top:4px;}
 @keyframes toastOut{to{opacity:0; transform:translateY(-6px)}}
@@ -509,7 +527,8 @@ kbd{font-family:var(--font); background:#fff; border:1px solid var(--cobalt); bo
       <div class="tiny" id="progressLine" style="margin-top:10px"></div>
       <div class="tiny" id="dailyLine" style="margin-top:4px"></div>
       <div class="tiny" id="titleFact" style="margin-top:8px; line-height:1.35; max-width:420px; margin-left:auto; margin-right:auto"></div>
-      <div class="credit"><a href="https://github.com/Furkiozknn" target="_blank" rel="noopener">Claude Game Arena · built by Claude Fable 5.1 · assets remastered</a></div>
+      <div class="credit"><button type="button" class="verbtn" id="btnNews"></button><span aria-hidden="true"> · </span><a href="https://furkiozknn.github.io/" id="lnkMore" data-i18n="moreGames">Diğer oyunlar</a></div>
+      <div class="tiny creditLine">Claude Game Arena · Claude Fable 5.1</div>
     </div>
   </div>
 
@@ -572,6 +591,18 @@ kbd{font-family:var(--font); background:#fff; border:1px solid var(--cobalt); bo
       <div class="srow"><label data-i18n="fullscreen">Tam ekran</label><div class="seg"><button id="setFull" data-i18n="fullscreenToggle">Aç / kapat</button></div></div>
       <div class="srow"><label data-i18n="a11y">Erişilebilirlik</label><div class="seg"><button id="setA11y" data-i18n="a11yOpen">Aç</button></div></div>
       <div class="row"><button class="btn" id="btnSettingsClose" data-i18n="close">Kapat</button></div>
+    </div>
+  </div>
+
+  <div id="newsScreen" class="overlay dim hidden" role="dialog" aria-modal="true" aria-labelledby="newsTitle">
+    <div class="card tilePanel news">
+      <h2 id="newsTitle" data-i18n="newsTitle">Yenilikler</h2>
+      <div class="tiny" id="newsVer"></div>
+      <h3 data-i18n="newsLedger">Atölye defterim</h3>
+      <div class="ledger" id="newsLedger"></div>
+      <h3 id="newsWhat"></h3>
+      <ul id="newsList"></ul>
+      <div class="row"><button class="btn" id="btnNewsClose" data-i18n="close">Kapat</button></div>
     </div>
   </div>
 
@@ -1982,7 +2013,7 @@ const I18N = {
     loading: 'Atölye hazırlanıyor…', title: 'Çini Ustası', subtitle: 'İznik çini bulmacası', intro: 'Kenarlardaki motifleri eşleştir, panoyu fırınla, duvarını doldur.',
     play: 'Oyna', continue: 'Devam et', levels: 'Bölümler', collection: 'Koleksiyon', daily: 'Günün Çinisi', dailyLocked: '1. bölüm bitince açılır',
     dailyStreak: 'Günlük seri: {s} gün · en iyi: {b}', dailyDoneToday: 'Bugünkü çini tamam', a11y: 'Erişilebilirlik', a11yOpen: 'Aç', share: 'Paylaş',
-    shareLine: '{st}/3 yıldız · {m} hamle (par {p})', awFirst: 'İlk pano', awAll: '30 panonun hepsi', awMaster: 'Usta sırı',
+    shareLine: '{st}/3 yıldız · {m} hamle (par {p})', awFirst: 'İlk pano', awAll: '30 panonun hepsi', awMaster: 'Usta sırı', awTen: 'On pano', awTenStars: 'On pano, üç yıldız', moreGames: 'Diğer oyunlar', newsTitle: 'Yenilikler', newsLedger: 'Atölye defterim', newsWhat: 'Bu sürümde', ledPanels: 'Pano', ledStars: 'Yıldız', ledThree: 'Üç yıldızlı', ledMaster: 'Usta sırı', ledGlossy: 'Parlak sır', ledStreak: 'En iyi seri', newsList: ['<b>Yenilikler penceresi:</b> ana ekranın altında sürüm etiketi; tıklayınca bu maddeler açılır.', '<b>Atölye defterim:</b> biten pano, yıldız, üç yıldızlı pano, usta ve parlak sır sayın ile en iyi günlük serin tek bakışta (yalnızca bu cihazda tutulur).', '<b>Yeni rozetler:</b> «On pano» ve «On pano, üç yıldız».', '<b>Düzeltme:</b> ana ekrandaki alt bağlantı GitHub profiline gidiyordu; artık «Diğer oyunlar» adıyla oyunlar sayfasına gider.', '<b>Sayfa:</b> açıklama, paylaşım kartı ve başlık Türkçeleşti; tema rengi, kanonik adres ve 404 sayfası eklendi.'],
     chapter: 'Bölüm', level: 'Seviye', moves: 'Hamle', par: 'Par', stars: 'Yıldız', edges: 'Kenar', restart: 'Yeniden', paused: 'Mola', resume: 'Devam',
     settings: 'Ayarlar', masterVolume: 'Ana ses', musicVolume: 'Müzik', sfxVolume: 'Efektler', language: 'Dil', quality: 'Grafik', qualityLow: 'Düşük', qualityHigh: 'Yüksek', fullscreen: 'Tam ekran', fullscreenToggle: 'Aç / kapat', close: 'Kapat',
     newRecord: 'Yeni rekor!', howtoBtn: 'Nasıl oynanır?', loadingAssets: 'Atölye hazırlanıyor… {n}/{m}', qualityNote: 'Kenar yumuşatma bir sonraki açılışta değişir', settingsTip: 'Ayarlar',
@@ -2020,7 +2051,7 @@ const I18N = {
     loading: 'Preparing the workshop…', title: 'Çini Ustası', subtitle: 'Iznik tile puzzle', intro: 'Match the motifs on the edges, fire the panel, fill your wall.',
     play: 'Play', continue: 'Continue', levels: 'Levels', collection: 'Collection', daily: 'Daily Tile', dailyLocked: 'Unlocks after chapter 1',
     dailyStreak: 'Daily streak: {s} · best: {b}', dailyDoneToday: "Today's tile is done", a11y: 'Accessibility', a11yOpen: 'Open', share: 'Share',
-    shareLine: '{st}/3 stars · {m} moves (par {p})', awFirst: 'First panel', awAll: 'All 30 panels', awMaster: 'Master glaze',
+    shareLine: '{st}/3 stars · {m} moves (par {p})', awFirst: 'First panel', awAll: 'All 30 panels', awMaster: 'Master glaze', awTen: 'Ten panels', awTenStars: 'Ten panels, three stars', moreGames: 'More games', newsTitle: "What's new", newsLedger: 'My workshop ledger', newsWhat: 'In this version', ledPanels: 'Panels', ledStars: 'Stars', ledThree: 'Three-star', ledMaster: 'Master glaze', ledGlossy: 'Glossy glaze', ledStreak: 'Best streak', newsList: ["<b>What's new window:</b> a version tag under the title screen; click it to open this list.", '<b>My workshop ledger:</b> your finished panels, stars, three-star panels, master and glossy glazes and best daily streak at a glance (kept on this device only).', '<b>New badges:</b> "Ten panels" and "Ten panels, three stars".', '<b>Fix:</b> the footer link on the title screen went to the GitHub profile; it now opens the games page as "More games".', '<b>Page:</b> description, share card and title are now in Turkish; theme colour, canonical address and a 404 page were added.'],
     chapter: 'Chapter', level: 'Level', moves: 'Moves', par: 'Par', stars: 'Stars', edges: 'Edges', restart: 'Restart', paused: 'Paused', resume: 'Resume',
     settings: 'Settings', masterVolume: 'Master', musicVolume: 'Music', sfxVolume: 'Effects', language: 'Language', quality: 'Graphics', qualityLow: 'Low', qualityHigh: 'High', fullscreen: 'Fullscreen', fullscreenToggle: 'On / off', close: 'Close',
     newRecord: 'New record!', howtoBtn: 'How to play', loadingAssets: 'Preparing the workshop… {n}/{m}', qualityNote: 'Anti-aliasing changes on the next visit', settingsTip: 'Settings',
@@ -3607,6 +3638,8 @@ function onSolved() {
   if (window.Arena) {
     if (G.levelIndex === 'daily') G.arenaDaily = Arena.daily(undefined, { dayKey: +todayKey().replace(/-/g, '') }).complete(stars * 1000 + Math.max(0, 999 - moves));
     Arena.award('cini-ustasi:first-panel', t('awFirst'));
+    if (completedCount() >= 10) Arena.award('cini-ustasi:ten-panels', t('awTen'));
+    if (threeStarCount() >= 10) Arena.award('cini-ustasi:ten-three-star', t('awTenStars'));
     if (completedCount() === 30) Arena.award('cini-ustasi:all-panels', t('awAll'));
   }
 }
@@ -3752,7 +3785,7 @@ function rebuildWall() {
 // ============================================================================
 // Screens: a base screen (title / playing / completing / complete) with a stack of overlays on top (levels, collection,
 // howto, menu, settings). Closing an overlay goes back to the one below it, or to the base it was opened from.
-const OVERLAYS = { levels: 'levelScreen', collection: 'collectionScreen', howto: 'howtoScreen', menu: 'menuScreen', settings: 'settingsScreen' };
+const OVERLAYS = { levels: 'levelScreen', collection: 'collectionScreen', howto: 'howtoScreen', menu: 'menuScreen', settings: 'settingsScreen', news: 'newsScreen' };
 const BASES = ['title', 'playing', 'completing', 'complete'];
 G.stack = [];
 function hideAll() { for (const id of ['titleScreen', 'completeScreen', 'kilnScreen', 'workshopPanel', ...Object.values(OVERLAYS)]) $(id).classList.add('hidden'); hideFact(); hideCoach(); }
@@ -3794,7 +3827,7 @@ function applyLang() {
   $('titleFact').innerHTML = `<b style="color:var(--turq-deep)">${t('factHead')}</b> ${fact(parseInt(todayKey().slice(-2), 10) % FACTS.length)}`;
   $('btnDaily').disabled = !dailyUnlocked(); $('btnDaily').title = dailyUnlocked() ? '' : t('dailyLocked');
   if (window.Arena) { const d = Arena.daily(undefined, { dayKey: +todayKey().replace(/-/g, '') }); $('dailyLine').textContent = (d.done ? t('dailyDoneToday') + ' · ' : '') + t('dailyStreak', { s: d.streak, b: d.best }); }
-  syncSettingsUI(); updateAssetLine();
+  syncSettingsUI(); updateAssetLine(); renderNews();
   updateHUD();
   if (!$('levelScreen').classList.contains('hidden')) renderLevels();
   if (!$('collectionScreen').classList.contains('hidden')) renderCollection();
@@ -3845,6 +3878,19 @@ function showHowto(ch) {
 }
 const currentChapter = () => G.levelIndex === 'daily' ? 3 : typeof G.levelIndex === 'string' ? (G.pz && G.pz.mech.swap ? 1 : 0) : Math.floor(G.levelIndex / 10);
 function showMenu() { if (G.screen !== 'playing') return; openOverlay('menu'); focusSoon('btnResume'); }
+const GAME_VERSION = '2.1', GAME_VER_DATE = { tr: 'Kasım 2026', en: 'November 2026' };
+const verLabel = () => 'v' + GAME_VERSION + ' · ' + GAME_VER_DATE[lang === 'tr' ? 'tr' : 'en'];
+const threeStarCount = () => Object.keys(progress.best).filter(k => /^L\d+$/.test(k) && progress.best[k].stars >= 3).length;
+function renderNews() {
+  $('btnNews').textContent = verLabel(); $('btnNews').title = t('newsTitle'); $('btnNews').setAttribute('aria-label', t('newsTitle') + ' ' + verLabel());
+  $('newsVer').textContent = verLabel(); $('newsWhat').textContent = t('newsWhat');
+  $('newsList').innerHTML = t('newsList').map(x => '<li>' + x + '</li>').join('');
+  const col = progress.collection || [];
+  let streak = 0; try { if (window.Arena) streak = Arena.daily(undefined, { dayKey: +todayKey().replace(/-/g, '') }).best || 0; } catch (e) { }
+  const cells = [[completedCount() + '/30', 'ledPanels'], [totalStars(), 'ledStars'], [threeStarCount(), 'ledThree'], [col.filter(c => c.glaze === 'master').length, 'ledMaster'], [col.filter(c => c.glaze === 'glossy').length, 'ledGlossy'], [streak, 'ledStreak']];
+  $('newsLedger').innerHTML = cells.map(([v, k]) => '<div><b>' + v + '</b><span>' + t(k) + '</span></div>').join('');
+}
+function showNews() { renderNews(); openOverlay('news'); focusSoon('btnNewsClose'); }
 function showSettings() { syncSettingsUI(); openOverlay('settings'); focusSoon('volMaster'); }
 function showLevels() { renderLevels(); openOverlay('levels'); }
 function renderLevels() {
@@ -4134,6 +4180,8 @@ on('btnMenuCollection', () => { Sound.ui(); showCollection(); });
 on('btnMenuHelp', () => { Sound.ui(); showHowto(currentChapter()); });
 on('btnMenuTitle', () => { Sound.ui(); showTitle(); });
 on('btnSettingsClose', () => { Sound.ui(); closeOverlay(); });
+on('btnNews', () => { Sound.ui(); showNews(); });
+on('btnNewsClose', () => { Sound.ui(); closeOverlay(); });
 on('setLangTr', () => setLang('tr')); on('setLangEn', () => setLang('en'));
 on('setQLow', () => setQuality('low')); on('setQHigh', () => setQuality('high'));
 on('setFull', toggleFullscreen);
