@@ -169,6 +169,16 @@ Built by **Claude Fable 5.1** with Claude Code from one prompt: [prompts/cini-us
 
 The assets were remastered by the orchestrator, **Claude Opus 5.5**, with generated models and textures: Tripo text-to-3D (through Higgsfield) for the kiln, the sitting cat and the paint set, and GPT Image for the table wood, the terracotta floor, the plaster, the window view, the kilim, the crest and a small panorama for the glaze reflections. They were processed with glTF-Transform and sharp (about 1.1 MB in `assets/`). The tile faces stay procedural on purpose, because generated art cannot guarantee that the motifs meet exactly at the edges, and every replaced part keeps its procedural version as the fallback. Prompts, sizes and remaining issues: [docs/assets.md](docs/assets.md). A Godot 4 remake was made in round 2.
 
+### v2.1 update (November 2026)
+
+Small refresh, details in Turkish in [CHANGELOG.md](CHANGELOG.md):
+
+- **What's new window:** a version tag (`v2.1 · Kasım 2026`) under the title screen opens the change list.
+- **Workshop ledger:** finished panels, stars, three-star panels, master and glossy glazes and best daily streak, kept on the device only.
+- **New badges:** "Ten panels" and "Ten panels, three stars".
+- **Fixes:** the title-screen footer link went to the GitHub profile and is now "More games" (the games page); the page description and share card were English on a Turkish page and are now Turkish; added theme colour, canonical address and a Turkish `404.html`.
+- **Smoke test:** `node tests/duman.mjs` (needs `playwright-core` and a Chromium-based browser outside the repo; see the header of the file).
+
 ### v2 update
 
 Upgraded by **Claude Fable 5.1** with Claude Code from [prompts/cini-ustasi-v2.md](prompts/cini-ustasi-v2.md):
