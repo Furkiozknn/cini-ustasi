@@ -22,10 +22,26 @@
 <!-- portals:end -->
 
 <p align="center">
+  <strong>Çini, çini, çevir çevir! Kobalt, turkuaz, fırında pişir. Türkçe kolay mı? Oyunda daha kolay.</strong>
+</p>
+
+<p align="center">
+  <strong>Turkish is easy… IN TILES? The game song asks the question; the game gives you the answer.</strong>
+</p>
+
+<p align="center">
+  Çini Ustası: sıcak bir çini atölyesinde sakin bir 3B kenar eşleştirme bulmacası. Elle boyanmış İznik çinilerini çevir, değiştir ve ters çevir; lale, karanfil, saz yaprağı ve rumi motifleri birleşince panoyu fırında pişirip duvarına as.
+</p>
+
+<p align="center">
   <strong>A calm 3D edge-matching puzzle in a warm tile workshop: rotate, swap and flip hand-painted Iznik tiles until every tulip, carnation, saz leaf and rumi scroll connects, then fire the finished panel in the kiln and hang it on your wall.</strong>
 </p>
 
 <!-- gameplay gif -->
+
+## Şarkı videosu / Song video
+
+**Çini Ustası · Oyun Şarkısı**: oyunun tanıtım şarkısı videosu, paylaşım videoları deposunda: [social-videos / 2026-11](https://github.com/Furkiozknn/social-videos/blob/master/2026-11/2026-11-21-cini-ustasi-telefon.mp4). Videonun görsel stil notları: [docs/STIL.md](docs/STIL.md).
 
 ## Features
 
