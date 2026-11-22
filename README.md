@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://furkiozknn.github.io/cini-ustasi/">
-    <img src="docs/card.jpg" width="100%" alt="Çini Ustası: rotate, swap and flip hand-painted Iznik tiles until every motif connects. Click to play in your browser.">
+    <img src="docs/card-3d.jpg" width="100%" alt="Çini Ustası: rotate, swap and flip hand-painted Iznik tiles until every motif connects. Click to play in your browser.">
   </a>
 </p>
 
@@ -29,13 +29,29 @@
 
 ## Features
 
+<p align="center">
+  <img src="docs/features.jpg" width="100%" alt="Promo board for Cini Ustasi: a tile mosaic of five feature cards (30 levels in 3 chapters, par stars and daily boards, kiln firing, living workshop, one file at 60 fps) beside the girl apprentice and the master tile maker holding a painted tile.">
+</p>
+
+<details>
+<summary><b>Feature details</b></summary>
+
 - **30 levels across 3 chapters:** Chapter 1 introduces tile rotation, Chapter 2 adds tile swapping, and Chapter 3 introduces fixed tiles and double-sided tiles you can flip, with boards scaling from 3x3 to 6x6.
 - **Par scoring, stars & daily boards:** 1 to 3 stars per level based on par, with undo, restart, 3 hints per level that each fix one tile, a live star meter, and fresh 4x4 daily boards unlocked after Chapter 1 (including excavation boards with 3 weathered tiles on odd days).
 - **Kiln firing & master glaze:** Solved panels glaze with a shine sweep and slide into the glowing kiln where a heat gauge rises; press Fire inside the glaze band to melt the frit into a glossy finish or dead centre for a master glaze, preserved across all 30 panels in the collection.
 - **Living workshop atmosphere:** Hand-painted Iznik motifs (tulip, carnation, saz leaf, rumi scroll) in cobalt, turquoise, coral, and emerald, accompanied by kiln embers, dust motes in window light over Lake Iznik, an animated cat on a stool, and authentic Hicaz oud plucks synthesized via Web Audio.
 - **Ultra-lean web performance:** A single `index.html` running Three.js r170 delivering a locked 60 fps at 21–58 draw calls on Intel UHD 620 (21 &rarr; 32 on title, 46 &rarr; 58 on level 10, 37 &rarr; 49 on level 22), with 358/358 unit tests passing and an automated `?auto` bot that clears all 30 levels with 0 JS errors.
 
+</details>
+
 ## How to play
+
+<p align="center">
+  <img src="docs/how-to-play.jpg" width="100%" alt="How to play Cini Ustasi: three Iznik plates for rotating tiles, swapping and flipping them, and firing the kiln, a controls board with keys, and the two tile makers watching the glowing kiln.">
+</p>
+
+<details>
+<summary><b>Goal and steps</b></summary>
 
 > [!TIP]
 > **Goal:** Connect every edge on the board: each motif must meet its twin on the neighbouring tile. Solve the level in as few moves as possible to earn 3 stars, then fire the panel in the kiln at the right heat for a glossy finish.
@@ -43,6 +59,8 @@
 1. **Rotate tiles (Click / tap):** Click a tile to rotate it by 90 degrees until the motifs connect. Matched edges glow gold.
 2. **Swap and flip (Chapters 2 & 3):** Drag a tile onto another to swap their positions (from Chapter 2). In Chapter 3, double-sided tiles can be flipped with right-click, long press, or `F`.
 3. **Fire the kiln:** When the board is solved, press **Fire** (or tap the card, `Enter`, `Space`) while the heat needle is in the glaze band to set the panel's finish (matte, glossy, or master glaze).
+
+</details>
 
 <details>
 <summary><b>Rules and scoring</b></summary>
