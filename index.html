@@ -510,8 +510,24 @@ kbd{font-family:var(--font); background:#fff; border:1px solid var(--cobalt); bo
 #chrTitleUsta{height:min(78vh, 600px); left:calc(50% - 270px - min(31vh, 250px));}
 #chrTitleOgr{height:min(70vh, 540px); right:calc(50% - 270px - min(30vh, 240px));}
 #chrDone{height:min(62vh, 470px); left:calc(50% - 280px - min(27vh, 210px));}
-#chrKiln{height:min(46vh, 340px); left:calc(50% - 240px - min(18vh, 140px)); bottom:6px;}
+#chrKiln{height:min(46vh, 340px); left:calc(50% - 266px - min(21.2vh, 157px)); bottom:6px;}
 @media (max-width:1060px), (orientation:portrait), (max-height:520px){ .chr{display:none;} }
+/* faces in every size: the master on the kiln card, the student on the "did you know" lines */
+#kilnCard h2::before{content:""; display:inline-block; width:42px; height:42px; margin:-8px 10px -8px 0; vertical-align:middle; border-radius:50%;
+  background:#f6e7cc url("assets/3d/usta-yuz.webp") center / cover no-repeat; box-shadow:0 0 0 2.5px var(--cobalt), 0 3px 8px rgba(60,24,6,.35);}
+#kilnFact::before, #titleFact::before{content:""; float:left; width:34px; height:34px; margin:0 8px 2px 0; border-radius:50%;
+  background:#f6e7cc url("assets/3d/ogrenci-yuz.webp") center / cover no-repeat; box-shadow:0 0 0 2px var(--turq), 0 2px 6px rgba(60,24,6,.3);}
+#titleFact{text-align:left; min-height:36px;}
+/* phones and narrow screens: small figures inside the cards' top corners (the big side figures are hidden there);
+   absolute, so the card keeps its height and no button moves */
+.chrMini{display:none; position:absolute; pointer-events:none; user-select:none; z-index:1; filter:drop-shadow(0 6px 6px rgba(40,14,2,.4)); animation:chrIn .6s cubic-bezier(.2,.9,.3,1.2) both;}
+@media (max-width:1060px), (orientation:portrait), (max-height:520px){
+  .chrMini{display:block;}
+  #miniUsta{left:10px; top:8px; height:min(13.5vh, 116px);}
+  #miniOgr{right:10px; top:12px; height:min(12.5vh, 106px);}
+  #miniDone{left:8px; top:56px; height:min(13vh, 112px);}
+}
+@media (max-height:520px){ #miniUsta, #miniOgr{height:96px;} #miniDone{height:76px;} }
 </style>
 <script data-goatcounter="https://furkiozknn.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
@@ -551,6 +567,8 @@ kbd{font-family:var(--font); background:#fff; border:1px solid var(--cobalt); bo
     <img class="chr bob" id="chrTitleUsta" src="assets/3d/usta.webp" alt="" aria-hidden="true" draggable="false">
     <img class="chr bob" id="chrTitleOgr" src="assets/3d/ogrenci.webp" alt="" aria-hidden="true" draggable="false">
     <div class="card tilePanel">
+      <img class="chrMini" id="miniUsta" src="assets/3d/usta.webp" alt="" aria-hidden="true" draggable="false">
+      <img class="chrMini" id="miniOgr" src="assets/3d/ogrenci.webp" alt="" aria-hidden="true" draggable="false">
       <canvas id="logoBig" class="logoBig" width="256" height="256"></canvas>
       <h1 data-i18n="title">Çini Ustası</h1>
       <div class="titleDeco" data-i18n="subtitle">İznik çini bulmacası</div>
@@ -658,6 +676,7 @@ kbd{font-family:var(--font); background:#fff; border:1px solid var(--cobalt); bo
   <div id="completeScreen" class="overlay clear hidden">
     <img class="chr bob" id="chrDone" src="assets/3d/usta-sevinc.webp" alt="" aria-hidden="true" draggable="false">
     <div class="card tilePanel" id="completeCard">
+      <img class="chrMini" id="miniDone" src="assets/3d/usta-sevinc.webp" alt="" aria-hidden="true" draggable="false">
       <h2 data-i18n="complete">Çini tamamlandı!</h2>
       <div class="starsBig" id="starsBig"></div>
       <div class="record hidden" id="cRecord" data-i18n="newRecord">Yeni rekor!</div>

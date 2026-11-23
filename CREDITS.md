@@ -10,8 +10,8 @@ ustası ve bereli sanat öğrencisi.
 | Dosya | Araç | Kullanıldığı yer |
 |---|---|---|
 | `usta.webp` | Leonardo AI | Ana ekran (sol), fırın adımı, oyun sahnesinde masanın sağında |
-| `usta-sevinc.webp` | Leonardo AI | Bölüm bitti kartı |
-| `usta-yuz.webp` | `usta.webp`'den kırpma | Usta ipucu balonundaki yüz |
+| `usta-sevinc.webp` | Leonardo AI | Bölüm bitti kartı (telefonda kartın köşesinde küçük) |
+| `usta-yuz.webp` | `usta.webp`'den kırpma | Usta ipucu balonu ve fırın paneli |
 | `ogrenci.webp` | Leonardo AI | Ana ekran (sağ), oyun sahnesinde masanın solunda |
 | `ogrenci-yuz.webp` | `ogrenci.webp`'den kırpma | "Biliyor muydun?" kartındaki yüz |
 | `arma.webp` | Leonardo AI | Logo (ana ekran, üst çubuk) |
