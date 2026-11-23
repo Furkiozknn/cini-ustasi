@@ -466,6 +466,52 @@ kbd{font-family:var(--font); background:#fff; border:1px solid var(--cobalt); bo
   #completeCard .row{gap:3px; margin-top:2px;}
   #completeCard .btn{min-width:105px; padding:7px 12px; font-size:13px; margin:2px;}
 }
+
+/* ==========================================================================
+   stil-3d (23.11.2026): the song video's stylised 3D chibi look. Soft clay/toy panels with round corners and warm
+   soft shadows instead of the hard tile-band frame; the video's characters (old İznik master, art student) in the
+   menus, the coach tip, the kiln step and the complete card. Layout sizes are unchanged so phones keep every button.
+   ========================================================================== */
+:root{
+  --clay-shadow: 0 22px 48px -14px rgba(60,24,6,.62), 0 6px 16px rgba(60,24,6,.28), inset 0 2px 0 rgba(255,255,255,.95), inset 0 -6px 14px rgba(196,150,96,.18);
+  --glaze: radial-gradient(120% 90% at 30% 0%, #fffdf8 0%, #fbf4e6 55%, #f2e6cf 100%);
+}
+.tilePanel{border:3px solid var(--cobalt); border-image:none; border-radius:24px; background:var(--glaze);
+  box-shadow:var(--clay-shadow), 0 0 0 5px rgba(255,236,200,.55), 0 0 0 7px rgba(13,148,136,.55);}
+.tilePanel > .rumi{display:none;}
+#topbar{border-radius:20px; border-width:2.5px; padding:8px 16px 14px;}
+.card h1{text-shadow:0 2px 0 #fff, 0 4px 10px rgba(120,60,20,.25);}
+.btn{border-radius:16px; border-width:2px; background:radial-gradient(130% 120% at 30% 10%, #4d74e6 0%, var(--cobalt) 55%, var(--cobalt-deep) 100%);
+  box-shadow:0 5px 0 var(--cobalt-deep), 0 10px 22px rgba(60,24,6,.32), inset 0 2px 1px rgba(255,255,255,.45), inset 0 -4px 8px rgba(0,0,0,.18);}
+.btn.alt{background:radial-gradient(130% 120% at 30% 10%, #ffffff 0%, #fbf5e8 60%, #efe3c9 100%);
+  box-shadow:0 4px 0 var(--cobalt), 0 9px 18px rgba(60,24,6,.2), inset 0 2px 1px #fff, inset 0 -4px 8px rgba(160,120,70,.16);}
+.btn.turq{background:radial-gradient(130% 120% at 30% 10%, #5eead4 0%, var(--turq) 55%, #0f766e 100%);}
+.btn.coral{background:radial-gradient(130% 120% at 30% 10%, #ff8a73 0%, #e0533f 50%, #991b1b 100%);}
+.ibtn{border-radius:14px; border-width:2px; background:radial-gradient(130% 120% at 30% 10%, #ffffff 0%, #fbf5e8 60%, #efe3c9 100%);}
+.stat{border-radius:12px; background:radial-gradient(130% 120% at 30% 10%, #ffffff 0%, #fbf5e8 70%, #f1e6cf 100%);}
+.lcard{border-radius:16px;} .seg button{border-radius:12px;} .toast{border-radius:16px;} .detail, .note{border-radius:14px;}
+.gauge{border-radius:20px;}
+#completeCard canvas.preview, .detail canvas{border-radius:10px;}
+/* coach tip: the master speaks it (face on the left) */
+#coach{border-radius:18px; border-width:2.5px; padding:10px 16px 10px 62px; text-align:left; min-height:56px; display:flex; align-items:center;
+  box-shadow:0 12px 26px rgba(60,24,6,.38), inset 0 0 0 2px var(--cream), inset 0 0 0 3.5px var(--turq);}
+#coach::before{content:""; position:absolute; left:6px; top:50%; width:50px; height:50px; margin-top:-25px; border-radius:50%;
+  background:#f6e7cc url("assets/3d/usta-yuz.webp") center / cover no-repeat; box-shadow:0 0 0 2.5px var(--cobalt), 0 3px 8px rgba(60,24,6,.35);}
+/* fact card: the student asks, so her face replaces the bulb */
+#factCard{border-radius:18px;}
+#factCard .ic{flex:0 0 44px; height:44px; border-radius:50%; background:#f6e7cc url("assets/3d/ogrenci-yuz.webp") center / cover no-repeat; box-shadow:0 0 0 2px var(--turq), 0 3px 8px rgba(60,24,6,.3);}
+#factCard .ic svg{display:none;}
+/* characters standing next to the cards (wide screens only; phones keep the card alone so no button moves) */
+.chr{position:absolute; bottom:0; pointer-events:none; user-select:none; z-index:1; filter:drop-shadow(0 18px 18px rgba(40,14,2,.55)); animation:chrIn .6s cubic-bezier(.2,.9,.3,1.2) both;}
+.chr.bob{animation:chrIn .6s cubic-bezier(.2,.9,.3,1.2) both, chrBob 3.2s ease-in-out .6s infinite;}
+@keyframes chrIn{from{opacity:0; transform:translateY(40px) scale(.92)}to{opacity:1; transform:none}}
+@keyframes chrBob{50%{transform:translateY(-6px) rotate(-1deg)}}
+#titleScreen > .card, #completeScreen > .card, #kilnScreen > .card{position:relative; z-index:2;}
+#chrTitleUsta{height:min(78vh, 600px); left:calc(50% - 270px - min(31vh, 250px));}
+#chrTitleOgr{height:min(70vh, 540px); right:calc(50% - 270px - min(30vh, 240px));}
+#chrDone{height:min(62vh, 470px); left:calc(50% - 280px - min(27vh, 210px));}
+#chrKiln{height:min(46vh, 340px); left:calc(50% - 240px - min(18vh, 140px)); bottom:6px;}
+@media (max-width:1060px), (orientation:portrait), (max-height:520px){ .chr{display:none;} }
 </style>
 <script data-goatcounter="https://furkiozknn.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
@@ -502,6 +548,8 @@ kbd{font-family:var(--font); background:#fff; border:1px solid var(--cobalt); bo
   <div id="factCard" class="tilePanel hidden"><div class="ic"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5.9 1.1 1 1.8l.1.3h4.8l.1-.3c.1-.7.4-1.3 1-1.8A6 6 0 0 0 12 3z"/></svg></div><div><b id="factHead"></b><span id="factText"></span></div></div>
 
   <div id="titleScreen" class="overlay hidden">
+    <img class="chr bob" id="chrTitleUsta" src="assets/3d/usta.webp" alt="" aria-hidden="true" draggable="false">
+    <img class="chr bob" id="chrTitleOgr" src="assets/3d/ogrenci.webp" alt="" aria-hidden="true" draggable="false">
     <div class="card tilePanel">
       <canvas id="logoBig" class="logoBig" width="256" height="256"></canvas>
       <h1 data-i18n="title">Çini Ustası</h1>
@@ -551,6 +599,7 @@ kbd{font-family:var(--font); background:#fff; border:1px solid var(--cobalt); bo
   </div>
 
   <div id="kilnScreen" class="overlay bottom hidden">
+    <img class="chr" id="chrKiln" src="assets/3d/usta.webp" alt="" aria-hidden="true" draggable="false">
     <div class="card tilePanel" id="kilnCard">
       <h2 data-i18n="kilnTitle">Panoyu fırınla</h2>
       <p data-i18n="kilnHint">İbre sır bandına girince dokun.</p>
@@ -607,6 +656,7 @@ kbd{font-family:var(--font); background:#fff; border:1px solid var(--cobalt); bo
   </div>
 
   <div id="completeScreen" class="overlay clear hidden">
+    <img class="chr bob" id="chrDone" src="assets/3d/usta-sevinc.webp" alt="" aria-hidden="true" draggable="false">
     <div class="card tilePanel" id="completeCard">
       <h2 data-i18n="complete">Çini tamamlandı!</h2>
       <div class="starsBig" id="starsBig"></div>
@@ -2538,8 +2588,8 @@ renderer.shadowMap.autoUpdate = false; renderer.shadowMap.needsUpdate = true;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 const scene = new THREE.Scene();
 // redesign palette: Iznik cobalt #1F3A93, turquoise #1BA3A0, coral #C0392B, sage #6E8B3D, glaze white #F7F4EC on warm walnut
-scene.background = new THREE.Color('#3a2316');
-scene.fog = new THREE.Fog('#3a2316', 14, 28);
+scene.background = new THREE.Color('#33190c');
+scene.fog = new THREE.Fog('#33190c', 14, 28);
 const camera = new THREE.PerspectiveCamera(46, 1, 0.1, 60);
 // focus: extra look-target offset eased per frame; the kiln sequence pans it toward the kiln and the gallery slot
 // (fully in portrait, where the kiln is outside the frustum, at 0.22 in landscape). Like Godot's CameraRig.
@@ -2582,19 +2632,19 @@ window.addEventListener('resize', resize);
 // ---- lights ----
 // redesign lighting: warm afternoon window light (the one shadow caster), a cool sky fill from the window side so the
 // left faces of the props read, and the kiln as a warm point light that answers it from the right
-const hemi = new THREE.HemisphereLight('#ffe0b8', '#3d2214', 0.8); scene.add(hemi);
-const sun = new THREE.DirectionalLight('#ffd09a', 2.3);
+const hemi = new THREE.HemisphereLight('#ffd7a6', '#3d2214', 0.78); // stil-3d: warmer, lamp-lit like the song video scene.add(hemi);
+const sun = new THREE.DirectionalLight('#ffc683', 2.25);
 sun.position.set(-5.5, 8, -2.5); sun.target.position.set(0.5, 1, 0.5); scene.add(sun); scene.add(sun.target);
 sun.castShadow = !LOW;
 sun.shadow.mapSize.set(1024, 1024);
 sun.shadow.camera.left = -4.2; sun.shadow.camera.right = 4.2; sun.shadow.camera.top = 4.2; sun.shadow.camera.bottom = -4.2;
 sun.shadow.camera.near = 2; sun.shadow.camera.far = 22; sun.shadow.bias = -0.0006; sun.shadow.normalBias = 0.02;
-const skyFill = new THREE.DirectionalLight('#9fc0ff', 0.4); skyFill.position.set(-9, 3.5, 3); scene.add(skyFill);
-const kilnLight = new THREE.PointLight('#ff7a22', 2.0, 8, 1.5); kilnLight.position.copy(KILN_MOUTH).add(new THREE.Vector3(0, 0.1, 0.5)); scene.add(kilnLight);
+const skyFill = new THREE.DirectionalLight('#b8c8ff', 0.3); skyFill.position.set(-9, 3.5, 3); scene.add(skyFill);
+const kilnLight = new THREE.PointLight('#ff7a22', 2.8, 9.5, 1.5); kilnLight.position.copy(KILN_MOUTH).add(new THREE.Vector3(0, 0.1, 0.5)); scene.add(kilnLight);
 // arena-core v2 render preset: neutral tone mapping, CSS vignette + grain, grade (no composer: on Intel UHD the bloom
 // composer cost ~14% fps at 1280x720, so the frame renders directly).
 // The scene keeps its own workshop environment map (ortam only fills an empty slot).
-const FX = window.ArenaCore ? ArenaCore.render.setup(renderer, scene, camera, { tonlama: 'neutral', pozlama: 1.05, ortam: 0, bloom: false, vinyet: 0.28, grain: 0.03, renk: { doygunluk: 1.08, kontrast: 1.06 } }) : null;
+const FX = window.ArenaCore ? ArenaCore.render.setup(renderer, scene, camera, { tonlama: 'neutral', pozlama: 1.05, ortam: 0, bloom: false, vinyet: 0.32, grain: 0.03, renk: { doygunluk: 1.1, kontrast: 1.06 } }) : null;
 
 
 // ---- geometry helpers (vertex coloured, merged) ----
@@ -3175,9 +3225,11 @@ const ASSET_FILES = {
   models: { kiln: 'assets/models/kiln.glb', cat: 'assets/models/cat.glb', paintSet: 'assets/models/paint-set.glb' },
   textures: {
     wood: 'assets/textures/wood.webp', floor: 'assets/textures/floor-terracotta.webp', plaster: 'assets/textures/plaster.webp',
-    window: 'assets/textures/window-view.webp', kilim: 'assets/textures/kilim.webp', pano: 'assets/textures/workshop-pano.webp',
+    window: 'assets/3d/pencere.webp', kilim: 'assets/textures/kilim.webp', pano: 'assets/textures/workshop-pano.webp',
+    // stil-3d: the song video's two chibi characters as camera-facing cut-outs beside the table
+    usta: 'assets/3d/usta.webp', ogrenci: 'assets/3d/ogrenci.webp',
   },
-  crest: 'assets/ui/crest-256.webp',
+  crest: 'assets/3d/arma.webp',
 };
 // placement of each model: yaw turns the file's front to +Z (or the listed facing), size is the target in metres
 const MODEL_FIT = {
@@ -3274,6 +3326,7 @@ function applyAssets() {
     scene.add(m); props.paint.visible = false; used.push('paint-set');
   }
   if (A.cat) { catModel = new THREE.Mesh(A.cat.geo, A.cat.mat); catModel.visible = false; scene.add(catModel); cat.visible = false; G.catState = { phase: 'hidden', t: 0, next: 4 }; used.push('cat'); }
+  if (A['tex:usta'] && A['tex:ogrenci']) { setupCast(A); used.push('cast'); }
   if (A.crest) {
     for (const id of ['logoBig', 'logoSmall']) { const cv = $(id), ctx = cv.getContext('2d'); ctx.clearRect(0, 0, cv.width, cv.height); ctx.drawImage(A.crest, 0, 0, cv.width, cv.height); cv.classList.add('crest'); }
     used.push('crest');
@@ -3289,6 +3342,48 @@ function setEnvironment(tex) {
 // redesign: the procedural fallback is a painted workshop panorama (warm plaster, a bright window, the kiln glow) instead of
 // three's neutral RoomEnvironment, so the glaze reflects something that belongs to the room even with ?noassets
 { const pm = new THREE.PMREMGenerator(renderer); setEnvironment(pm.fromEquirectangular(workshopEnvTexture()).texture); pm.dispose(); }
+
+// stil-3d: the master (right, by the kiln) and the student (left, by the stool) stand beside the table as camera-facing
+// cut-outs from the song video; purely decorative (not in G.meshes, so they never take a click). A CAST entry with alt holds
+// that pose while the level-complete card is open (unused: the card shows the cheering master itself). Soft contact shadow.
+const cast = [];
+const CAST = [
+  { key: 'usta', x: 4.05, z: -0.6, h: 2.25, phase: 0 },
+  { key: 'ogrenci', x: -4.0, z: -0.4, h: 1.95, phase: 1.7 },
+];
+function castMaterial(tex) {
+  tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = LOW ? 1 : 4;
+  return new THREE.MeshBasicMaterial({ map: tex, color: '#f6e9da', alphaTest: 0.5, side: THREE.DoubleSide });
+}
+function setupCast(A) {
+  for (const c of CAST) {
+    const tex = A['tex:' + c.key], img = tex.image, w = c.h * img.width / img.height;
+    const pivot = new THREE.Group(); pivot.position.set(c.x, 0, c.z);
+    const mat = castMaterial(tex);
+    const body = new THREE.Mesh(new THREE.PlaneGeometry(w, c.h).translate(0, c.h / 2, 0), mat); pivot.add(body);
+    const shadow = new THREE.Mesh(new THREE.PlaneGeometry(w * 1.25, w * 0.55).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: softSprite(64), color: '#1a0a02', transparent: true, opacity: 0.55, depthWrite: false }));
+    shadow.position.set(c.x, 0.012, c.z); scene.add(shadow);
+    const entry = { c, pivot, body, mat, w, base: { tex, aspect: img.width / img.height }, alt: null, showingAlt: false };
+    if (c.alt && A['tex:' + c.alt]) { const at = A['tex:' + c.alt]; castMaterial(at); entry.alt = { tex: at, aspect: at.image.width / at.image.height }; }
+    scene.add(pivot); cast.push(entry);
+  }
+}
+function updateCast(dt) {
+  if (!cast.length) return;
+  const still = calm();
+  for (const e of cast) {
+    const p = e.pivot;
+    p.rotation.y = Math.atan2(camera.position.x - p.position.x, camera.position.z - p.position.z);
+    const T = G.time + e.c.phase;
+    p.scale.set(1, still ? 1 : 1 + Math.sin(T * 1.9) * 0.012, 1);   // breathing
+    p.rotation.z = still ? 0 : Math.sin(T * 0.9) * 0.015;
+    const wantAlt = !!e.alt && G.screen === 'complete';
+    if (wantAlt !== e.showingAlt) {
+      const v = wantAlt ? e.alt : e.base; e.showingAlt = wantAlt;
+      e.mat.map = v.tex; e.mat.needsUpdate = true; e.body.scale.x = (e.c.h * v.aspect) / e.w;
+    }
+  }
+}
 
 // sitting cat model on the stool: appears, sits and breathes, turns its head now and then, leaves
 let catModel = null;
@@ -4375,7 +4470,7 @@ function updateCat(dt) {
 function updateEffects(dt) {
   const T = G.time, fl = calm() ? 0 : 1;   // reduce motion: kiln, lamp and glow burn steady
   // kiln flicker
-  if (!G.seq) { kilnLight.intensity = 1.8 + fl * (Math.sin(T * 9.1) * 0.16 + Math.sin(T * 23.7) * 0.1 + Math.sin(T * 3.3) * 0.12); kilnGlow.material.opacity = 0.75 + fl * Math.sin(T * 11) * 0.1; }
+  if (!G.seq) { kilnLight.intensity = 2.6 + fl * (Math.sin(T * 9.1) * 0.16 + Math.sin(T * 23.7) * 0.1 + Math.sin(T * 3.3) * 0.12); kilnGlow.material.opacity = 0.75 + fl * Math.sin(T * 11) * 0.1; }
   lampGlow.material.opacity = 0.5 + fl * (Math.sin(T * 13.3) * 0.08 + Math.sin(T * 5.1) * 0.06); lampGlow.scale.setScalar(1 + fl * Math.sin(T * 7.7) * 0.06);
   // flames: a low ember fire while playing, roaring while the panel is in the kiln
   const heatTarget = G.seq && (G.seq.phase === 'fire' || G.kiln) ? 1 : G.seq && G.seq.phase === 'tokiln' ? 0.7 : 0.3;
@@ -4428,6 +4523,7 @@ function update(dt) {
   updateSequence(dt);
   updateEffects(dt);
   if (catModel) updateCatModel(dt); else updateCat(dt);
+  updateCast(dt);
   if (AUTO) botUpdate(dt);
 }
 
