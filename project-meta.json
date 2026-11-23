@@ -61,7 +61,7 @@
     "measured": "2026-10-28"
   },
   "ci": {
-    "workflows": [],
+    "workflows": ["smoke.yml"],
     "badge": null
   },
   "docs": {
